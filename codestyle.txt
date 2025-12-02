@@ -1,0 +1,24 @@
+do not use 'using namespace'
+
+never use '_' as prefix or postfix for anything
+
+naming used is camelCase
+
+local variables within code scopes should be prefixed with 'l' example a local variable color should be named lColor
+
+variables or constants passed to functions should be prefixed with 'a' example a function variable or constant color should be named aColor
+references passed to functions should be prefixed with 'r' example a function variable or constant color should be named rColor
+pointers passed to functions should be prefixed with 'p' example a function variable or constant color should be named pColor
+
+class members should be prefixed with 'm' example a class member variable should be named mVariable
+class member pointers should be prefixed with 'mp' example a class member pointer should be named mpVariable
+
+constants should use snake_case and contain all uppercase letters
+
+use C-style casting
+
+classes and structs should be named starting with a capital letter
+
+functions should be named starting with a lower case letter
+
+

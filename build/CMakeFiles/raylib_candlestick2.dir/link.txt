@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/raylib_candlestick2.dir/src/examples/candlestick2.cpp.o CMakeFiles/raylib_candlestick2.dir/src/charts/RLCandlestickChart.cpp.o -o raylib_candlestick2  /opt/homebrew/Cellar/raylib/5.5/lib/libraylib.dylib -L/opt/homebrew/Cellar/raylib/5.5/lib -lraylib
