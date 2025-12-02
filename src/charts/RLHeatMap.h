@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
+#include <cstdint>
 
 enum class RLHeatMapUpdateMode {
     Replace,

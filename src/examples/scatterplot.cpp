@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 
 static float frand(){ return (float)rand()/(float)RAND_MAX; }
 
