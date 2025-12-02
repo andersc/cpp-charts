@@ -68,7 +68,7 @@ void RLBubble::SetStyle(const RLBubbleStyle &style){ mStyle = style; }
 void RLBubble::SetMode(RLBubbleMode mode){ mMode = mode; }
 
 float RLBubble::sizeToRadius(float size) const{
-    float r = std::sqrtf(std::max(0.0f, size)) * mStyle.mSizeScale;
+    float r = std::sqrt(std::max(0.0f, size)) * mStyle.mSizeScale;
     return std::max(mStyle.mMinRadius, r);
 }
 
