@@ -1,0 +1,53 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install glfw
+      run: vcpkg install glfw3
+
+    - name: Install zlib
+      run: |
+        git clone --branch v1.3.1 https://github.com/madler/zlib.git
+        cd zlib
+        cmake -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cmake --build . --target install --config ${{env.BUILD_TYPE}}
+
+    - name: install raylib
+      run: |
+        git clone --branch 5.5 https://github.com/raysan5/raylib.git
+        cd raylib
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 17 2022" -A x64 ..
+        cmake --build . --config Release
+        cmake --install . --config Release
+
+    - name: Configure CMake
+      # set raylib_LIBRARY and raylib_INCLUDE_DIR to the path of the raylib library and include directories
+      run: cmake -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUSE_GFX=ON -DCMAKE_PREFIX_PATH="C:/Program Files/raylib"
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build . --config ${{env.BUILD_TYPE}} 
+
+
