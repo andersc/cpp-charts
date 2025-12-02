@@ -1,1 +1,390 @@
-# cpp-charts
+# 📊 cpp-charts
+
+[![windows](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml)
+[![ubuntu_x86_64](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml)
+[![MacOS](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+## The Problem
+
+Let's face it: **there is no really simple C++ library for great-looking graphs**. Most visualization libraries are either:
+- Too heavy-weight with complex dependencies
+- Designed for Python or JavaScript
+- Lack modern, animated, beautiful aesthetics
+- Difficult to integrate into existing C++ projects
+
+**cpp-charts** solves this by providing a lightweight, header-friendly, beautifully animated charting library built on [raylib](https://www.raylib.com/), making it incredibly easy to add professional-looking visualizations to your C++ applications.
+
+---
+
+## ✨ Features
+
+**cpp-charts** provides a comprehensive suite of animated, customizable chart types:
+
+- 📊 **Bar Charts** - Vertical and horizontal orientations with smooth animations
+- 🥧 **Pie Charts** - Classic pie and donut charts with slice animations
+- 📈 **Scatter Plots** - Data point visualization with customizable markers
+- 🫧 **Bubble Charts** - Multi-dimensional data visualization
+- 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
+- 🌡️ **Gauges** - Circular and semi-circular gauge displays
+- 🗺️ **Heat Maps** - Matrix data visualization with color gradients
+
+**All charts feature:**
+- 🎬 Smooth, configurable animations
+- 🎨 Full color and styling customization
+- 📐 Automatic scaling and layout
+- 🏷️ Label support with smart positioning
+- ⚡ High performance with raylib rendering
+- 🖱️ Responsive design with various display modes
+
+---
+
+## 🚀 Quick Start
+
+Using cpp-charts is incredibly simple. Here's a complete example creating an animated bar chart:
+
+```cpp
+#include "raylib.h"
+#include "RLBarChart.h"
+#include <vector>
+
+int main() {
+    InitWindow(800, 600, "My First Chart");
+    SetTargetFPS(60);
+    
+    // Define your chart area
+    Rectangle bounds = { 50, 50, 700, 500 };
+    
+    // Create bar chart with vertical orientation
+    RLBarChart chart(bounds, RLBarOrientation::VERTICAL);
+    
+    // Prepare your data
+    std::vector<RLBarData> data;
+    data.push_back({75.0f, BLUE, false, BLACK, "Q1"});
+    data.push_back({92.0f, GREEN, false, BLACK, "Q2"});
+    data.push_back({68.0f, RED, false, BLACK, "Q3"});
+    data.push_back({85.0f, ORANGE, false, BLACK, "Q4"});
+    
+    // Set the data
+    chart.setData(data);
+    
+    while (!WindowShouldClose()) {
+        float dt = GetFrameTime();
+        chart.update(dt);  // Animate
+        
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        chart.draw();      // Render
+        EndDrawing();
+    }
+    
+    CloseWindow();
+    return 0;
+}
+```
+
+That's it! You get a beautiful, animated bar chart with just a few lines of code.
+
+---
+
+## 🧩 Chart Examples
+
+### Pie Chart
+
+```cpp
+#include "RLPieChart.h"
+
+RLPieChart chart(bounds);
+chart.setHollowFactor(0.5f);  // Makes it a donut chart
+
+std::vector<RLPieSliceData> slices;
+slices.push_back({30.0f, BLUE, "Sales"});
+slices.push_back({25.0f, GREEN, "Marketing"});
+slices.push_back({45.0f, RED, "R&D"});
+
+chart.setData(slices);
+```
+
+### Scatter Plot
+
+```cpp
+#include "RLScatterPlot.h"
+
+RLScatterPlot chart(bounds);
+
+std::vector<RLScatterPoint> points;
+for (int i = 0; i < 100; i++) {
+    points.push_back({
+        (float)i, 
+        std::sin(i * 0.1f) * 50.0f, 
+        SKYBLUE
+    });
+}
+
+chart.setData(points);
+```
+
+### Candlestick Chart (Financial Data)
+
+```cpp
+#include "RLCandlestickChart.h"
+
+RLCandlestickChart chart(bounds);
+
+std::vector<RLCandleData> candles;
+candles.push_back({100.0f, 110.0f, 95.0f, 105.0f});  // Open, High, Low, Close
+candles.push_back({105.0f, 115.0f, 103.0f, 112.0f});
+// ... more candles
+
+chart.setData(candles);
+```
+
+### Gauge
+
+```cpp
+#include "RLGauge.h"
+
+RLGauge gauge(bounds);
+gauge.setRange(0.0f, 100.0f);
+gauge.setValue(75.0f);  // Smoothly animates to 75%
+```
+
+---
+
+## 📦 Integration into Your Project
+
+### Method 1: Using CMake FetchContent (Recommended)
+
+Add this to your `CMakeLists.txt`:
+
+```cmake
+include(FetchContent)
+
+# Fetch raylib (required dependency)
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG 5.5
+)
+FetchContent_MakeAvailable(raylib)
+
+# Fetch cpp-charts
+FetchContent_Declare(
+    cpp_charts
+    GIT_REPOSITORY https://github.com/andersc/cpp-charts.git
+    GIT_TAG master  # or specify a specific tag/commit
+)
+FetchContent_MakeAvailable(cpp_charts)
+
+# Your executable
+add_executable(my_app main.cpp)
+
+# Link against raylib and include cpp-charts headers
+target_link_libraries(my_app raylib)
+target_include_directories(my_app PRIVATE 
+    ${cpp_charts_SOURCE_DIR}/src/charts
+    ${cpp_charts_SOURCE_DIR}/src
+)
+
+# Add chart source files to your target
+target_sources(my_app PRIVATE
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLBarChart.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLPieChart.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLBubble.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLGauge.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLHeatMap.cpp
+)
+
+# Windows requires winmm library
+if(WIN32)
+    target_link_libraries(my_app winmm)
+endif()
+```
+
+### Method 2: Using CMake ExternalProject_Add
+
+```cmake
+include(ExternalProject)
+
+ExternalProject_Add(
+    cpp_charts_external
+    GIT_REPOSITORY https://github.com/andersc/cpp-charts.git
+    GIT_TAG master
+    PREFIX ${CMAKE_BINARY_DIR}/external/cpp-charts
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Get_Property(cpp_charts_external SOURCE_DIR)
+
+add_executable(my_app main.cpp)
+add_dependencies(my_app cpp_charts_external)
+
+target_include_directories(my_app PRIVATE 
+    ${SOURCE_DIR}/src/charts
+    ${SOURCE_DIR}/src
+)
+
+target_sources(my_app PRIVATE
+    ${SOURCE_DIR}/src/charts/RLBarChart.cpp
+    ${SOURCE_DIR}/src/charts/RLPieChart.cpp
+    # ... other chart sources as needed
+)
+```
+
+### Method 3: Git Submodule
+
+```bash
+# Add as submodule
+git submodule add https://github.com/andersc/cpp-charts.git external/cpp-charts
+git submodule update --init --recursive
+```
+
+Then in your `CMakeLists.txt`:
+
+```cmake
+# Include the chart headers
+include_directories(external/cpp-charts/src/charts)
+include_directories(external/cpp-charts/src)
+
+# Add to your executable
+add_executable(my_app 
+    main.cpp
+    external/cpp-charts/src/charts/RLBarChart.cpp
+    external/cpp-charts/src/charts/RLPieChart.cpp
+    # ... other charts as needed
+)
+
+target_link_libraries(my_app raylib)
+
+if(WIN32)
+    target_link_libraries(my_app winmm)
+endif()
+```
+
+### Method 4: Direct Copy
+
+Simply copy the `src/charts/` folder into your project and include the headers and source files you need.
+
+---
+
+## 🎨 Customization
+
+All charts support extensive styling. Here's an example with a bar chart:
+
+```cpp
+RLBarChartStyle style;
+style.mBackground = Color{20, 22, 28, 255};
+style.mShowGrid = true;
+style.mGridColor = Color{40, 44, 52, 255};
+style.mPadding = 20.0f;
+style.mSpacing = 15.0f;
+style.mCornerRadius = 8.0f;
+style.lAnimateSpeed = 10.0f;
+style.mAutoScale = true;
+
+RLBarChart chart(bounds, RLBarOrientation::VERTICAL, style);
+```
+
+Each chart type has its own style structure with full control over colors, animations, spacing, and visual effects.
+
+---
+
+## 🔧 Building the Examples
+
+```bash
+# Clone the repository
+git clone https://github.com/andersc/cpp-charts.git
+cd cpp-charts
+
+# Create build directory
+mkdir build && cd build
+
+# Configure (make sure raylib is installed)
+cmake ..
+
+# Build all examples
+cmake --build . --config Release
+
+# Run an example
+./raylib_barchart      # Linux/Mac
+./raylib_piechart      # Linux/Mac
+Release\raylib_barchart.exe    # Windows
+```
+
+---
+
+## 📋 Requirements
+
+- **CMake** 3.28 or higher
+- **C++20** compiler
+- **raylib** 5.0 or higher
+- **zlib** (for certain features)
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+The MIT License is a permissive license that allows you to:
+- ✅ Use commercially
+- ✅ Modify
+- ✅ Distribute
+- ✅ Use privately
+- ✅ Sublicense
+
+---
+
+## 🤝 Contributing
+
+**We welcome contributions!** cpp-charts is an open-source project that thrives on community involvement.
+
+### Ways to Contribute:
+
+- 🐛 **Report Bugs** - Found an issue? Open a GitHub issue
+- 💡 **Feature Requests** - Have an idea? We'd love to hear it
+- 🔧 **Pull Requests** - Fixed a bug or added a feature? Submit a PR
+- 📖 **Documentation** - Help improve our docs and examples
+- ⭐ **Star the Project** - Show your support!
+
+### Development Guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Test on your platform
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Areas We Need Help:
+
+- 🎨 More chart types (line charts, area charts, radar charts, etc.)
+- 🔌 Additional examples and use cases
+- 📱 Mobile platform support
+- 🧪 Unit tests and benchmarks
+- 🌐 Language bindings
+- 📚 Tutorials and documentation
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ using [raylib](https://www.raylib.com/) - a simple and easy-to-use library to enjoy videogames programming.
+
+---
+
+## 📞 Contact
+
+- **Author**: Anders Cedronius
+- **GitHub**: [@andersc](https://github.com/andersc)
+- **Issues**: [GitHub Issues](https://github.com/andersc/cpp-charts/issues)
+
+---
+
+**Make your C++ applications beautiful with cpp-charts!** ⭐
+
