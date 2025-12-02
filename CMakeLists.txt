@@ -26,6 +26,9 @@ target_link_libraries(raylib_gauges
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_gauges winmm)
+endif()
 
 # Build the bubble chart demo
 add_executable(raylib_bubble
@@ -36,6 +39,9 @@ target_link_libraries(raylib_bubble
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_bubble winmm)
+endif()
 
 # Build the bar chart demo
 add_executable(raylib_barchart
@@ -46,6 +52,9 @@ target_link_libraries(raylib_barchart
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_barchart winmm)
+endif()
 
 
 # Build the candlestick chart demo
@@ -57,6 +66,9 @@ target_link_libraries(raylib_candlestick
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_candlestick winmm)
+endif()
 
 # Build the candlestick chart demo 2 (1 value per candle)
 add_executable(raylib_candlestick2
@@ -67,6 +79,9 @@ target_link_libraries(raylib_candlestick2
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_candlestick2 winmm)
+endif()
 
 
 # Build the heat map demo
@@ -78,6 +93,9 @@ target_link_libraries(raylib_heatmap
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_heatmap winmm)
+endif()
 
 
 # Build the scatter plot demo
@@ -89,6 +107,9 @@ target_link_libraries(raylib_scatter
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_scatter winmm)
+endif()
 
 # Build the pie chart demo
 add_executable(raylib_piechart
@@ -99,6 +120,9 @@ target_link_libraries(raylib_piechart
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_piechart winmm)
+endif()
 
 # Build the main demo with all charts
 add_executable(raylib_all_charts
@@ -115,3 +139,6 @@ target_link_libraries(raylib_all_charts
         raylib
         Threads::Threads
 )
+if(WIN32)
+    target_link_libraries(raylib_all_charts winmm)
+endif()
