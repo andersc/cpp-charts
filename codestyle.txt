@@ -1,24 +1,78 @@
-do not use 'using namespace'
+C++ Coding Style Guide
 
-never use '_' as prefix or postfix for anything
+1. Namespaces
 
-naming used is camelCase
+-   Do not use using namespace ...; anywhere.
+-   Do not use using std::string; or similar. Always use fully qualified
+    names (e.g. std::string).
 
-local variables within code scopes should be prefixed with 'l' example a local variable color should be named lColor
+2. Underscore Usage
 
-variables or constants passed to functions should be prefixed with 'a' example a function variable or constant color should be named aColor
-references passed to functions should be prefixed with 'r' example a function variable or constant color should be named rColor
-pointers passed to functions should be prefixed with 'p' example a function variable or constant color should be named pColor
+-   Never use _ as a prefix or postfix.
+-   _ may only appear between letters (e.g. MAX_COUNT).
 
-class members should be prefixed with 'm' example a class member variable should be named mVariable
-class member pointers should be prefixed with 'mp' example a class member pointer should be named mpVariable
+3. Naming Conventions
 
-constants should use snake_case and contain all uppercase letters
+-   Default naming style is camelCase.
+-   Types (classes, structs, enums) start with a capital letter.
+-   Functions start with a lowercase letter and use camelCase.
 
-use C-style casting
+4. Variables & Parameters
 
-classes and structs should be named starting with a capital letter
+4.1 Local Variables
 
-functions should be named starting with a lower case letter
+-   Must use camelCase.
+-   Must be prefixed with l.
 
+4.2 Function Parameters
 
+-   Value or const-value: prefix with a
+-   References: prefix with r
+-   Pointers: prefix with p
+
+4.3 Class Members
+
+-   Members use camelCase.
+-   Normal members use prefix m.
+-   Pointer members use prefix mp.
+
+4.4 Global Variables
+
+-   Avoid globals whenever possible.
+-   If absolutely necessary, prefix with g.
+
+5. Constants
+
+-   Use UPPER_SNAKE_CASE.
+-   Applies to const, constexpr, and enum values.
+
+6. Types
+
+-   Classes, structs, enums, and aliases must start with a capital
+    letter.
+-   Do not use typedef or using alias unless a well‑justified technical
+    reason exists.
+
+7. Functions
+
+-   Functions must begin with a lowercase letter.
+-   Use camelCase.
+
+8. Casting
+
+-   Only C-style casts are allowed.
+
+9. Static, Anonymous Namespaces, and Linkage
+
+-   Do not use static outside a namespace.
+-   Do not use anonymous namespaces.
+-   Avoid global functions unless necessary.
+
+10. Includes
+
+-   Never place using namespace or using std::... inside headers.
+-   Recommended include ordering:
+    1.  Matching header
+    2.  Standard library headers
+    3.  External library headers
+    4.  Local/project headers

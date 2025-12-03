@@ -1,5 +1,7 @@
 # 📊 cpp-charts
 
+THIS PROJECT IS WIP. DO NOT USE IN PRODUCTION YET.
+
 [![windows](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml)
 [![ubuntu_x86_64](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml)
 [![MacOS](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml)
@@ -28,6 +30,7 @@ Let's face it: **there is no really simple C++ library for great-looking graphs*
 - 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
+- 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
@@ -149,6 +152,36 @@ gauge.setRange(0.0f, 100.0f);
 gauge.setValue(75.0f);  // Smoothly animates to 75%
 ```
 
+### Log-Log Plot (Real-Time Analysis)
+
+```cpp
+#include "RLLogPlot.h"
+
+RLLogPlot plot(bounds);
+plot.setWindowSize(500);  // Keep last 500 samples
+
+// Stream time series data
+while (running) {
+    float sample = getSensorData();
+    plot.pushSample(sample);
+    
+    // Update analysis periodically
+    if (shouldUpdateAnalysis) {
+        RLLogPlotTrace trace;
+        trace.mXValues = computedTau;      // e.g., [1, 2, 5, 10, 20, ...]
+        trace.mYValues = allanDeviation;   // Analysis results
+        trace.mConfidence = confidenceIntervals;
+        trace.mStyle.mLineColor = SKYBLUE;
+        plot.addTrace(trace);
+    }
+    
+    plot.update(dt);
+    plot.draw();
+}
+```
+
+See [LOGPLOT_README.md](LOGPLOT_README.md) for comprehensive documentation.
+
 ---
 
 ## 📦 Integration into Your Project
@@ -195,6 +228,7 @@ target_sources(my_app PRIVATE
     ${cpp_charts_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp
     ${cpp_charts_SOURCE_DIR}/src/charts/RLGauge.cpp
     ${cpp_charts_SOURCE_DIR}/src/charts/RLHeatMap.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLLogPlot.cpp
 )
 
 # Windows requires winmm library

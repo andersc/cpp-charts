@@ -124,6 +124,19 @@ if(WIN32)
     target_link_libraries(raylib_piechart winmm)
 endif()
 
+# Build the log-log plot demo (time series + Allan variance analysis)
+add_executable(raylib_logplot
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/logplot.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
+)
+target_link_libraries(raylib_logplot
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_logplot winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -134,6 +147,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLPieChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
 )
 target_link_libraries(raylib_all_charts
         raylib
