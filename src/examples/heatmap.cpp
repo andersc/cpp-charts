@@ -1,9 +1,8 @@
-#include "raylib.h"
-#include "RLHeatMap.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include "RLHeatMap.h"
 
 // --- Optimization: Fast PRNG (Xorshift) ---
 // std::rand() can be slow and low quality. This is much faster.

@@ -151,6 +151,19 @@ if(WIN32)
     target_link_libraries(raylib_timeseries winmm)
 endif()
 
+# Build the order book visualization demo
+add_executable(raylib_orderbook
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/orderbook.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
+)
+target_link_libraries(raylib_orderbook
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_orderbook winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -159,6 +172,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLGauge.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLPieChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp

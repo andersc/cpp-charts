@@ -1,8 +1,7 @@
-#include "raylib.h"
-#include "RLBubble.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include "RLBubble.h"
 
 static float frand(){ return (float)rand()/(float)RAND_MAX; }
 

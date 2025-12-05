@@ -1,6 +1,5 @@
-#include "raylib.h"
-#include "RLGauge.h"
 #include <cmath>
+#include "RLGauge.h"
 
 int main(){
     const int screenW = 1280;

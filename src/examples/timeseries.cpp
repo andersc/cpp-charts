@@ -1,10 +1,9 @@
 // timeseries.cpp
 // Demo: Multi-trace streaming time series visualizer
-#include "raylib.h"
-#include "RLTimeSeries.h"
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include "RLTimeSeries.h"
 
 // ============================================================================
 // Demo Configuration

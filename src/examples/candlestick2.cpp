@@ -1,5 +1,4 @@
 // candlestick2.cpp - Demo with 1 value per candlestick
-#include "raylib.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>

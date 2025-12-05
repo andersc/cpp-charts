@@ -1,11 +1,11 @@
-#include "raylib.h"
-#include "RLLogPlot.h"
-#include "RLTimeSeries.h"
+
 #include <vector>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include "RLLogPlot.h"
+#include "RLTimeSeries.h"
 
 // ============================================================================
 // Allan Variance-Style Analysis Utilities

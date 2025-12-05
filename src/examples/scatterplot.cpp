@@ -1,9 +1,9 @@
-#include "raylib.h"
-#include "RLScatterPlot.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+
+#include "RLScatterPlot.h"
 
 static float frand(){ return (float)rand()/(float)RAND_MAX; }
 

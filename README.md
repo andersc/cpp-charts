@@ -9,7 +9,7 @@ THIS PROJECT IS WIP. DO NOT USE IN PRODUCTION YET.
 
 ## The Problem
 
-Let's face it: **there is no really simple C++ library for great-looking graphs**. Most visualization libraries are either:
+Let's face it: there is no really simple C++ library for great-looking graphs**. Most visualization libraries are either:
 - Too heavy-weight with complex dependencies
 - Designed for Python or JavaScript
 - Lack modern, animated, beautiful aesthetics
@@ -32,6 +32,7 @@ Let's face it: **there is no really simple C++ library for great-looking graphs*
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
 - 📈 **Time Series** - High-performance streaming time series with multiple traces and spline interpolation
+- 📊 **Order Book** - Full depth-of-market visualization with 2D heatmap and 3D landscape views
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
@@ -55,6 +56,7 @@ For comprehensive documentation on each chart type, including full API reference
 | 🌡️ Gauge | Circular gauge displays | [RLGauge.md](docs/RLGauge.md) |
 | 🗺️ Heat Map | Matrix color visualization | [RLHeatMap.md](docs/RLHeatMap.md) |
 | 📉 Log-Log Plot | Allan variance analysis | [RLLogPlot.md](docs/RLLogPlot.md) |
+| 📊 Order Book | DOM depth heatmap (2D/3D) | [RLOrderBookVis.md](docs/RLOrderBookVis.md) |
 | 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |
 | 📈 Scatter Plot | Multi-series scatter/line plots | [RLScatterPlot.md](docs/RLScatterPlot.md) |
 | 📊 Time Series | Streaming time series | [RLTimeSeries.md](docs/RLTimeSeries.md) |

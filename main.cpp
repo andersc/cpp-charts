@@ -6,6 +6,7 @@
 #include "src/charts/RLCandlestickChart.h"
 #include "src/charts/RLGauge.h"
 #include "src/charts/RLHeatMap.h"
+#include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
 #include "src/charts/RLScatterPlot.h"
 #include <vector>
@@ -208,18 +209,42 @@ int main() {
     }
     lBarChart2.setData(lBarData2);
 
-    // ===== 9. Gauge 2 (Different Value) =====
-    RLGaugeStyle lGaugeStyle2 = lGaugeStyle;
-    lGaugeStyle2.mValueArcColor = Color{255, 140, 80, 255};
-    lGaugeStyle2.mNeedleColor = Color{120, 200, 100, 255};
+    // ===== 9. Order Book Visualization =====
+    RLOrderBookVisStyle lOrderBookStyle;
+    lOrderBookStyle.mBackground = Color{20, 22, 28, 255};
+    lOrderBookStyle.mShowBorder = true;
+    lOrderBookStyle.mBorderColor = Color{40, 44, 52, 255};
+    lOrderBookStyle.mShowGrid = true;
+    lOrderBookStyle.mGridLinesX = 6;
+    lOrderBookStyle.mGridLinesY = 4;
+    lOrderBookStyle.mShowMidLine = true;
+    lOrderBookStyle.mIntensityScale = 1.2f;
 
-    RLGauge lGauge2(getChartBounds(2, 2), 0.0f, 100.0f, lGaugeStyle2);
-    lGauge2.setValue(35.0f);
+    RLOrderBookVis lOrderBook(getChartBounds(2, 2), 60, 40);
+    lOrderBook.setStyle(lOrderBookStyle);
+    lOrderBook.setPriceMode(RLOrderBookPriceMode::SpreadTicks);
+    lOrderBook.setSpreadTicks(20);
+
+    // Initialize order book with some data
+    float lMidPrice = 100.0f;
+    for (int i = 0; i < 40; ++i) {
+        RLOrderBookSnapshot lSnap;
+        float lBestBid = lMidPrice - 0.05f + randFloat(-0.02f, 0.02f);
+        float lBestAsk = lMidPrice + 0.05f + randFloat(-0.02f, 0.02f);
+
+        for (int j = 0; j < 25; ++j) {
+            float lDecay = expf(-(float)j * 0.15f);
+            lSnap.mBids.push_back(std::make_pair(lBestBid - (float)j * 0.01f, randFloat(100.0f, 3000.0f) * lDecay));
+            lSnap.mAsks.push_back(std::make_pair(lBestAsk + (float)j * 0.01f, randFloat(100.0f, 3000.0f) * lDecay));
+        }
+        lOrderBook.pushSnapshot(lSnap);
+        lMidPrice += randFloat(-0.01f, 0.01f);
+    }
 
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
-    float lGaugeTargetValue2 = 35.0f;
+    float lOrderBookTimer = 0.0f;
 
     // Main loop
     while (!WindowShouldClose()) {
@@ -229,10 +254,25 @@ int main() {
         // Animate gauges smoothly
         if ((int)lTime % 3 == 0 && (int)(lTime * 10.0f) % 30 == 0) {
             lGaugeTargetValue = randFloat(20.0f, 95.0f);
-            lGaugeTargetValue2 = randFloat(15.0f, 85.0f);
         }
         lGauge.setTargetValue(lGaugeTargetValue);
-        lGauge2.setTargetValue(lGaugeTargetValue2);
+
+        // Animate order book - push new snapshots periodically
+        lOrderBookTimer += lDt;
+        if (lOrderBookTimer > 0.1f) {
+            lOrderBookTimer = 0.0f;
+            RLOrderBookSnapshot lSnap;
+            float lBestBid = lMidPrice - 0.05f + randFloat(-0.02f, 0.02f);
+            float lBestAsk = lMidPrice + 0.05f + randFloat(-0.02f, 0.02f);
+
+            for (int j = 0; j < 25; ++j) {
+                float lDecay = expf(-(float)j * 0.15f);
+                lSnap.mBids.push_back(std::make_pair(lBestBid - (float)j * 0.01f, randFloat(100.0f, 3000.0f) * lDecay));
+                lSnap.mAsks.push_back(std::make_pair(lBestAsk + (float)j * 0.01f, randFloat(100.0f, 3000.0f) * lDecay));
+            }
+            lOrderBook.pushSnapshot(lSnap);
+            lMidPrice += randFloat(-0.02f, 0.02f);
+        }
 
         // Update all charts
         lBarChart.update(lDt);
@@ -243,7 +283,7 @@ int main() {
         lPieChart.update(lDt);
         lScatterPlot.update(lDt);
         lBarChart2.update(lDt);
-        lGauge2.update(lDt);
+        lOrderBook.update(lDt);
 
         // Draw
         BeginDrawing();
@@ -262,13 +302,13 @@ int main() {
         lPieChart.draw();
         lScatterPlot.draw();
         lBarChart2.draw();
-        lGauge2.draw();
+        lOrderBook.draw2D();
 
         // Draw labels for each chart
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick",
             "Gauge", "Heat Map", "Pie Chart",
-            "Scatter Plot", "Bar Chart H", "Gauge 2"
+            "Scatter Plot", "Bar Chart H", "Order Book"
         };
 
         for (int lRow = 0; lRow < 3; ++lRow) {

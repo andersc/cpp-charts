@@ -1,9 +1,8 @@
-#include "raylib.h"
-#include "RLPieChart.h"
 #include <vector>
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include "RLPieChart.h"
 
 static float lFrand(){ return (float)rand()/(float)RAND_MAX; }
 
