@@ -37,13 +37,13 @@ public:
     explicit RLBubble(Rectangle bounds, RLBubbleMode mode = RLBubbleMode::Scatter, const RLBubbleStyle &style = {});
 
     void setBounds(Rectangle bounds);
-    void setStyle(const RLBubbleStyle &style);
+    void setStyle(const RLBubbleStyle &rStyle);
     void setMode(RLBubbleMode mode);
 
     // Set current data immediately (no animation)
-    void setData(const std::vector<RLBubblePoint> &data);
+    void setData(const std::vector<RLBubblePoint> &rData);
     // Set target data to animate towards (by index). If counts differ, will resize smoothly.
-    void setTargetData(const std::vector<RLBubblePoint> &data);
+    void setTargetData(const std::vector<RLBubblePoint> &rData);
 
     // Update simulation/animation. dt in seconds.
     void update(float dt);

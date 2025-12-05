@@ -53,11 +53,11 @@ public:
     void setBounds(Rectangle aBounds);
     void setValuesPerCandle(int aValuesPerCandle);
     void setVisibleCandles(int aVisibleCandles);
-    void setStyle(const RLCandleStyle &aStyle);
+    void setStyle(const RLCandleStyle &rStyle);
     void setExplicitScale(float aMinPrice, float aMaxPrice);
 
     // Stream a single OHLCV sample. After mValuesPerCandle samples the current candle is finalized
-    void addSample(const CandleInput &aSample);
+    void addSample(const CandleInput &rSample);
 
     // Update time-based animations
     void update(float aDt);

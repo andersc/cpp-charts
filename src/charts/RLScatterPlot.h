@@ -75,26 +75,26 @@ struct RLScatterSeries {
 
 class RLScatterPlot {
 public:
-    explicit RLScatterPlot(Rectangle aBounds, const RLScatterPlotStyle &aStyle = {});
+    explicit RLScatterPlot(Rectangle aBounds, const RLScatterPlotStyle &rStyle = {});
 
     void setBounds(Rectangle aBounds);
-    void setStyle(const RLScatterPlotStyle &aStyle);
+    void setStyle(const RLScatterPlotStyle &rStyle);
 
     // Scaling: if autoScale==false in style, these are used
     void setScale(float aMinX, float aMaxX, float aMinY, float aMaxY);
 
     // Series management
     void clearSeries();
-    size_t addSeries(const RLScatterSeries &aSeries); // returns index
-    void setSeries(size_t aIndex, const RLScatterSeries &aSeries);
+    size_t addSeries(const RLScatterSeries &rSeries); // returns index
+    void setSeries(size_t aIndex, const RLScatterSeries &rSeries);
     [[nodiscard]] size_t seriesCount() const { return mSeries.size(); }
 
     // Convenience: single-series API
-    void setSingleSeries(const std::vector<Vector2> &aData, const RLScatterSeriesStyle &aStyle = {});
+    void setSingleSeries(const std::vector<Vector2> &rData, const RLScatterSeriesStyle &aStyle = {});
 
     // Animated data update APIs
-    void setSeriesTargetData(size_t aIndex, const std::vector<Vector2> &aData);
-    void setSingleSeriesTargetData(const std::vector<Vector2> &aData);
+    void setSeriesTargetData(size_t aIndex, const std::vector<Vector2> &rData);
+    void setSingleSeriesTargetData(const std::vector<Vector2> &rData);
 
     // Step animation (call each frame with dt seconds)
     void update(float aDt);
@@ -122,11 +122,11 @@ private:
     void markAllDirty() const;
     [[nodiscard]] Rectangle plotRect() const;
     void ensureScale() const;
-    [[nodiscard]] Vector2 mapPoint(const Vector2 &aPt) const;
+    [[nodiscard]] Vector2 mapPoint(const Vector2 &rPt) const;
     static inline float clamp01(float aX){ return aX < 0 ? 0 : (aX > 1 ? 1 : aX); }
     static inline unsigned char mulAlpha(unsigned char a, float f){ float v = (float)a * f; if (v < 0.0f) v = 0.0f; if (v>255.0f) v=255.0f; return (unsigned char)(v + 0.5f); }
 
-    static Vector2 catmullRom(const Vector2 &aP0, const Vector2 &aP1, const Vector2 &aP2, const Vector2 &aP3, float aT);
+    static Vector2 catmullRom(const Vector2 &rP0, const Vector2 &rP1, const Vector2 &rP2, const Vector2 &rP3, float aT);
     static float dist(const Vector2 &a, const Vector2 &b);
     void buildCaches() const;
 

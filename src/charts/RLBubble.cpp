@@ -50,7 +50,7 @@ Rectangle RLBubble::chartRect() const{
 }
 
 void RLBubble::setBounds(Rectangle bounds){ mBounds = bounds; }
-void RLBubble::setStyle(const RLBubbleStyle &style){ mStyle = style; }
+void RLBubble::setStyle(const RLBubbleStyle &rStyle){ mStyle = rStyle; }
 void RLBubble::setMode(RLBubbleMode mode){ mMode = mode; }
 
 float RLBubble::sizeToRadius(float size) const{
@@ -158,12 +158,12 @@ void RLBubble::buildTargetsForAnimation(const std::vector<RLBubblePoint> &data){
     }
 }
 
-void RLBubble::setData(const std::vector<RLBubblePoint> &data){
-    setImmediateDataInternal(data);
+void RLBubble::setData(const std::vector<RLBubblePoint> &rData){
+    setImmediateDataInternal(rData);
 }
 
-void RLBubble::setTargetData(const std::vector<RLBubblePoint> &data){
-    buildTargetsForAnimation(data);
+void RLBubble::setTargetData(const std::vector<RLBubblePoint> &rData){
+    buildTargetsForAnimation(rData);
 }
 
 void RLBubble::update(float dt){

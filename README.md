@@ -31,6 +31,7 @@ Let's face it: **there is no really simple C++ library for great-looking graphs*
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
+- 📈 **Time Series** - High-performance streaming time series with multiple traces and spline interpolation
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
@@ -200,6 +201,27 @@ while (running) {
 
 See [LOGPLOT_README.md](LOGPLOT_README.md) for comprehensive documentation.
 
+### Time Series (Streaming)
+
+```cpp
+#include "RLTimeSeries.h"
+
+RLTimeSeries chart(bounds, 500);  // 500 sample window
+
+// Add a trace
+RLTimeSeriesTraceStyle traceStyle;
+traceStyle.mColor = Color{80, 200, 255, 255};
+traceStyle.mLineMode = RLTimeSeriesLineMode::Linear;
+size_t traceIdx = chart.addTrace(traceStyle);
+
+// Stream data
+float sample = getSensorData();
+chart.pushSample(traceIdx, sample);
+
+chart.update(dt);
+chart.draw();
+```
+
 ---
 
 ## 📦 Integration into Your Project
@@ -247,6 +269,7 @@ target_sources(my_app PRIVATE
     ${cpp_charts_SOURCE_DIR}/src/charts/RLGauge.cpp
     ${cpp_charts_SOURCE_DIR}/src/charts/RLHeatMap.cpp
     ${cpp_charts_SOURCE_DIR}/src/charts/RLLogPlot.cpp
+    ${cpp_charts_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
 )
 
 # Windows requires winmm library

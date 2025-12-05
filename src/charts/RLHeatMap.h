@@ -28,10 +28,10 @@ public:
     void setGrid(int aCellsX, int aCellsY);
     void setUpdateMode(RLHeatMapUpdateMode aMode);
     void setDecayHalfLifeSeconds(float aSeconds);
-    void setStyle(const RLHeatMapStyle &aStyle);
+    void setStyle(const RLHeatMapStyle &rStyle);
 
     // Provide 3 or 4 color stops; interpolated evenly across [0..1]
-    void setColorStops(const std::vector<Color> &aStops);
+    void setColorStops(const std::vector<Color> &rStops);
 
     // Add points in normalized space [-1,1] for both x and y
     void addPoints(const Vector2 *pPoints, size_t aCount);

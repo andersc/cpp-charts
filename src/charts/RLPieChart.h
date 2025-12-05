@@ -32,15 +32,15 @@ public:
     explicit RLPieChart(Rectangle aBounds, const RLPieChartStyle &aStyle = {});
 
     void setBounds(Rectangle aBounds);
-    void setStyle(const RLPieChartStyle &aStyle);
+    void setStyle(const RLPieChartStyle &rStyle);
 
     // Hollow factor [0..1]: innerRadius = outerRadius * factor
     void setHollowFactor(float aFactor);
     [[nodiscard]] float getHollowFactor() const { return mHollowFactor; }
 
     // Data setting (immediate) and target (animated)
-    void setData(const std::vector<RLPieSliceData> &aData);
-    void setTargetData(const std::vector<RLPieSliceData> &aData);
+    void setData(const std::vector<RLPieSliceData> &rData);
+    void setTargetData(const std::vector<RLPieSliceData> &rData);
 
     // Per-frame update
     void update(float aDt);
@@ -77,10 +77,10 @@ private:
     mutable float mOuterRadius{0.0f};
 
     void ensureSize(size_t aCount);
-    void recomputeTargetsFromData(const std::vector<RLPieSliceData> &aData);
+    void recomputeTargetsFromData(const std::vector<RLPieSliceData> &rData);
     void ensureGeometry() const;
 
-    static inline float clamp01(float aX){ return aX < 0 ? 0 : (aX > 1 ? 1 : aX); }
-    static inline float approach(float a, float b, float speedDt){ float d = b - a; return a + d * (d * d < 1e-8f ? 1.0f : clamp01(speedDt)); }
+    static float clamp01(float aX){ return aX < 0 ? 0 : (aX > 1 ? 1 : aX); }
+    static float approach(float a, float b, float speedDt){ float d = b - a; return a + d * (d * d < 1e-8f ? 1.0f : clamp01(speedDt)); }
     [[nodiscard]] Color lerp(const Color &a, const Color &b, float t) const;
 };

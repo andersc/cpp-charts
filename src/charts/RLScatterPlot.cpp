@@ -3,8 +3,8 @@
 #include <cmath>
 
 
-RLScatterPlot::RLScatterPlot(Rectangle aBounds, const RLScatterPlotStyle &aStyle)
-        : mBounds(aBounds), mStyle(aStyle) {
+RLScatterPlot::RLScatterPlot(Rectangle aBounds, const RLScatterPlotStyle &rStyle)
+        : mBounds(aBounds), mStyle(rStyle) {
     mGeomDirty = true;
     mScaleDirty = true;
 }
@@ -15,8 +15,8 @@ void RLScatterPlot::setBounds(Rectangle aBounds){
     markAllDirty();
 }
 
-void RLScatterPlot::setStyle(const RLScatterPlotStyle &aStyle){
-    mStyle = aStyle;
+void RLScatterPlot::setStyle(const RLScatterPlotStyle &rStyle){
+    mStyle = rStyle;
     mGeomDirty = true;
     mScaleDirty = true;
     markAllDirty();
@@ -35,26 +35,26 @@ void RLScatterPlot::clearSeries(){
     mScaleDirty = true;
 }
 
-size_t RLScatterPlot::addSeries(const RLScatterSeries &aSeries){
-    mSeries.push_back(aSeries);
+size_t RLScatterPlot::addSeries(const RLScatterSeries &rSeries){
+    mSeries.push_back(rSeries);
     mSeries.back().mDirty = true;
     mScaleDirty = true;
     return mSeries.size()-1;
 }
 
-void RLScatterPlot::setSeries(size_t aIndex, const RLScatterSeries &aSeries){
+void RLScatterPlot::setSeries(size_t aIndex, const RLScatterSeries &rSeries){
     if (aIndex >= mSeries.size()) return;
-    mSeries[aIndex] = aSeries;
+    mSeries[aIndex] = rSeries;
     mSeries[aIndex].mDirty = true;
     mScaleDirty = true;
 }
 
-void RLScatterPlot::setSingleSeries(const std::vector<Vector2> &aData, const RLScatterSeriesStyle &aStyle){
+void RLScatterPlot::setSingleSeries(const std::vector<Vector2> &rData, const RLScatterSeriesStyle &aStyle){
     RLScatterSeries s;
-    s.mData = aData;
+    s.mData = rData;
     s.mStyle = aStyle;
     // reset animation state for this series (immediate)
-    s.mTargetData = aData;
+    s.mTargetData = rData;
     if (mSeries.size() == 1){
         setSeries(0, s);
     } else {
@@ -112,11 +112,11 @@ void RLScatterPlot::ensureScale() const{
     mScaleDirty = false;
 }
 
-Vector2 RLScatterPlot::mapPoint(const Vector2 &aPt) const{
+Vector2 RLScatterPlot::mapPoint(const Vector2 &rPt) const{
     Rectangle lRect = plotRect();
     ensureScale();
-    float lNx = (aPt.x - mScaleMinX) / (mScaleMaxX - mScaleMinX);
-    float lNy = (aPt.y - mScaleMinY) / (mScaleMaxY - mScaleMinY);
+    float lNx = (rPt.x - mScaleMinX) / (mScaleMaxX - mScaleMinX);
+    float lNy = (rPt.y - mScaleMinY) / (mScaleMaxY - mScaleMinY);
     // clamp to avoid going outside (optional)
     lNx = clamp01(lNx); lNy = clamp01(lNy);
     Vector2 lOut;
@@ -126,10 +126,10 @@ Vector2 RLScatterPlot::mapPoint(const Vector2 &aPt) const{
     return lOut;
 }
 
-Vector2 RLScatterPlot::catmullRom(const Vector2 &aP0, const Vector2 &aP1, const Vector2 &aP2, const Vector2 &aP3, float aT){
+Vector2 RLScatterPlot::catmullRom(const Vector2 &rP0, const Vector2 &rP1, const Vector2 &rP2, const Vector2 &rP3, float aT){
     float lT2 = aT*aT; float lT3 = lT2*aT;
-    float lX = 0.5f * ((2.0f*aP1.x) + (-aP0.x + aP2.x)*aT + (2*aP0.x - 5*aP1.x + 4*aP2.x - aP3.x)*lT2 + (-aP0.x + 3*aP1.x - 3*aP2.x + aP3.x)*lT3);
-    float lY = 0.5f * ((2.0f*aP1.y) + (-aP0.y + aP2.y)*aT + (2*aP0.y - 5*aP1.y + 4*aP2.y - aP3.y)*lT2 + (-aP0.y + 3*aP1.y - 3*aP2.y + aP3.y)*lT3);
+    float lX = 0.5f * ((2.0f*rP1.x) + (-rP0.x + rP2.x)*aT + (2*rP0.x - 5*rP1.x + 4*rP2.x - rP3.x)*lT2 + (-rP0.x + 3*rP1.x - 3*rP2.x + rP3.x)*lT3);
+    float lY = 0.5f * ((2.0f*rP1.y) + (-rP0.y + rP2.y)*aT + (2*rP0.y - 5*rP1.y + 4*rP2.y - rP3.y)*lT2 + (-rP0.y + 3*rP1.y - 3*rP2.y + rP3.y)*lT3);
     return { lX, lY };
 }
 
@@ -274,18 +274,18 @@ void RLScatterPlot::ensureDynInitialized(const RLScatterSeries &rSeries) const{
     rSeries.mVisTarget.assign(src.size(), 1.0f);
 }
 
-void RLScatterPlot::setSeriesTargetData(size_t aIndex, const std::vector<Vector2> &aData){
+void RLScatterPlot::setSeriesTargetData(size_t aIndex, const std::vector<Vector2> &rData){
     if (aIndex >= mSeries.size()) return;
     RLScatterSeries &s = mSeries[aIndex];
-    s.mTargetData = aData;
+    s.mTargetData = rData;
     ensureDynInitialized(s);
     size_t lOld = s.mDynPos.size();
-    size_t lNew = aData.size();
+    size_t lNew = rData.size();
     s.mDynTarget.resize(lNew);
     // Existing pairs
     size_t lMin = (lOld < lNew) ? lOld : lNew;
     for (size_t i=0;i<lMin;++i){
-        s.mDynTarget[i] = aData[i];
+        s.mDynTarget[i] = rData[i];
         s.mVisTarget[i] = 1.0f;
     }
     // New points fade in
@@ -295,8 +295,8 @@ void RLScatterPlot::setSeriesTargetData(size_t aIndex, const std::vector<Vector2
         s.mVisTarget.resize(lNew);
         for (size_t i=lOld;i<lNew;++i){
             // start at target position so movement is minimal on add; invis then fade in
-            s.mDynPos[i] = aData[i];
-            s.mDynTarget[i] = aData[i];
+            s.mDynPos[i] = rData[i];
+            s.mDynTarget[i] = rData[i];
             s.mVis[i] = 0.0f;
             s.mVisTarget[i] = 1.0f;
         }
@@ -311,11 +311,11 @@ void RLScatterPlot::setSeriesTargetData(size_t aIndex, const std::vector<Vector2
     s.mDirty = true;
 }
 
-void RLScatterPlot::setSingleSeriesTargetData(const std::vector<Vector2> &aData){
+void RLScatterPlot::setSingleSeriesTargetData(const std::vector<Vector2> &rData){
     if (mSeries.empty()){
-        RLScatterSeries s; s.mData = aData; s.mTargetData = aData; addSeries(s);
+        RLScatterSeries s; s.mData = rData; s.mTargetData = rData; addSeries(s);
     }
-    setSeriesTargetData(0, aData);
+    setSeriesTargetData(0, rData);
 }
 
 void RLScatterPlot::update(float aDt){

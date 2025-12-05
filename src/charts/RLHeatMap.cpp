@@ -37,11 +37,11 @@ void RLHeatMap::setUpdateMode(RLHeatMapUpdateMode aMode){ mMode = aMode; }
 
 void RLHeatMap::setDecayHalfLifeSeconds(float aSeconds){ mDecayHalfLife = aSeconds; }
 
-void RLHeatMap::setStyle(const RLHeatMapStyle &aStyle){ mStyle = aStyle; }
+void RLHeatMap::setStyle(const RLHeatMapStyle &rStyle){ mStyle = rStyle; }
 
-void RLHeatMap::setColorStops(const std::vector<Color> &aStops){
-    if (aStops.size() < 2) return;
-    mStops = aStops;
+void RLHeatMap::setColorStops(const std::vector<Color> &rStops){
+    if (rStops.size() < 2) return;
+    mStops = rStops;
     mLutDirty = true;
 }
 

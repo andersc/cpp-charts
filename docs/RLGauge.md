@@ -36,22 +36,22 @@ struct RLGaugeStyle {
     Color mNeedleColor{255, 74, 74, 255};
     Color mCenterColor{230, 230, 240, 255};
 
-    float mThickness = 18.0f;      // Ring thickness
-    float mStartAngle = 135.0f;    // Start angle (degrees)
-    float mEndAngle = 405.0f;      // End angle (degrees)
-    int mTickCount = 60;           // Minor ticks
-    int mMajorEvery = 5;           // Every Nth tick is major
-    float mTickLen = 8.0f;         // Minor tick length
-    float mMajorTickLen = 14.0f;   // Major tick length
-    float mTickThickness = 2.0f;
-    float mMajorTickThickness = 3.0f;
-    float mNeedleWidth = 4.0f;
-    float mNeedleRadiusScale = 0.86f;
+    float mThickness = 18.0f;        // Ring thickness (pixels)
+    float mStartAngle = 135.0f;      // Start angle in degrees
+    float mEndAngle = 405.0f;        // End angle in degrees (end > start)
+    int mTickCount = 60;             // Minor ticks
+    int mMajorEvery = 5;             // Every Nth tick is major
+    float mTickLen = 8.0f;           // Minor tick length
+    float mMajorTickLen = 14.0f;     // Major tick length
+    float mTickThickness = 2.0f;     // Minor tick thickness
+    float mMajorTickThickness = 3.0f; // Major tick thickness
+    float mNeedleWidth = 4.0f;       // Needle thickness
+    float mNeedleRadiusScale = 0.86f; // As fraction of radius
     bool mShowValueText = true;
     bool mShowTicks = true;
     bool mShowNeedle = true;
-    bool mSmoothAnimate = true;
-    Font mLabelFont{};
+    bool mSmoothAnimate = true;      // Smooth animation towards target
+    Font mLabelFont{};               // Optional custom font; if .baseSize==0 use default
 };
 ```
 

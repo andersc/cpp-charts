@@ -48,9 +48,9 @@ struct RLBubbleStyle {
     Color mBackground{20, 22, 28, 255};
     Color mAxesColor{70, 75, 85, 255};
     Color mGridColor{40, 44, 52, 255};
-    int mGridLines = 4;
+    int mGridLines = 4;         // Grid lines per axis
     float mSizeScale = 24.0f;   // Pixel radius per sqrt(size)
-    float mMinRadius = 3.0f;    // Minimum visual radius
+    float mMinRadius = 3.0f;    // Minimum visual radius in pixels
     float mOutline = 2.0f;      // Outline thickness
     Color mOutlineColor{0, 0, 0, 80};
     bool mShowAxes = true;

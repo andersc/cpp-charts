@@ -12,8 +12,8 @@ void RLPieChart::setBounds(Rectangle aBounds){
     mGeomDirty = true;
 }
 
-void RLPieChart::setStyle(const RLPieChartStyle &aStyle){
-    mStyle = aStyle;
+void RLPieChart::setStyle(const RLPieChartStyle &rStyle){
+    mStyle = rStyle;
 }
 
 void RLPieChart::setHollowFactor(float aFactor){
@@ -36,9 +36,9 @@ void RLPieChart::ensureSize(size_t aCount){
     }
 }
 
-void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &aData){
+void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &rData){
     // Determine target count and ensure vector size to keep existing for fade out
-    mTargetCount = aData.size();
+    mTargetCount = rData.size();
     size_t lNewCount = mTargetCount > mSlices.size() ? mTargetCount : mSlices.size();
     ensureSize(lNewCount);
 
@@ -46,9 +46,9 @@ void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &aDa
     for (size_t i=0; i<lNewCount; ++i){
         SliceDyn &lS = mSlices[i];
         if (i < mTargetCount){
-            lS.mTarget = aData[i].mValue;
-            lS.mColorTarget = aData[i].mColor;
-            lS.mLabel = aData[i].mLabel;
+            lS.mTarget = rData[i].mValue;
+            lS.mColorTarget = rData[i].mColor;
+            lS.mLabel = rData[i].mLabel;
             // If this was a new slice (currently invisible), start from zero angle and fade in
             if (lS.mVisTarget <= 0.0f && lS.mVis <= 0.0f && lS.mValue <= 0.0f){
                 lS.mStart = lS.mEnd; // keep current
@@ -105,14 +105,14 @@ void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &aDa
     }
 }
 
-void RLPieChart::setData(const std::vector<RLPieSliceData> &aData){
+void RLPieChart::setData(const std::vector<RLPieSliceData> &rData){
     // Immediate: set as both current and target
-    recomputeTargetsFromData(aData);
+    recomputeTargetsFromData(rData);
     for (size_t i=0; i<mSlices.size(); ++i){
         SliceDyn &lS = mSlices[i];
-        if (i < aData.size()){
+        if (i < rData.size()){
             lS.mValue = lS.mTarget;
-            lS.mColor = aData[i].mColor;
+            lS.mColor = rData[i].mColor;
             lS.mVis = 1.0f;
         } else {
             lS.mValue = 0.0f;
@@ -123,8 +123,8 @@ void RLPieChart::setData(const std::vector<RLPieSliceData> &aData){
     }
 }
 
-void RLPieChart::setTargetData(const std::vector<RLPieSliceData> &aData){
-    recomputeTargetsFromData(aData);
+void RLPieChart::setTargetData(const std::vector<RLPieSliceData> &rData){
+    recomputeTargetsFromData(rData);
 }
 
 Color RLPieChart::lerp(const Color &a, const Color &b, float t) const{

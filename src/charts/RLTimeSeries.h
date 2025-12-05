@@ -79,13 +79,13 @@ public:
 
     // Configuration
     void setBounds(Rectangle aBounds);
-    void setStyle(const RLTimeSeriesChartStyle& aStyle);
+    void setStyle(const RLTimeSeriesChartStyle& rStyle);
     void setWindowSize(size_t aWindowSize);
     [[nodiscard]] size_t getWindowSize() const { return mWindowSize; }
 
     // Trace management
     size_t addTrace(const RLTimeSeriesTraceStyle& aStyle = {});
-    void setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& aStyle);
+    void setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& rStyle);
     void setTraceVisible(size_t aIndex, bool aVisible);
     void clearTrace(size_t aIndex);
     void clearAllTraces();
@@ -95,6 +95,7 @@ public:
     // Sample input
     void pushSample(size_t aTraceIndex, float aValue);
     void pushSamples(size_t aTraceIndex, const float* pValues, size_t aCount);
+    void pushSamples(size_t aTraceIndex, const std::vector<float>& rValues);
 
     // Update and draw
     void update(float aDt);

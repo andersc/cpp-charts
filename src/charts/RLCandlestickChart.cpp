@@ -16,7 +16,7 @@ RLCandlestickChart::RLCandlestickChart(Rectangle aBounds, int aValuesPerCandle, 
 void RLCandlestickChart::setBounds(Rectangle aBounds){ mBounds = aBounds; }
 void RLCandlestickChart::setValuesPerCandle(int aValuesPerCandle){ mValuesPerCandle = (aValuesPerCandle<=0)?1:aValuesPerCandle; }
 void RLCandlestickChart::setVisibleCandles(int aVisibleCandles){ mVisibleCandles = (aVisibleCandles<=1)?1:aVisibleCandles; ensureWindow(); }
-void RLCandlestickChart::setStyle(const RLCandleStyle &aStyle){ mStyle = aStyle; }
+void RLCandlestickChart::setStyle(const RLCandleStyle &rStyle){ mStyle = rStyle; }
 void RLCandlestickChart::setExplicitScale(float aMinPrice, float aMaxPrice){
     mStyle.mAutoScale = false;
     mScaleMin = aMinPrice;
@@ -31,8 +31,8 @@ std::string RLCandlestickChart::dayKeyFromDate(const std::string &aDate){
     return aDate.substr(0, lPos);
 }
 
-void RLCandlestickChart::addSample(const CandleInput &aSample){
-    std::string lIncomingDay = dayKeyFromDate(aSample.aDate);
+void RLCandlestickChart::addSample(const CandleInput &rSample){
+    std::string lIncomingDay = dayKeyFromDate(rSample.aDate);
     if (mHasWorking && lIncomingDay != mWorking.mDayKey){
         // Day changed: finalize current candle early to align separator exactly at boundary
         finalizeWorkingCandle();
@@ -44,24 +44,24 @@ void RLCandlestickChart::addSample(const CandleInput &aSample){
         if (mValuesPerCandle == 1 && mHasLastClose) {
             mWorking.mOpen = mLastClose;
         } else {
-            mWorking.mOpen = aSample.aOpen;
+            mWorking.mOpen = rSample.aOpen;
         }
-        mWorking.mHigh = aSample.aHigh;
-        mWorking.mLow = aSample.aLow;
-        mWorking.mClose = aSample.aClose;
-        mWorking.mVolume = aSample.aVolume;
-        mWorking.mDate = aSample.aDate;
+        mWorking.mHigh = rSample.aHigh;
+        mWorking.mLow = rSample.aLow;
+        mWorking.mClose = rSample.aClose;
+        mWorking.mVolume = rSample.aVolume;
+        mWorking.mDate = rSample.aDate;
         mWorking.mDayKey = lIncomingDay;
         mWorking.mDaySeparator = false; // finalized candle will decide
         mWorkingCount = 1;
         mHasWorking = true;
     } else {
         // aggregate
-        if (aSample.aHigh > mWorking.mHigh) mWorking.mHigh = aSample.aHigh;
-        if (aSample.aLow < mWorking.mLow) mWorking.mLow = aSample.aLow;
-        mWorking.mClose = aSample.aClose;
-        mWorking.mVolume += aSample.aVolume;
-        mWorking.mDate = aSample.aDate; // keep last timestamp
+        if (rSample.aHigh > mWorking.mHigh) mWorking.mHigh = rSample.aHigh;
+        if (rSample.aLow < mWorking.mLow) mWorking.mLow = rSample.aLow;
+        mWorking.mClose = rSample.aClose;
+        mWorking.mVolume += rSample.aVolume;
+        mWorking.mDate = rSample.aDate; // keep last timestamp
         mWorkingCount += 1;
     }
 

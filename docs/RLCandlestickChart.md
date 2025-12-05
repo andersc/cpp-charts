@@ -41,11 +41,11 @@ struct CandleInput {
 ```cpp
 struct RLCandleStyle {
     // Layout
-    float mPadding = 8.0f;
-    float mCandleSpacing = 4.0f;
-    float mBodyMinWidth = 6.0f;
-    float mWickThickness = 2.0f;
-    float mVolumeAreaRatio = 0.25f;  // Part of height for volume
+    float mPadding = 8.0f;                   // Chart inner padding
+    float mCandleSpacing = 4.0f;             // Space between candles
+    float mBodyMinWidth = 6.0f;              // Minimal body width
+    float mWickThickness = 2.0f;             // Wick line thickness
+    float mVolumeAreaRatio = 0.25f;          // Part of total height reserved for volume
 
     // Colors
     Color mBackground{20, 22, 28, 255};
@@ -55,13 +55,13 @@ struct RLCandleStyle {
     Color mUpWick{180, 240, 200, 255};
     Color mDownBody{220, 90, 90, 255};
     Color mDownWick{255, 200, 200, 255};
-    Color mSeparator{200, 200, 200, 90};
+    Color mSeparator{200, 200, 200, 90};     // Daily separator
     Color mVolumeUp{90, 180, 120, 180};
     Color mVolumeDown{200, 90, 90, 180};
 
     // Animation
-    float mSlideSpeed = 8.0f;
-    float mFadeSpeed = 6.0f;
+    float mSlideSpeed = 8.0f;                // Larger = faster slide (units per second: bodyWidth)
+    float mFadeSpeed = 6.0f;                 // Alpha lerp speed
 
     // Scaling
     bool mAutoScale = true;

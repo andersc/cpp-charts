@@ -24,8 +24,8 @@ void RLTimeSeries::setBounds(Rectangle aBounds) {
     }
 }
 
-void RLTimeSeries::setStyle(const RLTimeSeriesChartStyle& aStyle) {
-    mStyle = aStyle;
+void RLTimeSeries::setStyle(const RLTimeSeriesChartStyle& rStyle) {
+    mStyle = rStyle;
     for (auto& lTrace : mTraces) {
         lTrace.mDirty = true;
     }
@@ -75,9 +75,9 @@ size_t RLTimeSeries::addTrace(const RLTimeSeriesTraceStyle& aStyle) {
     return mTraces.size() - 1;
 }
 
-void RLTimeSeries::setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& aStyle) {
+void RLTimeSeries::setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& rStyle) {
     if (aIndex >= mTraces.size()) return;
-    mTraces[aIndex].mStyle = aStyle;
+    mTraces[aIndex].mStyle = rStyle;
     mTraces[aIndex].mDirty = true;
 }
 
@@ -134,6 +134,11 @@ void RLTimeSeries::pushSamples(size_t aTraceIndex, const float* pValues, size_t 
         }
     }
     rTrace.mDirty = true;
+}
+
+void RLTimeSeries::pushSamples(size_t aTraceIndex, const std::vector<float>& rValues) {
+    if (rValues.empty()) return;
+    pushSamples(aTraceIndex, rValues.data(), rValues.size());
 }
 
 // ============================================================================

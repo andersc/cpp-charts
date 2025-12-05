@@ -40,10 +40,11 @@ struct RLScatterSeriesStyle {
     float mLineThickness{2.0f};
     RLScatterLineMode mLineMode{RLScatterLineMode::Linear};
 
+    // Points
     bool mShowPoints{true};
-    Color mPointColor{0, 0, 0, 0};  // If a==0, derived from line
-    float mPointSizePx{0.0f};       // If <=0, derived from thickness
-    float mPointScale{1.5f};        // Radius multiplier
+    Color mPointColor{0, 0, 0, 0};  // If a==0, derived from line color
+    float mPointSizePx{0.0f};       // If <=0, derived from thickness * pointScale
+    float mPointScale{1.5f};        // Radius = max(1, thickness * pointScale)
 };
 ```
 
@@ -70,6 +71,7 @@ struct RLScatterPlotStyle {
     Color mGridColor{40, 44, 52, 255};
     int mGridLines{4};
 
+    // Padding inside bounds (for labels if any, or just breathing room)
     float mPadding{10.0f};
 
     // Scaling
@@ -79,13 +81,13 @@ struct RLScatterPlotStyle {
     float mMinY{0.0f};
     float mMaxY{1.0f};
 
-    // Spline quality
-    float mSplinePixels{6.0f};  // Pixels between samples
+    // Spline quality (higher = smoother, more points). Base target pixels per segment.
+    float mSplinePixels{6.0f};  // Approximate pixels between samples
 
     // Animation
     bool mSmoothAnimate{true};
-    float mMoveSpeed{8.0f};
-    float mFadeSpeed{6.0f};
+    float mMoveSpeed{8.0f};   // Position approach speed (1/s)
+    float mFadeSpeed{6.0f};   // Visibility fade speed (1/s)
 };
 ```
 

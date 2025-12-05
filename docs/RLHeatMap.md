@@ -37,6 +37,7 @@ enum class RLHeatMapUpdateMode {
 struct RLHeatMapStyle {
     bool mShowBackground = true;
     Color mBackground{20, 22, 28, 255};
+    // Optional outline
     bool mShowBorder = false;
     Color mBorderColor{40, 44, 52, 255};
     float mBorderThickness = 1.0f;

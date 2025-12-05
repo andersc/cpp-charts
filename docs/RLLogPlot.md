@@ -39,14 +39,14 @@ struct RLLogPlotTraceStyle {
     float mLineThickness{2.5f};
     bool mShowPoints{true};
     float mPointRadius{4.0f};
-    Color mPointColor{0, 0, 0, 0};  // If a==0, derived from line
+    Color mPointColor{0, 0, 0, 0};  // If a==0, derived from line color
 
-    // Confidence intervals
+    // Confidence interval styling
     bool mShowConfidenceIntervals{true};
-    Color mConfidenceColor{0, 0, 0, 0};
-    float mConfidenceAlpha{0.3f};
-    bool mConfidenceAsBars{false};  // true: error bars, false: shaded band
-    float mConfidenceBarWidth{8.0f};
+    Color mConfidenceColor{0, 0, 0, 0};  // If a==0, derived from line color with transparency
+    float mConfidenceAlpha{0.3f};        // Alpha multiplier for confidence regions
+    bool mConfidenceAsBars{false};       // true: error bars, false: shaded band
+    float mConfidenceBarWidth{8.0f};     // Width of error bar caps (if bars)
 };
 ```
 
@@ -117,6 +117,7 @@ struct RLTimeSeriesStyle {
     float mMinY{-1.0f};
     float mMaxY{1.0f};
 
+    // Fill under curve
     bool mFillUnderCurve{false};
     Color mFillColor{100, 200, 255, 60};
 

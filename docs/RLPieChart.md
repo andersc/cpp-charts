@@ -39,13 +39,13 @@ struct RLPieChartStyle {
     Color mBackground{20, 22, 28, 255};
 
     // Layout
-    float mPadding{8.0f};
+    float mPadding{8.0f};  // Inner padding inside bounds
 
     // Animation
     bool mSmoothAnimate{true};
-    float mAngleSpeed{8.0f};  // Approach speed for angles
-    float mFadeSpeed{8.0f};   // Approach speed for visibility
-    float mColorSpeed{6.0f};  // Color blend speed
+    float mAngleSpeed{8.0f};  // Approach speed for angles (1/s)
+    float mFadeSpeed{8.0f};   // Approach speed for visibility (1/s)
+    float mColorSpeed{6.0f};  // Color blend speed (1/s)
 };
 ```
 

@@ -26,8 +26,8 @@ void RLGauge::setRange(float minValue, float maxValue){
     mTargetValue = fminf(mMaxValue, fmaxf(mMinValue, mTargetValue));
 }
 
-void RLGauge::setStyle(const RLGaugeStyle &style){
-    mStyle = style;
+void RLGauge::setStyle(const RLGaugeStyle &rStyle){
+    mStyle = rStyle;
     recomputeGeometry();
 }
 

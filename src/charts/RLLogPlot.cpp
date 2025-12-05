@@ -20,13 +20,13 @@ void RLLogPlot::setTimeSeriesHeight(float aHeightFraction) {
     mLayoutDirty = true;
 }
 
-void RLLogPlot::setLogPlotStyle(const RLLogPlotStyle& aStyle) {
-    mLogPlotStyle = aStyle;
+void RLLogPlot::setLogPlotStyle(const RLLogPlotStyle& rStyle) {
+    mLogPlotStyle = rStyle;
     mScaleDirty = true;
 }
 
-void RLLogPlot::setTimeSeriesStyle(const RLTimeSeriesStyle& aStyle) {
-    mTimeSeriesStyle = aStyle;
+void RLLogPlot::setTimeSeriesStyle(const RLTimeSeriesStyle& rStyle) {
+    mTimeSeriesStyle = rStyle;
 }
 
 void RLLogPlot::setWindowSize(size_t aMaxSamples) {
@@ -45,8 +45,8 @@ void RLLogPlot::pushSample(float aValue) {
     }
 }
 
-void RLLogPlot::pushSamples(const std::vector<float>& aValues) {
-    for (float lVal : aValues) {
+void RLLogPlot::pushSamples(const std::vector<float>& rValues) {
+    for (float lVal : rValues) {
         pushSample(lVal);
     }
 }
@@ -60,27 +60,27 @@ void RLLogPlot::clearTraces() {
     mScaleDirty = true;
 }
 
-size_t RLLogPlot::addTrace(const RLLogPlotTrace& aTrace) {
-    mTraces.push_back(aTrace);
+size_t RLLogPlot::addTrace(const RLLogPlotTrace& rTrace) {
+    mTraces.push_back(rTrace);
     mTraces.back().mDirty = true;
     mScaleDirty = true;
     return mTraces.size() - 1;
 }
 
-void RLLogPlot::setTrace(size_t aIndex, const RLLogPlotTrace& aTrace) {
+void RLLogPlot::setTrace(size_t aIndex, const RLLogPlotTrace& rTrace) {
     if (aIndex >= mTraces.size()) return;
-    mTraces[aIndex] = aTrace;
+    mTraces[aIndex] = rTrace;
     mTraces[aIndex].mDirty = true;
     mScaleDirty = true;
 }
 
-void RLLogPlot::updateTraceData(size_t aIndex, const std::vector<float>& aXValues,
-                                const std::vector<float>& aYValues,
+void RLLogPlot::updateTraceData(size_t aIndex, const std::vector<float>& rXValues,
+                                const std::vector<float>& rYValues,
                                 const std::vector<RLLogPlotConfidence>* pConfidence) {
     if (aIndex >= mTraces.size()) return;
     auto& lTrace = mTraces[aIndex];
-    lTrace.mXValues = aXValues;
-    lTrace.mYValues = aYValues;
+    lTrace.mXValues = rXValues;
+    lTrace.mYValues = rYValues;
     if (pConfidence) {
         lTrace.mConfidence = *pConfidence;
     }

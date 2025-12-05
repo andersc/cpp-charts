@@ -61,15 +61,16 @@ struct RLTimeSeriesChartStyle {
     bool mShowAxes{true};
     Color mAxesColor{70, 75, 85, 255};
 
+    // Padding inside bounds
     float mPadding{10.0f};
 
     // Y-axis scaling
     bool mAutoScaleY{true};
     float mMinY{-1.0f};
     float mMaxY{1.0f};
-    float mAutoScaleMargin{0.1f};  // 10% margin
+    float mAutoScaleMargin{0.1f};  // 10% margin above/below data range
 
-    // Spline quality
+    // Spline quality (pixels per segment)
     float mSplinePixels{4.0f};
 
     // Smooth scale transitions
@@ -107,6 +108,7 @@ struct RLTimeSeriesChartStyle {
 |--------|-------------|
 | `pushSample(size_t aTraceIndex, float aValue)` | Add one sample to a trace |
 | `pushSamples(size_t aTraceIndex, const float *pValues, size_t aCount)` | Add multiple samples |
+| `pushSamples(size_t aTraceIndex, const std::vector<float> &aValues)` | Add multiple samples |
 
 ### Rendering
 

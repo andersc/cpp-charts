@@ -47,7 +47,7 @@ public:
 
     void setBounds(Rectangle bounds);
     void setRange(float minValue, float maxValue);
-    void setStyle(const RLGaugeStyle &style);
+    void setStyle(const RLGaugeStyle &rStyle);
 
     // dt in seconds
     void update(float dt);

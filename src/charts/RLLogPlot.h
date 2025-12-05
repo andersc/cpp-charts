@@ -114,23 +114,23 @@ public:
     // Configuration
     void setBounds(Rectangle aBounds);
     void setTimeSeriesHeight(float aHeightFraction); // 0..1, default 0.35
-    void setLogPlotStyle(const RLLogPlotStyle& aStyle);
-    void setTimeSeriesStyle(const RLTimeSeriesStyle& aStyle);
+    void setLogPlotStyle(const RLLogPlotStyle& rStyle);
+    void setTimeSeriesStyle(const RLTimeSeriesStyle& rStyle);
 
     // Time series data management
     void setWindowSize(size_t aMaxSamples);
     void pushSample(float aValue);           // Add one sample (FIFO)
-    void pushSamples(const std::vector<float>& aValues); // Add multiple
+    void pushSamples(const std::vector<float>& rValues); // Add multiple
     void clearTimeSeries();
     [[nodiscard]] size_t getTimeSeriesSize() const { return mTimeSeries.size(); }
     [[nodiscard]] size_t getWindowSize() const { return mMaxWindowSize; }
 
     // Log-log trace management
     void clearTraces();
-    size_t addTrace(const RLLogPlotTrace& aTrace);
-    void setTrace(size_t aIndex, const RLLogPlotTrace& aTrace);
-    void updateTraceData(size_t aIndex, const std::vector<float>& aXValues,
-                         const std::vector<float>& aYValues,
+    size_t addTrace(const RLLogPlotTrace& rTrace);
+    void setTrace(size_t aIndex, const RLLogPlotTrace& rTrace);
+    void updateTraceData(size_t aIndex, const std::vector<float>& rXValues,
+                         const std::vector<float>& rYValues,
                          const std::vector<RLLogPlotConfidence>* pConfidence = nullptr);
     [[nodiscard]] size_t getTraceCount() const { return mTraces.size(); }
 
