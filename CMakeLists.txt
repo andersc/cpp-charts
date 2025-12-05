@@ -137,6 +137,19 @@ if(WIN32)
     target_link_libraries(raylib_logplot winmm)
 endif()
 
+# Build the time series streaming demo
+add_executable(raylib_timeseries
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/timeseries.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
+)
+target_link_libraries(raylib_timeseries
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_timeseries winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
