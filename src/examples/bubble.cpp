@@ -55,16 +55,16 @@ int main(){
     RLBubble scatter(left, RLBubbleMode::Scatter, style);
     auto dataA = MakeRandomData(RandCount());
     auto dataB = MakeRandomData(RandCount());
-    scatter.SetData(dataA);
+    scatter.setData(dataA);
     // Start animating right away so the count change demo is visible immediately
-    scatter.SetTargetData(dataB);
+    scatter.setTargetData(dataB);
 
     // Gravity chart
     RLBubble gravity(right, RLBubbleMode::Gravity, style);
     auto dataG = MakeRandomData(RandCount(), 2.0f, 12.0f);
-    gravity.SetData(dataG);
+    gravity.setData(dataG);
     // Ensure targets are initialized so bubbles are visible without pressing G
-    gravity.SetTargetData(dataG);
+    gravity.setTargetData(dataG);
 
     float t = 0.0f;
     float switchT = 0.0f;
@@ -82,24 +82,24 @@ int main(){
                 switchT = 0.0f;
                 dataA = dataB;
                 dataB = MakeRandomData(RandCount());
-                scatter.SetTargetData(dataB);
+                scatter.setTargetData(dataB);
 
                 dataG = MakeRandomData(RandCount(), 1.0f, 12.0f);
-                gravity.SetTargetData(dataG);
+                gravity.setTargetData(dataG);
             }
         }
 
         // update
         if (!pause){
-            scatter.Update(dt);
-            gravity.Update(dt);
+            scatter.update(dt);
+            gravity.update(dt);
         }
 
         BeginDrawing();
         ClearBackground(Color{18,18,22,255});
 
-        scatter.Draw();
-        gravity.Draw();
+        scatter.draw();
+        gravity.draw();
 
         DrawText("Scatter: x,y,size,color (animates between datasets)", (int)left.x, (int)(left.y-28), 20, GRAY);
         DrawText("Gravity: largest centered, others attract like mass", (int)right.x, (int)(right.y-28), 20, GRAY);
@@ -112,12 +112,12 @@ int main(){
         if (IsKeyPressed(KEY_G)){
             dataA = MakeRandomData(RandCount());
             dataB = MakeRandomData(RandCount());
-            scatter.SetData(dataA);
-            scatter.SetTargetData(dataB);
+            scatter.setData(dataA);
+            scatter.setTargetData(dataB);
 
             dataG = MakeRandomData(RandCount(), 2.0f, 12.0f);
-            gravity.SetData(dataG);
-            gravity.SetTargetData(dataG);
+            gravity.setData(dataG);
+            gravity.setTargetData(dataG);
         }
     }
 

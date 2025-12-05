@@ -150,9 +150,9 @@ void RLPieChart::ensureGeometry() const{
 }
 
 void RLPieChart::update(float aDt){
-    float lAngleK = mStyle.lSmoothAnimate ? (mStyle.lAngleSpeed * aDt) : 1.0f;
-    float lFadeK = mStyle.lSmoothAnimate ? (mStyle.lFadeSpeed * aDt) : 1.0f;
-    float lColorK = mStyle.lSmoothAnimate ? (mStyle.lColorSpeed * aDt) : 1.0f;
+    float lAngleK = mStyle.mSmoothAnimate ? (mStyle.mAngleSpeed * aDt) : 1.0f;
+    float lFadeK = mStyle.mSmoothAnimate ? (mStyle.mFadeSpeed * aDt) : 1.0f;
+    float lColorK = mStyle.mSmoothAnimate ? (mStyle.mColorSpeed * aDt) : 1.0f;
 
     for (auto &lS : mSlices){
         lS.mStart = approach(lS.mStart, lS.mStartTarget, lAngleK);

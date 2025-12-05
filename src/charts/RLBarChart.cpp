@@ -8,8 +8,8 @@
 RLBarChart::RLBarChart(Rectangle aBounds, RLBarOrientation aOrientation, const RLBarChartStyle &rStyle)
     : mBounds(aBounds), mOrientation(aOrientation), mStyle(rStyle)
 {
-    mScaleMin = mStyle.mAutoScale ? 0.0f : mStyle.lMinValue;
-    mScaleMax = mStyle.mAutoScale ? 1.0f : fmaxf(mStyle.lMaxValue, mStyle.lMinValue + 1.0f);
+    mScaleMin = mStyle.mAutoScale ? 0.0f : mStyle.mMinValue;
+    mScaleMax = mStyle.mAutoScale ? 1.0f : fmaxf(mStyle.mMaxValue, mStyle.mMinValue + 1.0f);
     mScaleMaxTarget = mScaleMax;
 }
 
@@ -49,8 +49,8 @@ void RLBarChart::setData(const std::vector<RLBarData> &rData){
         mScaleMax = fmaxf(lMax, 1.0f);
         mScaleMaxTarget = mScaleMax;
     } else {
-        mScaleMin = mStyle.lMinValue;
-        mScaleMax = fmaxf(mStyle.lMaxValue, mStyle.lMinValue + 1.0f);
+        mScaleMin = mStyle.mMinValue;
+        mScaleMax = fmaxf(mStyle.mMaxValue, mStyle.mMinValue + 1.0f);
         mScaleMaxTarget = mScaleMax;
     }
 }
@@ -103,8 +103,8 @@ void RLBarChart::setTargetData(const std::vector<RLBarData> &rData){
 
 void RLBarChart::setScale(float aMinValue, float aMaxValue){
     mStyle.mAutoScale = false;
-    mStyle.lMinValue = aMinValue;
-    mStyle.lMaxValue = aMaxValue;
+    mStyle.mMinValue = aMinValue;
+    mStyle.mMaxValue = aMaxValue;
     mScaleMin = aMinValue;
     mScaleMax = fmaxf(aMaxValue, aMinValue + 1.0f);
     mScaleMaxTarget = mScaleMax;
@@ -117,14 +117,14 @@ Color RLBarChart::lerp(const Color &a, const Color &b, float t) const {
 }
 
 void RLBarChart::update(float aDt){
-    if (!mStyle.lSmoothAnimate){
+    if (!mStyle.mSmoothAnimate){
         for (auto &lB : mBars){ lB.mValue = lB.mTarget; lB.mColor = lB.mColorTarget; lB.mVisAlpha = lB.mVisTarget; }
         mScaleMax = mScaleMaxTarget;
         // On hard set, trim any fully hidden bars
         if (mBars.size() > mTargetCount) mBars.resize(mTargetCount);
         return;
     }
-    float lLambda = mStyle.lAnimateSpeed; // how fast it converges
+    float lLambda = mStyle.mAnimateSpeed; // how fast it converges
     float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
     for (auto &rB : mBars){
         rB.mValue = lerp(rB.mValue, rB.mTarget, lAlpha);
@@ -181,7 +181,7 @@ void RLBarChart::draw() const{
     const float lMin = mScaleMin;
     const float lMax = mScaleMax;
     const Font &lFont = (mStyle.mLabelFont.baseSize>0)? mStyle.mLabelFont : GetFontDefault();
-    const auto lFontSize = (float)mStyle.lLabelFontSize;
+    const auto lFontSize = (float)mStyle.mLabelFontSize;
 
     if (mOrientation == RLBarOrientation::VERTICAL){
         // Compute dynamic weights based on visibility to redistribute space

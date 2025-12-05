@@ -39,14 +39,14 @@ struct RLBarChartStyle {
     bool mAutoLabelColor = true; // choose white/black based on bar color
     Color mLabelColor{230, 230, 235, 255}; // used if autoLabelColor == false
     Font mLabelFont{}; // optional;
-    int lLabelFontSize = 18;
+    int mLabelFontSize = 18;
 
     // Scaling & animation
     bool mAutoScale = true;      // compute max from data
-    float lMinValue = 0.0f;      // used when autoScale == false
-    float lMaxValue = 100.0f;    // used when autoScale == false
-    bool lSmoothAnimate = true;
-    float lAnimateSpeed = 8.0f;  // larger = snappier
+    float mMinValue = 0.0f;      // used when autoScale == false
+    float mMaxValue = 100.0f;    // used when autoScale == false
+    bool mSmoothAnimate = true;
+    float mAnimateSpeed = 8.0f;  // larger = snappier
 };
 
 class RLBarChart {

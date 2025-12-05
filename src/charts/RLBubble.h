@@ -36,23 +36,23 @@ class RLBubble {
 public:
     explicit RLBubble(Rectangle bounds, RLBubbleMode mode = RLBubbleMode::Scatter, const RLBubbleStyle &style = {});
 
-    void SetBounds(Rectangle bounds);
-    void SetStyle(const RLBubbleStyle &style);
-    void SetMode(RLBubbleMode mode);
+    void setBounds(Rectangle bounds);
+    void setStyle(const RLBubbleStyle &style);
+    void setMode(RLBubbleMode mode);
 
     // Set current data immediately (no animation)
-    void SetData(const std::vector<RLBubblePoint> &data);
+    void setData(const std::vector<RLBubblePoint> &data);
     // Set target data to animate towards (by index). If counts differ, will resize smoothly.
-    void SetTargetData(const std::vector<RLBubblePoint> &data);
+    void setTargetData(const std::vector<RLBubblePoint> &data);
 
     // Update simulation/animation. dt in seconds.
-    void Update(float dt);
+    void update(float dt);
     // Draw chart inside bounds.
-    void Draw() const;
+    void draw() const;
 
     // Helpers
-    [[nodiscard]] Rectangle GetBounds() const { return mBounds; }
-    [[nodiscard]] RLBubbleMode GetMode() const { return mMode; }
+    [[nodiscard]] Rectangle getBounds() const { return mBounds; }
+    [[nodiscard]] RLBubbleMode getMode() const { return mMode; }
 
 private:
     struct BubbleDyn {
@@ -72,12 +72,27 @@ private:
         float mMass{1.0f};
     };
 
+    // Spatial grid for optimized collision detection O(N) instead of O(N^2)
+    struct SpatialGrid {
+        int mCols{0};
+        int mRows{0};
+        float mCellSize{1.0f};
+        float mStartX{0.0f};
+        float mStartY{0.0f};
+        std::vector<std::vector<int>> mCells;
+
+        void setup(Rectangle aBounds, float aMaxDiameter);
+        void insert(int aBubbleIndex, Vector2 aPos);
+        [[nodiscard]] const std::vector<int>* getCell(int aCx, int aCy) const;
+    };
+
     Rectangle mBounds{};
     RLBubbleMode mMode{RLBubbleMode::Scatter};
     RLBubbleStyle mStyle{};
 
     std::vector<BubbleDyn> mBubbles;
     int mLargestIndex{-1};
+    SpatialGrid mGrid{};
 
     // animation parameters
     float mLerpSpeed = 6.0f;         // scatter smoothing

@@ -1,6 +1,7 @@
 // RLTimeSeries.h
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 #include <cstddef>
 
@@ -124,9 +125,5 @@ private:
 
     // Ring buffer helpers
     static float getSample(const RLTimeSeriesTrace& rTrace, size_t aIndex);
-
-    // Utility
-    static float approach(float a, float b, float aSpeedDt);
-    static float clamp01(float aX) { return aX < 0.0f ? 0.0f : (aX > 1.0f ? 1.0f : aX); }
 };
 

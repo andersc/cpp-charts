@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <vector>
 #include <functional>
+#include <string>
 
 // High-performance Log-Log Plot for raylib with streaming time series support.
 // Designed for Allan variance-style analysis with dynamic confidence intervals.
@@ -72,9 +73,9 @@ struct RLLogPlotStyle {
     float mAnimSpeed{ 6.0f };  // Approach speed for smooth transitions
 
     // Title and labels
-    const char* mTitle{ nullptr };
-    const char* mXAxisLabel{ nullptr };
-    const char* mYAxisLabel{ nullptr };
+    std::string mTitle{};
+    std::string mXAxisLabel{};
+    std::string mYAxisLabel{};
     float mFontSize{ 14.0f };
     float mTitleFontSize{ 18.0f };
 };
@@ -99,8 +100,8 @@ struct RLTimeSeriesStyle {
     bool mFillUnderCurve{ false };
     Color mFillColor{ 100, 200, 255, 60 };
 
-    const char* mTitle{ nullptr };
-    const char* mYAxisLabel{ nullptr };
+    std::string mTitle{};
+    std::string mYAxisLabel{};
     float mFontSize{ 12.0f };
 };
 

@@ -42,6 +42,24 @@ Let's face it: **there is no really simple C++ library for great-looking graphs*
 
 ---
 
+## 📚 Detailed Chart Documentation
+
+For comprehensive documentation on each chart type, including full API references and examples:
+
+| Chart Type | Description | Documentation |
+|------------|-------------|---------------|
+| 📊 Bar Chart | Vertical/horizontal bar charts | [RLBarChart.md](docs/RLBarChart.md) |
+| 🫧 Bubble Chart | Scatter/gravity bubble visualization | [RLBubble.md](docs/RLBubble.md) |
+| 🕯️ Candlestick | Financial OHLCV charts | [RLCandlestickChart.md](docs/RLCandlestickChart.md) |
+| 🌡️ Gauge | Circular gauge displays | [RLGauge.md](docs/RLGauge.md) |
+| 🗺️ Heat Map | Matrix color visualization | [RLHeatMap.md](docs/RLHeatMap.md) |
+| 📉 Log-Log Plot | Allan variance analysis | [RLLogPlot.md](docs/RLLogPlot.md) |
+| 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |
+| 📈 Scatter Plot | Multi-series scatter/line plots | [RLScatterPlot.md](docs/RLScatterPlot.md) |
+| 📊 Time Series | Streaming time series | [RLTimeSeries.md](docs/RLTimeSeries.md) |
+
+---
+
 ## 🚀 Quick Start
 
 Using cpp-charts is incredibly simple. Here's a complete example creating an animated bar chart:

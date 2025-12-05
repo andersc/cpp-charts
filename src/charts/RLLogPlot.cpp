@@ -387,9 +387,9 @@ void RLLogPlot::drawTimeSeries() const {
     }
 
     // Title
-    if (mTimeSeriesStyle.mTitle) {
+    if (!mTimeSeriesStyle.mTitle.empty()) {
         int lTitleSize = (int)mTimeSeriesStyle.mFontSize + 2;
-        DrawText(mTimeSeriesStyle.mTitle,
+        DrawText(mTimeSeriesStyle.mTitle.c_str(),
                 (int)(lBounds.x + 10),
                 (int)(lBounds.y + 5),
                 lTitleSize,
@@ -397,8 +397,8 @@ void RLLogPlot::drawTimeSeries() const {
     }
 
     // Y-axis label
-    if (mTimeSeriesStyle.mYAxisLabel) {
-        DrawText(mTimeSeriesStyle.mYAxisLabel,
+    if (!mTimeSeriesStyle.mYAxisLabel.empty()) {
+        DrawText(mTimeSeriesStyle.mYAxisLabel.c_str(),
                 (int)(lBounds.x - 5),
                 (int)(lPlotRect.y + lPlotRect.height * 0.5f),
                 (int)mTimeSeriesStyle.mFontSize,
@@ -427,10 +427,10 @@ void RLLogPlot::drawLogPlot() const {
     }
 
     // Title
-    if (mLogPlotStyle.mTitle) {
+    if (!mLogPlotStyle.mTitle.empty()) {
         int lTitleSize = (int)mLogPlotStyle.mTitleFontSize;
-        int lTitleWidth = MeasureText(mLogPlotStyle.mTitle, lTitleSize);
-        DrawText(mLogPlotStyle.mTitle,
+        int lTitleWidth = MeasureText(mLogPlotStyle.mTitle.c_str(), lTitleSize);
+        DrawText(mLogPlotStyle.mTitle.c_str(),
                 (int)(lBounds.x + lBounds.width * 0.5f - lTitleWidth * 0.5f),
                 (int)(lBounds.y + 8),
                 lTitleSize,
@@ -537,20 +537,20 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
     }
 
     // Axis labels
-    if (mLogPlotStyle.mXAxisLabel) {
+    if (!mLogPlotStyle.mXAxisLabel.empty()) {
         int lLabelSize = lFontSize + 2;
-        int lWidth = MeasureText(mLogPlotStyle.mXAxisLabel, lLabelSize);
-        DrawText(mLogPlotStyle.mXAxisLabel,
+        int lWidth = MeasureText(mLogPlotStyle.mXAxisLabel.c_str(), lLabelSize);
+        DrawText(mLogPlotStyle.mXAxisLabel.c_str(),
                 (int)(aPlotRect.x + aPlotRect.width * 0.5f - lWidth * 0.5f),
                 (int)(aPlotRect.y + aPlotRect.height + 35),
                 lLabelSize,
                 mLogPlotStyle.mTextColor);
     }
 
-    if (mLogPlotStyle.mYAxisLabel) {
+    if (!mLogPlotStyle.mYAxisLabel.empty()) {
         // Vertical text (FIXME: simplified - draw horizontally for now)
         int lLabelSize = lFontSize + 2;
-        DrawText(mLogPlotStyle.mYAxisLabel,
+        DrawText(mLogPlotStyle.mYAxisLabel.c_str(),
                 (int)(aPlotRect.x - mLogPlotStyle.mPadding + 5),
                 (int)(aPlotRect.y + aPlotRect.height * 0.5f),
                 lLabelSize,

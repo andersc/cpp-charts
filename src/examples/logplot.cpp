@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "RLLogPlot.h"
+#include "RLTimeSeries.h"
 #include <vector>
 #include <cmath>
 #include <cstdlib>
@@ -142,7 +143,7 @@ struct DemoState {
     bool showStats{ true };
 };
 
-static void drawUI(const DemoState& rState, const RLLogPlot& rPlot) {
+static void drawUI(const DemoState& rState, const RLLogPlot& rPlot, size_t aSampleCount) {
     int lY = 10;
     int lFontSize = 16;
     Color lTextColor = Color{200, 210, 220, 255};
@@ -157,7 +158,7 @@ static void drawUI(const DemoState& rState, const RLLogPlot& rPlot) {
         char lBuf[256];
 
         snprintf(lBuf, sizeof(lBuf), "Samples: %zu / %d",
-                rPlot.getTimeSeriesSize(), rState.windowSize);
+                aSampleCount, rState.windowSize);
         DrawText(lBuf, 10, lY, lFontSize, lTextColor);
         lY += 22;
 
@@ -206,21 +207,36 @@ int main() {
     InitWindow(lScreenW, lScreenH, "RLLogPlot - Real-Time Allan Variance Analysis");
     SetTargetFPS(120);
 
-    // Create plot system
-    Rectangle lPlotBounds{ 300, 50, (float)lScreenW - 320, (float)lScreenH - 70 };
-    RLLogPlot lPlot(lPlotBounds);
+    // Calculate layout for time series and log plot
+    const float lTimeSeriesHeight = 0.3f;
+    const float lGap = 20.0f;
+    Rectangle lTSBounds{ 300, 50, (float)lScreenW - 320, ((float)lScreenH - 70) * lTimeSeriesHeight };
+    Rectangle lLogPlotBounds{ 300, lTSBounds.y + lTSBounds.height + lGap,
+                               (float)lScreenW - 320, ((float)lScreenH - 70) * (1.0f - lTimeSeriesHeight) - lGap };
+
+    // Create time series visualizer using RLTimeSeries class
+    RLTimeSeries lTimeSeries(lTSBounds, 500);
 
     // Configure time series style
-    RLTimeSeriesStyle lTSStyle;
+    RLTimeSeriesChartStyle lTSStyle;
     lTSStyle.mBackground = Color{18, 20, 24, 255};
-    lTSStyle.mLineColor = Color{100, 200, 255, 255};
-    lTSStyle.mLineThickness = 2.0f;
-    lTSStyle.mFillUnderCurve = true;
-    lTSStyle.mFillColor = Color{100, 200, 255, 40};
     lTSStyle.mShowGrid = true;
-    lTSStyle.mTitle = "Input Time Series (Sliding Window)";
-    lTSStyle.mYAxisLabel = "Value";
-    lPlot.setTimeSeriesStyle(lTSStyle);
+    lTSStyle.mAutoScaleY = true;
+    lTSStyle.mAutoScaleMargin = 0.1f;
+    lTSStyle.mSmoothScale = true;
+    lTSStyle.mScaleSpeed = 4.0f;
+    lTimeSeries.setStyle(lTSStyle);
+
+    // Add a trace for the time series
+    RLTimeSeriesTraceStyle lTraceStyle;
+    lTraceStyle.mColor = Color{100, 200, 255, 255};
+    lTraceStyle.mLineThickness = 2.0f;
+    lTraceStyle.mLineMode = RLTimeSeriesLineMode::Linear;
+    lTraceStyle.mShowPoints = false;
+    size_t lTraceIdx = lTimeSeries.addTrace(lTraceStyle);
+
+    // Create log-log plot (RLLogPlot without time series portion)
+    RLLogPlot lPlot(lLogPlotBounds);
 
     // Configure log-log plot style
     RLLogPlotStyle lLogStyle;
@@ -236,11 +252,16 @@ int main() {
     lLogStyle.mAutoScaleY = true;
     lPlot.setLogPlotStyle(lLogStyle);
 
-    lPlot.setTimeSeriesHeight(0.3f);
+    // Hide the internal time series portion of RLLogPlot
+    lPlot.setTimeSeriesHeight(0.0f);
 
     // Demo state
     DemoState lState;
-    lPlot.setWindowSize(lState.windowSize);
+    lTimeSeries.setWindowSize(lState.windowSize);
+
+    // Data buffer for Allan analysis (separate from RLTimeSeries visualization)
+    std::vector<float> lSampleBuffer;
+    lSampleBuffer.reserve(2000);
 
     // Main loop
     while (!WindowShouldClose()) {
@@ -257,7 +278,8 @@ int main() {
             lState.showStats = !lState.showStats;
         }
         if (IsKeyPressed(KEY_R)) {
-            lPlot.clearTimeSeries();
+            lTimeSeries.clearTrace(lTraceIdx);
+            lSampleBuffer.clear();
             lPlot.clearTraces();
             lState.time = 0.0f;
         }
@@ -276,12 +298,12 @@ int main() {
         if (IsKeyPressed(KEY_RIGHT)) {
             lState.windowSize = (int)(lState.windowSize * 1.5f);
             if (lState.windowSize > 2000) lState.windowSize = 2000;
-            lPlot.setWindowSize(lState.windowSize);
+            lTimeSeries.setWindowSize(lState.windowSize);
         }
         if (IsKeyPressed(KEY_LEFT)) {
             lState.windowSize = (int)(lState.windowSize / 1.5f);
             if (lState.windowSize < 50) lState.windowSize = 50;
-            lPlot.setWindowSize(lState.windowSize);
+            lTimeSeries.setWindowSize(lState.windowSize);
         }
 
         // Toggle traces
@@ -301,7 +323,17 @@ int main() {
             float lSamplePeriod = 1.0f / lState.sampleRate;
             while (lState.timeSinceLastSample >= lSamplePeriod) {
                 float lSample = generateNoiseSample(lState.time, lState.noiseLevel, lState.driftRate);
-                lPlot.pushSample(lSample);
+
+                // Push to the RLTimeSeries visualizer
+                lTimeSeries.pushSample(lTraceIdx, lSample);
+
+                // Also keep in our sample buffer for Allan analysis
+                lSampleBuffer.push_back(lSample);
+                // Keep buffer size in check with window size
+                while (lSampleBuffer.size() > (size_t)lState.windowSize) {
+                    lSampleBuffer.erase(lSampleBuffer.begin());
+                }
+
                 lState.timeSinceLastSample -= lSamplePeriod;
             }
 
@@ -311,9 +343,7 @@ int main() {
                 lState.timeSinceUpdate = 0.0f;
 
                 // Only compute if we have enough data
-                if (lPlot.getTimeSeriesSize() >= 10) {
-                    const auto& lTimeSeries = lPlot.getTimeSeries();
-
+                if (lSampleBuffer.size() >= 10) {
                     // Clear and rebuild traces
                     lPlot.clearTraces();
 
@@ -325,7 +355,7 @@ int main() {
 
                         // Compute analysis
                         AllanAnalysisResult lAnalysis = computeAllanLikeAnalysis(
-                            lTimeSeries,
+                            lSampleBuffer,
                             lConfig.minTau,
                             0,
                             lConfig.confidenceScale
@@ -360,11 +390,15 @@ int main() {
         BeginDrawing();
         ClearBackground(Color{15, 16, 20, 255});
 
-        // Draw plot system
+        // Draw time series (RLTimeSeries)
+        lTimeSeries.update(lDt);
+        lTimeSeries.draw();
+
+        // Draw log plot system
         lPlot.draw();
 
         // Draw UI overlay
-        drawUI(lState, lPlot);
+        drawUI(lState, lPlot, lSampleBuffer.size());
 
         // Visual pulse indicator when active
         if (lState.autoUpdate) {

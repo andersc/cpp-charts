@@ -47,7 +47,7 @@ int main(){
     Rectangle lMid{ lLeft.x + lLeft.width + 40.0f, lLeft.y, lLeft.width, lLeft.height };
     Rectangle lRight{ lMid.x + lMid.width + 40.0f, lLeft.y, lLeft.width, lLeft.height };
 
-    RLPieChartStyle lStyle; lStyle.mBackground = Color{24,26,32,255}; lStyle.mPadding = 16.0f; lStyle.lAngleSpeed = 8.0f; lStyle.lFadeSpeed = 8.0f;
+    RLPieChartStyle lStyle; lStyle.mBackground = Color{24,26,32,255}; lStyle.mPadding = 16.0f; lStyle.mAngleSpeed = 8.0f; lStyle.mFadeSpeed = 8.0f;
 
     // Left: values change over time (solid pie)
     RLPieChart lPieA(lLeft, lStyle);

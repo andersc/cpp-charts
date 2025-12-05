@@ -62,7 +62,7 @@ int main() {
     lBarStyle.mGridLines = 4;
     lBarStyle.mSpacing = 8.0f;
     lBarStyle.mCornerRadius = 6.0f;
-    lBarStyle.lLabelFontSize = 12;
+    lBarStyle.mLabelFontSize = 12;
 
     RLBarChart lBarChart(getChartBounds(0, 0), RLBarOrientation::VERTICAL, lBarStyle);
     std::vector<RLBarData> lBarData;
@@ -94,7 +94,7 @@ int main() {
         lPoint.mColor = paletteColor(i);
         lBubbleData.push_back(lPoint);
     }
-    lBubble.SetData(lBubbleData);
+    lBubble.setData(lBubbleData);
 
     // ===== 3. Candlestick Chart =====
     RLCandleStyle lCandleStyle;
@@ -236,7 +236,7 @@ int main() {
 
         // Update all charts
         lBarChart.update(lDt);
-        lBubble.Update(lDt);
+        lBubble.update(lDt);
         lCandlestick.update(lDt);
         lGauge.update(lDt);
         lHeatMap.update(lDt);
@@ -255,7 +255,7 @@ int main() {
 
         // Draw all charts
         lBarChart.draw();
-        lBubble.Draw();
+        lBubble.draw();
         lCandlestick.draw();
         lGauge.draw();
         lHeatMap.draw();

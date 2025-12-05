@@ -21,10 +21,10 @@ struct RLPieChartStyle {
     float mPadding{ 8.0f }; // inner padding inside bounds
 
     // Animation
-    bool lSmoothAnimate{ true };
-    float lAngleSpeed{ 8.0f }; // approach speed for angles (1/s)
-    float lFadeSpeed{ 8.0f };  // approach speed for visibility (1/s)
-    float lColorSpeed{ 6.0f }; // color blend speed (1/s)
+    bool mSmoothAnimate{ true };
+    float mAngleSpeed{ 8.0f }; // approach speed for angles (1/s)
+    float mFadeSpeed{ 8.0f };  // approach speed for visibility (1/s)
+    float mColorSpeed{ 6.0f }; // color blend speed (1/s)
 };
 
 class RLPieChart {

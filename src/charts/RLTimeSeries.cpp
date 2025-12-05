@@ -181,8 +181,8 @@ void RLTimeSeries::updateScale(float aDt) {
     // Smooth transition
     if (mStyle.mSmoothScale) {
         float lSpeed = mStyle.mScaleSpeed * aDt;
-        mCurrentMinY = approach(mCurrentMinY, mTargetMinY, lSpeed);
-        mCurrentMaxY = approach(mCurrentMaxY, mTargetMaxY, lSpeed);
+        mCurrentMinY = RLCharts::approach(mCurrentMinY, mTargetMinY, lSpeed);
+        mCurrentMaxY = RLCharts::approach(mCurrentMaxY, mTargetMaxY, lSpeed);
     } else {
         mCurrentMinY = mTargetMinY;
         mCurrentMaxY = mTargetMaxY;
@@ -402,9 +402,4 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
     }
 }
 
-float RLTimeSeries::approach(float a, float b, float aSpeedDt) {
-    float lDiff = b - a;
-    if (fabsf(lDiff) < 0.0001f) return b;
-    return a + lDiff * clamp01(aSpeedDt);
-}
 

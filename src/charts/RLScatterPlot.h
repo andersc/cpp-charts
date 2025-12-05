@@ -47,9 +47,9 @@ struct RLScatterPlotStyle {
     float mSplinePixels{ 6.0f }; // approximate pixels between samples
 
     // Animation
-    bool lSmoothAnimate{ true };
-    float lMoveSpeed{ 8.0f };  // position approach speed (1/s)
-    float lFadeSpeed{ 6.0f };  // visibility fade speed (1/s)
+    bool mSmoothAnimate{ true };
+    float mMoveSpeed{ 8.0f };  // position approach speed (1/s)
+    float mFadeSpeed{ 6.0f };  // visibility fade speed (1/s)
 };
 
 struct RLScatterSeries {

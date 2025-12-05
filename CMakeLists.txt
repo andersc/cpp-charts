@@ -128,6 +128,7 @@ endif()
 add_executable(raylib_logplot
         ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/logplot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
 )
 target_link_libraries(raylib_logplot
         raylib
@@ -161,6 +162,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLPieChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
 )
 target_link_libraries(raylib_all_charts
         raylib

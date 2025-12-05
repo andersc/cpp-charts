@@ -135,6 +135,9 @@ int main() {
     const float MODE_CYCLE_TIME = 8.0f;
     const char* MODE_NAMES[] = { "All Modes", "All Spline", "All Linear", "All Raw" };
 
+    // Track user-selected visibility for each trace
+    bool lTraceVisible[NUM_TRACES] = { true, true, true, true, true };
+
     // Main loop
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
@@ -150,7 +153,7 @@ int main() {
                 RLTimeSeriesTraceStyle lStyle{};
                 lStyle.mColor = TRACE_COLORS[i];
                 lStyle.mLineThickness = 2.0f;
-                lStyle.mVisible = true;
+                lStyle.mVisible = lTraceVisible[i];
                 lStyle.mPointRadius = 2.5f;
 
                 switch (lModeIndex) {
@@ -191,8 +194,6 @@ int main() {
         // Toggle trace visibility with number keys
         for (int i = 0; i < NUM_TRACES; ++i) {
             if (IsKeyPressed(KEY_ONE + i)) {
-                // Toggle visibility
-                static bool lTraceVisible[NUM_TRACES] = { true, true, true, true, true };
                 lTraceVisible[i] = !lTraceVisible[i];
                 lTimeSeries.setTraceVisible((size_t)i, lTraceVisible[i]);
             }

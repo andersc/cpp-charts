@@ -4,54 +4,40 @@
 #include <algorithm>
 #include <vector>
 
-// --- Internal Helper: Spatial Grid ---
-// This optimizes collision detection from O(N^2) to roughly O(N)
-// Moved to anonymous namespace to avoid external linkage conflicts
-namespace {
-struct SpatialGrid {
-    int cols{0}, rows{0};
-    float cellSize{1.0f};
-    float startX{0.0f}, startY{0.0f};
-    // Stores indices of bubbles in each cell
-    std::vector<std::vector<int>> cells;
+// --- SpatialGrid implementation ---
+// Optimizes collision detection from O(N^2) to roughly O(N)
 
-    void Setup(Rectangle bounds, float maxDiameter) {
-        cellSize = maxDiameter;
-        if (cellSize < 1.0f) cellSize = 10.0f; 
-        
-        startX = bounds.x;
-        startY = bounds.y;
-        cols = (int)(bounds.width / cellSize) + 2;
-        rows = (int)(bounds.height / cellSize) + 2;
-        
-        size_t total = (size_t)(cols * rows);
-        if (cells.size() < total) cells.resize(total);
-        
-        // Fast clear
-        for(auto& c : cells) c.clear();
+void RLBubble::SpatialGrid::setup(Rectangle aBounds, float aMaxDiameter) {
+    mCellSize = aMaxDiameter;
+    if (mCellSize < 1.0f) mCellSize = 10.0f;
+
+    mStartX = aBounds.x;
+    mStartY = aBounds.y;
+    mCols = (int)(aBounds.width / mCellSize) + 2;
+    mRows = (int)(aBounds.height / mCellSize) + 2;
+
+    size_t lTotal = (size_t)(mCols * mRows);
+    if (mCells.size() < lTotal) mCells.resize(lTotal);
+
+    // Fast clear
+    for (auto& rCell : mCells) rCell.clear();
+}
+
+void RLBubble::SpatialGrid::insert(int aBubbleIndex, Vector2 aPos) {
+    int lCx = (int)((aPos.x - mStartX) / mCellSize);
+    int lCy = (int)((aPos.y - mStartY) / mCellSize);
+    // Bounds check
+    if (lCx >= 0 && lCx < mCols && lCy >= 0 && lCy < mRows) {
+        mCells[lCy * mCols + lCx].push_back(aBubbleIndex);
     }
+}
 
-    void Insert(int bubbleIndex, Vector2 pos) {
-        int cx = (int)((pos.x - startX) / cellSize);
-        int cy = (int)((pos.y - startY) / cellSize);
-        // Bounds check
-        if (cx >= 0 && cx < cols && cy >= 0 && cy < rows) {
-            cells[cy * cols + cx].push_back(bubbleIndex);
-        }
+const std::vector<int>* RLBubble::SpatialGrid::getCell(int aCx, int aCy) const {
+    if (aCx >= 0 && aCx < mCols && aCy >= 0 && aCy < mRows) {
+        return &mCells[aCy * mCols + aCx];
     }
-
-    const std::vector<int>* GetCell(int cx, int cy) const {
-        if (cx >= 0 && cx < cols && cy >= 0 && cy < rows) {
-            return &cells[cy * cols + cx];
-        }
-        return nullptr;
-    }
-};
-
-// Local instance within anonymous namespace
-SpatialGrid gGrid;
-
-} // anonymous namespace
+    return nullptr;
+}
 
 RLBubble::RLBubble(Rectangle bounds, RLBubbleMode mode, const RLBubbleStyle &style)
     : mBounds(bounds), mMode(mode), mStyle(style)
@@ -63,9 +49,9 @@ Rectangle RLBubble::chartRect() const{
     return Rectangle{ mBounds.x+pad, mBounds.y+pad, std::max(0.0f,mBounds.width-2*pad), std::max(0.0f,mBounds.height-2*pad) };
 }
 
-void RLBubble::SetBounds(Rectangle bounds){ mBounds = bounds; }
-void RLBubble::SetStyle(const RLBubbleStyle &style){ mStyle = style; }
-void RLBubble::SetMode(RLBubbleMode mode){ mMode = mode; }
+void RLBubble::setBounds(Rectangle bounds){ mBounds = bounds; }
+void RLBubble::setStyle(const RLBubbleStyle &style){ mStyle = style; }
+void RLBubble::setMode(RLBubbleMode mode){ mMode = mode; }
 
 float RLBubble::sizeToRadius(float size) const{
     float r = std::sqrt(std::max(0.0f, size)) * mStyle.mSizeScale;
@@ -172,15 +158,15 @@ void RLBubble::buildTargetsForAnimation(const std::vector<RLBubblePoint> &data){
     }
 }
 
-void RLBubble::SetData(const std::vector<RLBubblePoint> &data){
+void RLBubble::setData(const std::vector<RLBubblePoint> &data){
     setImmediateDataInternal(data);
 }
 
-void RLBubble::SetTargetData(const std::vector<RLBubblePoint> &data){
+void RLBubble::setTargetData(const std::vector<RLBubblePoint> &data){
     buildTargetsForAnimation(data);
 }
 
-void RLBubble::Update(float dt){
+void RLBubble::update(float dt){
     if (mBubbles.empty()) return;
 
     // Cap dt to prevent physics explosions on lag
@@ -240,9 +226,9 @@ void RLBubble::Update(float dt){
         }
 
         // B. Collision Resolution (Grid Optimized)
-        gGrid.Setup(cr, maxDiameter);
+        mGrid.setup(cr, maxDiameter);
         for(int i = 0; i < (int)mBubbles.size(); ++i) {
-            gGrid.Insert(i, mBubbles[i].mPos);
+            mGrid.insert(i, mBubbles[i].mPos);
         }
 
         for (int k = 0; k < iterations; ++k){
@@ -250,13 +236,13 @@ void RLBubble::Update(float dt){
                 auto& a = mBubbles[i];
                 if (a.mRadius <= 0.0f) continue;
 
-                int cx = (int)((a.mPos.x - gGrid.startX) / gGrid.cellSize);
-                int cy = (int)((a.mPos.y - gGrid.startY) / gGrid.cellSize);
+                int cx = (int)((a.mPos.x - mGrid.mStartX) / mGrid.mCellSize);
+                int cy = (int)((a.mPos.y - mGrid.mStartY) / mGrid.mCellSize);
 
                 // Check 3x3 neighbors
                 for (int ny = cy - 1; ny <= cy + 1; ++ny) {
                     for (int nx = cx - 1; nx <= cx + 1; ++nx) {
-                        const std::vector<int>* cell = gGrid.GetCell(nx, ny);
+                        const std::vector<int>* cell = mGrid.getCell(nx, ny);
                         if (!cell) continue;
 
                         for (int j : *cell) {
@@ -315,7 +301,7 @@ void RLBubble::Update(float dt){
     if (it != mBubbles.end()) mBubbles.erase(it, mBubbles.end());
 }
 
-void RLBubble::Draw() const{
+void RLBubble::draw() const{
     // 1. Background
     if (mStyle.mBackground.a > 0) 
         DrawRectangleRounded(mBounds, 0.06f, 6, mStyle.mBackground);

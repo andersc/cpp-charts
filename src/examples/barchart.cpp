@@ -59,7 +59,7 @@ int main(){
     lStyle.mGridLines = 4;
     lStyle.mSpacing = 12.0f;
     lStyle.mCornerRadius = 8.0f;
-    lStyle.lLabelFontSize = 16;
+    lStyle.mLabelFontSize = 16;
 
     // Vertical with labels (random number of bars between 5 and 15)
     RLBarChart lVertical(lTopLeft, RLBarOrientation::VERTICAL, lStyle);
@@ -77,14 +77,14 @@ int main(){
     lHorizontal.setData(lHDataA);
 
     // Vertical compact
-    RLBarChartStyle lCompact = lStyle; lCompact.mSpacing = 6.0f; lCompact.mPadding = 10.0f; lCompact.lLabelFontSize = 14;
+    RLBarChartStyle lCompact = lStyle; lCompact.mSpacing = 6.0f; lCompact.mPadding = 10.0f; lCompact.mLabelFontSize = 14;
     RLBarChart lVerticalCompact(lBottomLeft, RLBarOrientation::VERTICAL, lCompact);
     auto lVCDataA = lMakeBars(12, 0, 80, false, true);
     auto lVCDataB = lMakeBars(12, 0, 80, false, true);
     lVerticalCompact.setData(lVCDataA);
 
     // Horizontal with borders and autoscale off (fixed scale 0..150)
-    RLBarChartStyle lFixed = lStyle; lFixed.mAutoScale = false; lFixed.lMinValue = 0.0f; lFixed.lMaxValue = 150.0f;
+    RLBarChartStyle lFixed = lStyle; lFixed.mAutoScale = false; lFixed.mMinValue = 0.0f; lFixed.mMaxValue = 150.0f;
     RLBarChart lHorizontalFixed(lBottomRight, RLBarOrientation::HORIZONTAL, lFixed);
     auto lHFDataA = lMakeBars(6, 0, 150, true, true);
     auto lHFDataB = lMakeBars(6, 0, 150, true, true);

@@ -320,8 +320,8 @@ void RLScatterPlot::setSingleSeriesTargetData(const std::vector<Vector2> &aData)
 
 void RLScatterPlot::update(float aDt){
     if (aDt <= 0.0f) return;
-    float lMoveT = clamp01(mStyle.lMoveSpeed * aDt);
-    float lFadeT = clamp01(mStyle.lFadeSpeed * aDt);
+    float lMoveT = clamp01(mStyle.mMoveSpeed * aDt);
+    float lFadeT = clamp01(mStyle.mFadeSpeed * aDt);
     for (auto &s : mSeries){
         ensureDynInitialized(s);
         bool lAnyChange = false;
