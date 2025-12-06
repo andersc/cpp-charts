@@ -164,6 +164,19 @@ if(WIN32)
     target_link_libraries(raylib_orderbook winmm)
 endif()
 
+# Build the tree map visualization demo
+add_executable(raylib_treemap
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/treemap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTreeMap.cpp
+)
+target_link_libraries(raylib_treemap
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_treemap winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -177,6 +190,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTreeMap.cpp
 )
 target_link_libraries(raylib_all_charts
         raylib

@@ -9,6 +9,7 @@
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
 #include "src/charts/RLScatterPlot.h"
+#include "src/charts/RLTreeMap.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -43,10 +44,10 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RayLib Charts - All Charts Demo");
     SetTargetFPS(60);
 
-    // Layout: 3x3 grid with small gaps
-    const float GAP = 10.0f;
-    const float MARGIN = 20.0f;
-    const float CHART_WIDTH = (SCREEN_WIDTH - 2 * MARGIN - 2 * GAP) / 3.0f;
+    // Layout: 4x3 grid with small gaps (allows for 12 charts, using 10)
+    const float GAP = 8.0f;
+    const float MARGIN = 15.0f;
+    const float CHART_WIDTH = (SCREEN_WIDTH - 2 * MARGIN - 3 * GAP) / 4.0f;
     const float CHART_HEIGHT = (SCREEN_HEIGHT - 2 * MARGIN - 2 * GAP) / 3.0f;
 
     // Helper to get chart bounds
@@ -129,7 +130,7 @@ int main() {
     lGaugeStyle.mTickCount = 50;
     lGaugeStyle.mShowValueText = true;
 
-    RLGauge lGauge(getChartBounds(1, 0), 0.0f, 100.0f, lGaugeStyle);
+    RLGauge lGauge(getChartBounds(0, 3), 0.0f, 100.0f, lGaugeStyle);
     lGauge.setValue(65.0f);
 
     // ===== 5. Heat Map =====
@@ -138,7 +139,7 @@ int main() {
     lHeatMapStyle.mShowBorder = true;
     lHeatMapStyle.mBorderColor = Color{40, 44, 52, 255};
 
-    RLHeatMap lHeatMap(getChartBounds(1, 1), 64, 64);
+    RLHeatMap lHeatMap(getChartBounds(1, 0), 64, 64);
     lHeatMap.setStyle(lHeatMapStyle);
     lHeatMap.setUpdateMode(RLHeatMapUpdateMode::Accumulate);
 
@@ -157,7 +158,7 @@ int main() {
     lPieStyle.mShowBackground = true;
     lPieStyle.mPadding = 10.0f;
 
-    RLPieChart lPieChart(getChartBounds(1, 2), lPieStyle);
+    RLPieChart lPieChart(getChartBounds(1, 1), lPieStyle);
     lPieChart.setHollowFactor(0.4f); // Donut chart
 
     std::vector<RLPieSliceData> lPieData;
@@ -178,7 +179,7 @@ int main() {
     lScatterStyle.mGridLines = 4;
     lScatterStyle.mAutoScale = true;
 
-    RLScatterPlot lScatterPlot(getChartBounds(2, 0), lScatterStyle);
+    RLScatterPlot lScatterPlot(getChartBounds(1, 2), lScatterStyle);
 
     RLScatterSeriesStyle lSeriesStyle;
     lSeriesStyle.mLineColor = Color{80, 180, 255, 255};
@@ -199,7 +200,7 @@ int main() {
     RLBarChartStyle lBarStyle2 = lBarStyle;
     lBarStyle2.mShowLabels = false;
 
-    RLBarChart lBarChart2(getChartBounds(2, 1), RLBarOrientation::HORIZONTAL, lBarStyle2);
+    RLBarChart lBarChart2(getChartBounds(1, 3), RLBarOrientation::HORIZONTAL, lBarStyle2);
     std::vector<RLBarData> lBarData2;
     for (int i = 0; i < 8; ++i) {
         RLBarData lBar;
@@ -220,7 +221,7 @@ int main() {
     lOrderBookStyle.mShowMidLine = true;
     lOrderBookStyle.mIntensityScale = 1.2f;
 
-    RLOrderBookVis lOrderBook(getChartBounds(2, 2), 60, 40);
+    RLOrderBookVis lOrderBook(getChartBounds(2, 0), 60, 40);
     lOrderBook.setStyle(lOrderBookStyle);
     lOrderBook.setPriceMode(RLOrderBookPriceMode::SpreadTicks);
     lOrderBook.setSpreadTicks(20);
@@ -240,6 +241,56 @@ int main() {
         lOrderBook.pushSnapshot(lSnap);
         lMidPrice += randFloat(-0.01f, 0.01f);
     }
+
+    // ===== 10. TreeMap =====
+    RLTreeMapStyle lTreeMapStyle;
+    lTreeMapStyle.mBackground = Color{20, 22, 28, 255};
+    lTreeMapStyle.mShowBackground = true;
+    lTreeMapStyle.mPaddingOuter = 4.0f;
+    lTreeMapStyle.mPaddingInner = 2.0f;
+    lTreeMapStyle.mPaddingTop = 16.0f;
+    lTreeMapStyle.mBorderThickness = 1.0f;
+    lTreeMapStyle.mBorderColor = Color{40, 44, 52, 255};
+    lTreeMapStyle.mCornerRadius = 3.0f;
+    lTreeMapStyle.mShowInternalNodes = true;
+    lTreeMapStyle.mInternalNodeColor = Color{30, 34, 42, 220};
+    lTreeMapStyle.mShowInternalLabels = true;
+    lTreeMapStyle.mShowLeafLabels = true;
+    lTreeMapStyle.mMinNodeSize = 10.0f;
+    lTreeMapStyle.mLabelFontSize = 10;
+    lTreeMapStyle.mAutoLabelColor = true;
+    lTreeMapStyle.mSmoothAnimate = true;
+    lTreeMapStyle.mUseDepthColors = false;
+
+    RLTreeMap lTreeMap(getChartBounds(2, 1), lTreeMapStyle);
+    lTreeMap.setLayout(RLTreeMapLayout::SQUARIFIED);
+
+    // Create sample tree hierarchy
+    RLTreeNode lTreeRoot;
+    lTreeRoot.mLabel = "Root";
+
+    RLTreeNode lCategory1;
+    lCategory1.mLabel = "Category A";
+    lCategory1.mChildren.push_back({"Item 1", randFloat(30.0f, 80.0f), paletteColor(0), true, {}});
+    lCategory1.mChildren.push_back({"Item 2", randFloat(20.0f, 60.0f), paletteColor(0), true, {}});
+    lCategory1.mChildren.push_back({"Item 3", randFloat(15.0f, 40.0f), paletteColor(0), true, {}});
+    lTreeRoot.mChildren.push_back(lCategory1);
+
+    RLTreeNode lCategory2;
+    lCategory2.mLabel = "Category B";
+    lCategory2.mChildren.push_back({"Item 4", randFloat(50.0f, 100.0f), paletteColor(1), true, {}});
+    lCategory2.mChildren.push_back({"Item 5", randFloat(25.0f, 55.0f), paletteColor(1), true, {}});
+    lTreeRoot.mChildren.push_back(lCategory2);
+
+    RLTreeNode lCategory3;
+    lCategory3.mLabel = "Category C";
+    lCategory3.mChildren.push_back({"Item 6", randFloat(40.0f, 90.0f), paletteColor(2), true, {}});
+    lCategory3.mChildren.push_back({"Item 7", randFloat(20.0f, 45.0f), paletteColor(2), true, {}});
+    lCategory3.mChildren.push_back({"Item 8", randFloat(10.0f, 30.0f), paletteColor(2), true, {}});
+    lCategory3.mChildren.push_back({"Item 9", randFloat(5.0f, 20.0f), paletteColor(2), true, {}});
+    lTreeRoot.mChildren.push_back(lCategory3);
+
+    lTreeMap.setData(lTreeRoot);
 
     // Animation variables
     float lTime = 0.0f;
@@ -284,6 +335,7 @@ int main() {
         lScatterPlot.update(lDt);
         lBarChart2.update(lDt);
         lOrderBook.update(lDt);
+        lTreeMap.update(lDt);
 
         // Draw
         BeginDrawing();
@@ -303,20 +355,23 @@ int main() {
         lScatterPlot.draw();
         lBarChart2.draw();
         lOrderBook.draw2D();
+        lTreeMap.draw();
 
-        // Draw labels for each chart
+        // Draw labels for each chart (4x3 grid, 10 charts)
         const char* lLabels[] = {
-            "Bar Chart", "Bubble Chart", "Candlestick",
-            "Gauge", "Heat Map", "Pie Chart",
-            "Scatter Plot", "Bar Chart H", "Order Book"
+            "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
+            "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
+            "Order Book", "TreeMap", "", ""
         };
 
         for (int lRow = 0; lRow < 3; ++lRow) {
-            for (int lCol = 0; lCol < 3; ++lCol) {
-                Rectangle lBounds = getChartBounds(lRow, lCol);
-                int lIndex = lRow * 3 + lCol;
-                DrawText(lLabels[lIndex], (int)lBounds.x + 5, (int)lBounds.y - 18,
-                         16, Color{180, 180, 190, 255});
+            for (int lCol = 0; lCol < 4; ++lCol) {
+                int lIndex = lRow * 4 + lCol;
+                if (lLabels[lIndex][0] != '\0') {
+                    Rectangle lBounds = getChartBounds(lRow, lCol);
+                    DrawText(lLabels[lIndex], (int)lBounds.x + 5, (int)lBounds.y - 16,
+                             14, Color{180, 180, 190, 255});
+                }
             }
         }
 

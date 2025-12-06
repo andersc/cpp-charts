@@ -33,6 +33,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs**.
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
 - 📈 **Time Series** - High-performance streaming time series with multiple traces and spline interpolation
 - 📊 **Order Book** - Full depth-of-market visualization with 2D heatmap and 3D landscape views
+- 🌳 **Tree Maps** - D3-style hierarchical data visualization with squarified layout
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
@@ -60,6 +61,7 @@ For comprehensive documentation on each chart type, including full API reference
 | 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |
 | 📈 Scatter Plot | Multi-series scatter/line plots | [RLScatterPlot.md](docs/RLScatterPlot.md) |
 | 📊 Time Series | Streaming time series | [RLTimeSeries.md](docs/RLTimeSeries.md) |
+| 🌳 Tree Map | D3-style hierarchical treemap | [RLTreeMap.md](docs/RLTreeMap.md) |
 
 ---
 
