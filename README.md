@@ -71,7 +71,6 @@ For comprehensive documentation on each chart type, including full API reference
 Using cpp-charts is incredibly simple. Here's a complete example creating an animated bar chart:
 
 ```cpp
-#include "raylib.h"
 #include "RLBarChart.h"
 #include <vector>
 
@@ -230,6 +229,53 @@ chart.draw();
 ---
 
 ## 📦 Integration into Your Project
+
+### You need to have the following dependencies installed:
+- [raylib](https://www.raylib.com/) 5.0 or higher
+- [zlib](https://zlib.net/) (for certain features)
+- CMake 3.28 or higher
+
+### MacOS (using Homebrew):
+
+```bash
+brew install raylib zlib
+``` 
+### Ubuntu (using apt):
+
+```bash
+sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev zlib1g-dev
+cd (your installation root path)
+git clone --branch 5.5 https://github.com/raysan5/raylib.git raylib
+cd raylib
+mkdir build && cd build
+cmake -DBUILD_SHARED_LIBS=ON ..
+make
+sudo make install
+sudo ldconfig
+
+```
+### Windows:
+
+install cmake for windows, then run the following commands in a terminal (bash),
+See the windows build actions for reference. The below builds the x86_64 binaries for arm change the architecture in the cmake generator line.
+
+
+```bash
+cd (your installation root path)
+git clone --branch v1.3.1 https://github.com/madler/zlib.git
+cd zlib
+cmake -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build . --target install --config Release
+
+cd (your installation root path)
+git clone --branch 5.5 https://github.com/raysan5/raylib.git
+cd raylib
+mkdir build
+cd build
+cmake -G "Visual Studio 17 2022" -A x64 ..
+cmake --build . --config Release
+cmake --install . --config Release
+```
 
 ### Method 1: Using CMake FetchContent (Recommended)
 
