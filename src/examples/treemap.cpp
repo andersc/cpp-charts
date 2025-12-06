@@ -1,7 +1,6 @@
 // treemap.cpp
 // TreeMap Visualization Demo
 // Demonstrates D3-style treemap with hierarchical data and animations
-#include "raylib.h"
 #include "RLTreeMap.h"
 #include <vector>
 #include <cmath>

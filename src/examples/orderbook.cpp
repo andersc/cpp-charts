@@ -1,13 +1,13 @@
 // orderbook.cpp
 // Order Book Visualization Demo
 // Demonstrates 2D heatmap and 3D landscape views of depth-of-market data
-#include "raylib.h"
 #include "RLOrderBookVis.h"
 #include <vector>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>
+#include <cstdint>
 
 // Fast PRNG (Xorshift)
 static uint32_t gRngState = 123456789;
