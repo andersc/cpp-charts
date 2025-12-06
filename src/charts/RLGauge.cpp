@@ -120,11 +120,15 @@ void RLGauge::draw() const{
         char buf[32];
         float t = (mValue - mMinValue)/(mMaxValue - mMinValue);
         // map to 0-100 for common gauge feel
-        snprintf(buf, sizeof(buf), "%3.0f", t*100.0f);
+        snprintf(buf, sizeof(buf), "%.0f", t*100.0f);
         const Font &font = (mStyle.mLabelFont.baseSize>0)? mStyle.mLabelFont : GetFontDefault();
         float fontSize = (fminf(mBounds.width, mBounds.height) * 0.20f);
         Vector2 ts = MeasureTextEx(font, buf, fontSize, 0);
-        Vector2 pos{ mCenter.x - ts.x*0.5f, mCenter.y - ts.y*0.5f };
+        // Position text at bottom center of gauge (below center, inside the arc)
+        float lInnerR = mRadius - mStyle.mThickness;
+        float lTextY = mCenter.y + lInnerR * 0.4f;  // Position below center
+        // Center text horizontally and vertically
+        Vector2 pos{ mCenter.x - ts.x * 0.5f, lTextY - ts.y * 0.5f };
         DrawTextEx(font, buf, pos, fontSize, 0, mStyle.mLabelColor);
     }
 }

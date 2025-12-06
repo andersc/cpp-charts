@@ -1,3 +1,6 @@
+
+//The orderbook visualization 3D mode is WIP and not 100% correct
+
 // orderbook.cpp
 // Order Book Visualization Demo
 // Demonstrates 2D heatmap and 3D landscape views of depth-of-market data

@@ -53,7 +53,7 @@ int main(){
         speed.draw();
         temp.draw();
 
-        DrawText("RLGauge demo - simple API, fast drawing", 20, screenH-40, 20, GRAY);
+        DrawText("RLGauge demo", 20, screenH-40, 20, GRAY);
         DrawFPS(20, 20);
         EndDrawing();
     }

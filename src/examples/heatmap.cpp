@@ -128,7 +128,7 @@ int main(){
     SetTargetFPS(120);
 
     // Layout
-    float lPad = 24.0f;
+    float lPad = 34.0f;
     float lTop = 60.0f;
     float lWidth = (lW - lPad*4) / 3.0f;
     float lHeight = lH - lTop - lPad*2;
@@ -226,7 +226,7 @@ int main(){
         lHM_Repl.draw();
         lHM_Decay.draw();
 
-        DrawText("Accumulate (3-color) -- press 1/2/3 to change resolution", (int)lA.x, (int)(lA.y-28), 20, GRAY);
+        DrawText("Accumulate (3-color) press 1/2/3", (int)lA.x, (int)(lA.y-28), 20, GRAY);
         DrawText("Replace per-batch (4-color)", (int)lB.x, (int)(lB.y-28), 20, GRAY);
         DrawText("Decay (4-color, half-life 1.2s)", (int)lC.x, (int)(lC.y-28), 20, GRAY);
 
