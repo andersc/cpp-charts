@@ -279,7 +279,7 @@ target_link_libraries(single_guage
         Threads::Threads
 )
 if(WIN32)
-    target_link_libraries(raylib_bubble winmm)
+    target_link_libraries(single_guage winmm)
 endif()
 
 
