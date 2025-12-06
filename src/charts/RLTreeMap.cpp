@@ -502,8 +502,10 @@ void RLTreeMap::draw() const {
 
         if (lShowLabel && !rRect.mLabel.empty()) {
             int lFontSize = mStyle.mLabelFontSize;
-            int lTextWidth = MeasureText(rRect.mLabel.c_str(), lFontSize);
-            int lTextHeight = lFontSize;
+            const Font& lFont = (mStyle.mLabelFont.baseSize > 0) ? mStyle.mLabelFont : GetFontDefault();
+            Vector2 lTextSize = MeasureTextEx(lFont, rRect.mLabel.c_str(), (float)lFontSize, 0);
+            int lTextWidth = (int)lTextSize.x;
+            int lTextHeight = (int)lTextSize.y;
 
             // Check if label fits
             bool lFits = true;
@@ -533,7 +535,7 @@ void RLTreeMap::draw() const {
                     lY = rRect.mRect.y + 2.0f;
                 }
 
-                DrawText(rRect.mLabel.c_str(), (int)lX, (int)lY, lFontSize, lLabelColor);
+                DrawTextEx(lFont, rRect.mLabel.c_str(), Vector2{lX, lY}, (float)lFontSize, 0, lLabelColor);
             }
         }
     }

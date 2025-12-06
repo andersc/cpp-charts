@@ -237,6 +237,9 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TreeMap Visualization - D3-Style Layout Demo");
     SetTargetFPS(60);
 
+    // Load custom font
+    Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
     // Create treemap bounds
     Rectangle lTreeMapBounds = {50, 100, 900, 700};
     Rectangle lInfoBounds = {980, 100, 370, 700};
@@ -264,6 +267,7 @@ int main() {
     lStyle.mAnimateSpeed = 5.0f;
     lStyle.mColorSpeed = 3.0f;
     lStyle.mUseDepthColors = false;  // Use custom colors from data
+    lStyle.mLabelFont = lBaseFont;
 
     RLTreeMap lTreeMap(lTreeMapBounds, lStyle);
     lTreeMap.setLayout(RLTreeMapLayout::SQUARIFIED);
@@ -496,6 +500,7 @@ int main() {
         EndDrawing();
     }
 
+    UnloadFont(lBaseFont);
     CloseWindow();
     return 0;
 }

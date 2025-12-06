@@ -40,6 +40,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs**.
 - 🎨 Full color and styling customization
 - 📐 Automatic scaling and layout
 - 🏷️ Label support with smart positioning
+- 🔤 Custom font support (load your own TTF fonts)
 - ⚡ High performance with raylib rendering
 - 🖱️ Responsive design with various display modes
 

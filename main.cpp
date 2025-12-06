@@ -44,6 +44,9 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RayLib Charts - All Charts Demo");
     SetTargetFPS(60);
 
+    // Load custom font
+    Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
     // Layout: 4x3 grid with small gaps (allows for 12 charts, using 10)
     const float GAP = 8.0f;
     const float MARGIN = 15.0f;
@@ -65,6 +68,7 @@ int main() {
     lBarStyle.mSpacing = 8.0f;
     lBarStyle.mCornerRadius = 6.0f;
     lBarStyle.mLabelFontSize = 12;
+    lBarStyle.mLabelFont = lBaseFont;
 
     RLBarChart lBarChart(getChartBounds(0, 0), RLBarOrientation::VERTICAL, lBarStyle);
     std::vector<RLBarData> lBarData;
@@ -129,6 +133,7 @@ int main() {
     lGaugeStyle.mThickness = 16.0f;
     lGaugeStyle.mTickCount = 50;
     lGaugeStyle.mShowValueText = true;
+    lGaugeStyle.mLabelFont = lBaseFont;
 
     RLGauge lGauge(getChartBounds(0, 3), 0.0f, 100.0f, lGaugeStyle);
     lGauge.setValue(65.0f);
@@ -261,6 +266,7 @@ int main() {
     lTreeMapStyle.mAutoLabelColor = true;
     lTreeMapStyle.mSmoothAnimate = true;
     lTreeMapStyle.mUseDepthColors = false;
+    lTreeMapStyle.mLabelFont = lBaseFont;
 
     RLTreeMap lTreeMap(getChartBounds(2, 1), lTreeMapStyle);
     lTreeMap.setLayout(RLTreeMapLayout::SQUARIFIED);
@@ -380,6 +386,7 @@ int main() {
         EndDrawing();
     }
 
+    UnloadFont(lBaseFont);
     CloseWindow();
     return 0;
 }

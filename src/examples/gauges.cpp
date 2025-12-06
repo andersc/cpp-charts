@@ -7,6 +7,9 @@ int main(){
     InitWindow(screenW, screenH, "raylib gauges - RLGauge demo");
     SetTargetFPS(120);
 
+    // Load custom font
+    Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
     // Simple styles
     RLGaugeStyle styleDefault;
     styleDefault.mBackgroundColor = {20,22,28,255};
@@ -14,6 +17,7 @@ int main(){
     styleDefault.mValueArcColor = {0,190,255,255};
     styleDefault.mNeedleColor = {255,80,80,255};
     styleDefault.mLabelColor = {235,235,245,255};
+    styleDefault.mLabelFont = lBaseFont;
 
     RLGaugeStyle styleGreen = styleDefault;
     styleGreen.mValueArcColor = {80, 220, 120, 255};
@@ -53,6 +57,7 @@ int main(){
         DrawFPS(20, 20);
         EndDrawing();
     }
+    UnloadFont(lBaseFont);
     CloseWindow();
     return 0;
 }

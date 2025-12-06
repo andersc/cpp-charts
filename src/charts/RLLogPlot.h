@@ -78,6 +78,7 @@ struct RLLogPlotStyle {
     std::string mYAxisLabel{};
     float mFontSize{ 14.0f };
     float mTitleFontSize{ 18.0f };
+    Font mFont{};                 // Optional custom font; if .baseSize==0 use default
 };
 
 // Style for time series view
@@ -103,6 +104,7 @@ struct RLTimeSeriesStyle {
     std::string mTitle{};
     std::string mYAxisLabel{};
     float mFontSize{ 12.0f };
+    Font mFont{};                 // Optional custom font; if .baseSize==0 use default
 };
 
 // Main class: dual-view plot system with time series + log-log analysis

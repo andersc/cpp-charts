@@ -53,6 +53,7 @@ struct RLTreeMapStyle {
     int mLabelFontSize{14};
     Color mLabelColor{230, 230, 240, 255};
     bool mAutoLabelColor{true};         // Choose white/black based on node color
+    Font mLabelFont{};                  // Optional custom font; if .baseSize==0 use default
 
     // Animation
     bool mSmoothAnimate{true};

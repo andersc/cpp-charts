@@ -389,19 +389,19 @@ void RLLogPlot::drawTimeSeries() const {
     // Title
     if (!mTimeSeriesStyle.mTitle.empty()) {
         int lTitleSize = (int)mTimeSeriesStyle.mFontSize + 2;
-        DrawText(mTimeSeriesStyle.mTitle.c_str(),
-                (int)(lBounds.x + 10),
-                (int)(lBounds.y + 5),
-                lTitleSize,
+        const Font& lFont = (mTimeSeriesStyle.mFont.baseSize > 0) ? mTimeSeriesStyle.mFont : GetFontDefault();
+        DrawTextEx(lFont, mTimeSeriesStyle.mTitle.c_str(),
+                Vector2{lBounds.x + 10, lBounds.y + 5},
+                (float)lTitleSize, 0,
                 mTimeSeriesStyle.mTextColor);
     }
 
     // Y-axis label
     if (!mTimeSeriesStyle.mYAxisLabel.empty()) {
-        DrawText(mTimeSeriesStyle.mYAxisLabel.c_str(),
-                (int)(lBounds.x - 5),
-                (int)(lPlotRect.y + lPlotRect.height * 0.5f),
-                (int)mTimeSeriesStyle.mFontSize,
+        const Font& lFont = (mTimeSeriesStyle.mFont.baseSize > 0) ? mTimeSeriesStyle.mFont : GetFontDefault();
+        DrawTextEx(lFont, mTimeSeriesStyle.mYAxisLabel.c_str(),
+                Vector2{lBounds.x - 5, lPlotRect.y + lPlotRect.height * 0.5f},
+                mTimeSeriesStyle.mFontSize, 0,
                 mTimeSeriesStyle.mTextColor);
     }
 }
@@ -429,11 +429,11 @@ void RLLogPlot::drawLogPlot() const {
     // Title
     if (!mLogPlotStyle.mTitle.empty()) {
         int lTitleSize = (int)mLogPlotStyle.mTitleFontSize;
-        int lTitleWidth = MeasureText(mLogPlotStyle.mTitle.c_str(), lTitleSize);
-        DrawText(mLogPlotStyle.mTitle.c_str(),
-                (int)(lBounds.x + lBounds.width * 0.5f - lTitleWidth * 0.5f),
-                (int)(lBounds.y + 8),
-                lTitleSize,
+        const Font& lFont = (mLogPlotStyle.mFont.baseSize > 0) ? mLogPlotStyle.mFont : GetFontDefault();
+        Vector2 lTitleSize2 = MeasureTextEx(lFont, mLogPlotStyle.mTitle.c_str(), (float)lTitleSize, 0);
+        DrawTextEx(lFont, mLogPlotStyle.mTitle.c_str(),
+                Vector2{lBounds.x + lBounds.width * 0.5f - lTitleSize2.x * 0.5f, lBounds.y + 8},
+                (float)lTitleSize, 0,
                 mLogPlotStyle.mTextColor);
     }
 }
@@ -505,6 +505,7 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
 
     // Tick labels
     int lFontSize = (int)mLogPlotStyle.mFontSize;
+    const Font& lFont = (mLogPlotStyle.mFont.baseSize > 0) ? mLogPlotStyle.mFont : GetFontDefault();
 
     // X-axis labels
     int lStartDecadeX = (int)floorf(mLogMinX);
@@ -516,9 +517,9 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
         Vector2 lPos = mapLogPoint(lLogX, mLogMinY, aPlotRect);
         char lBuf[32];
         snprintf(lBuf, sizeof(lBuf), "10^%d", lDec);
-        int lWidth = MeasureText(lBuf, lFontSize);
-        DrawText(lBuf, (int)(lPos.x - lWidth * 0.5f), (int)(lPos.y + 8),
-                lFontSize, mLogPlotStyle.mTextColor);
+        Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
+        DrawTextEx(lFont, lBuf, Vector2{lPos.x - lTextSize.x * 0.5f, lPos.y + 8},
+                (float)lFontSize, 0, mLogPlotStyle.mTextColor);
     }
 
     // Y-axis labels
@@ -531,29 +532,27 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
         Vector2 lPos = mapLogPoint(mLogMinX, lLogY, aPlotRect);
         char lBuf[32];
         snprintf(lBuf, sizeof(lBuf), "10^%d", lDec);
-        int lWidth = MeasureText(lBuf, lFontSize);
-        DrawText(lBuf, (int)(lPos.x - lWidth - 10), (int)(lPos.y - lFontSize * 0.5f),
-                lFontSize, mLogPlotStyle.mTextColor);
+        Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
+        DrawTextEx(lFont, lBuf, Vector2{lPos.x - lTextSize.x - 10, lPos.y - lFontSize * 0.5f},
+                (float)lFontSize, 0, mLogPlotStyle.mTextColor);
     }
 
     // Axis labels
     if (!mLogPlotStyle.mXAxisLabel.empty()) {
         int lLabelSize = lFontSize + 2;
-        int lWidth = MeasureText(mLogPlotStyle.mXAxisLabel.c_str(), lLabelSize);
-        DrawText(mLogPlotStyle.mXAxisLabel.c_str(),
-                (int)(aPlotRect.x + aPlotRect.width * 0.5f - lWidth * 0.5f),
-                (int)(aPlotRect.y + aPlotRect.height + 35),
-                lLabelSize,
+        Vector2 lTextSize = MeasureTextEx(lFont, mLogPlotStyle.mXAxisLabel.c_str(), (float)lLabelSize, 0);
+        DrawTextEx(lFont, mLogPlotStyle.mXAxisLabel.c_str(),
+                Vector2{aPlotRect.x + aPlotRect.width * 0.5f - lTextSize.x * 0.5f, aPlotRect.y + aPlotRect.height + 35},
+                (float)lLabelSize, 0,
                 mLogPlotStyle.mTextColor);
     }
 
     if (!mLogPlotStyle.mYAxisLabel.empty()) {
         // Vertical text (FIXME: simplified - draw horizontally for now)
         int lLabelSize = lFontSize + 2;
-        DrawText(mLogPlotStyle.mYAxisLabel.c_str(),
-                (int)(aPlotRect.x - mLogPlotStyle.mPadding + 5),
-                (int)(aPlotRect.y + aPlotRect.height * 0.5f),
-                lLabelSize,
+        DrawTextEx(lFont, mLogPlotStyle.mYAxisLabel.c_str(),
+                Vector2{aPlotRect.x - mLogPlotStyle.mPadding + 5, aPlotRect.y + aPlotRect.height * 0.5f},
+                (float)lLabelSize, 0,
                 mLogPlotStyle.mTextColor);
     }
 }

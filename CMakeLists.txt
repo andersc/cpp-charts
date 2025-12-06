@@ -199,3 +199,17 @@ target_link_libraries(raylib_all_charts
 if(WIN32)
     target_link_libraries(raylib_all_charts winmm)
 endif()
+
+# Copy font file to build directory for all executables
+set(FONT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/examples/base.ttf")
+set(FONT_DEST "${CMAKE_CURRENT_BINARY_DIR}/base.ttf")
+
+# Copy font at configure time
+file(COPY ${FONT_SOURCE} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# Also add a custom target to ensure font is copied after build (for IDEs)
+add_custom_target(copy_font ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_SOURCE} ${FONT_DEST}
+    COMMENT "Copying base.ttf font to build directory"
+)
+

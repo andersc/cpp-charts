@@ -46,6 +46,9 @@ int main(){
     InitWindow(lScreenW, lScreenH, "raylib bar chart - RLBarChart demo");
     SetTargetFPS(120);
 
+    // Load custom font
+    Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
     // Layout
     Rectangle lTopLeft{ 40, 60, (lScreenW-120)*0.5f, (lScreenH-120)*0.45f };
     Rectangle lTopRight{ lTopLeft.x + lTopLeft.width + 40.0f, lTopLeft.y, lTopLeft.width, lTopLeft.height };
@@ -59,6 +62,7 @@ int main(){
     lStyle.mSpacing = 12.0f;
     lStyle.mCornerRadius = 8.0f;
     lStyle.mLabelFontSize = 16;
+    lStyle.mLabelFont = lBaseFont;
 
     // Vertical with labels (random number of bars between 5 and 15)
     RLBarChart lVertical(lTopLeft, RLBarOrientation::VERTICAL, lStyle);
@@ -148,6 +152,7 @@ int main(){
         }
     }
 
+    UnloadFont(lBaseFont);
     CloseWindow();
     return 0;
 }

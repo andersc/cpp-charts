@@ -207,6 +207,9 @@ int main() {
     InitWindow(lScreenW, lScreenH, "RLLogPlot - Real-Time Allan Variance Analysis");
     SetTargetFPS(120);
 
+    // Load custom font
+    Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
     // Calculate layout for time series and log plot
     const float lTimeSeriesHeight = 0.3f;
     const float lGap = 20.0f;
@@ -250,6 +253,7 @@ int main() {
     lLogStyle.mYAxisLabel = "A_dev";
     lLogStyle.mAutoScaleX = true;
     lLogStyle.mAutoScaleY = true;
+    lLogStyle.mFont = lBaseFont;
     lPlot.setLogPlotStyle(lLogStyle);
 
     // Hide the internal time series portion of RLLogPlot
@@ -443,6 +447,7 @@ int main() {
         EndDrawing();
     }
 
+    UnloadFont(lBaseFont);
     CloseWindow();
     return 0;
 }
