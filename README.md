@@ -464,4 +464,3 @@ Built with ❤️ using [raylib](https://www.raylib.com/) - a simple and easy-to
 ---
 
 **Make your C++ applications beautiful with cpp-charts!** ⭐
-
