@@ -256,7 +256,7 @@ sudo ldconfig
 ```
 ### Windows:
 
-install cmake for windows, then run the following commands in a terminal (bash),
+install cmake and git for windows, then run the following commands in a terminal (git bash),
 See the windows build actions for reference. The below builds the x86_64 binaries for arm change the architecture in the cmake generator line.
 
 
