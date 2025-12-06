@@ -1,5 +1,7 @@
 # RLLogPlot
 
+![RLLogPlot Animation](gifs/RLLogPlot.gif)
+
 A dual-view log-log plot with time series display, designed for Allan variance-style analysis.
 
 ## Features

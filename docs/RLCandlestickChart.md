@@ -1,5 +1,7 @@
 # RLCandlestickChart
 
+![RLCandlestick Animation](gifs/RLCandlestick.gif)
+
 A candlestick chart for financial data visualization (OHLCV) with streaming support.
 
 ## Features

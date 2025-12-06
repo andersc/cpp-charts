@@ -1,5 +1,7 @@
 # RLBubble
 
+![RLBubble Animation](gifs/RLBubble.gif)
+
 A bubble chart for raylib with two display modes: Scatter and Gravity.
 
 ## Features

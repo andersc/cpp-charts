@@ -1,5 +1,7 @@
 # RLTreeMap
 
+![RLTreeMap Animation](gifs/RLTreeMap.gif)
+
 A D3-style treemap visualization for raylib supporting hierarchical data with smooth animations.
 
 ## Features

@@ -46,6 +46,43 @@ Let's face it: there is no really simple C++ library for great-looking graphs**.
 
 ---
 
+## 🖼️ Chart Gallery
+
+### Bar Chart
+![Bar Chart](docs/gifs/RLBarChart.gif)
+
+### Pie Chart
+![Pie Chart](docs/gifs/RLPieChart.gif)
+
+### Scatter Plot
+![Scatter Plot](docs/gifs/RLScatterPlot.gif)
+
+### Bubble Chart
+![Bubble Chart](docs/gifs/RLBubble.gif)
+
+### Candlestick Chart
+![Candlestick Chart](docs/gifs/RLCandlestick.gif)
+
+### Gauge
+![Gauge](docs/gifs/RLGauge.gif)
+
+### Heat Map
+![Heat Map](docs/gifs/RLHeatMap.gif)
+
+### Log-Log Plot
+![Log-Log Plot](docs/gifs/RLLogPlot.gif)
+
+### Time Series
+![Time Series](docs/gifs/RLTimeSeries.gif)
+
+### Order Book
+![Order Book](docs/gifs/RLOrderBookVis.gif)
+
+### Tree Map
+![Tree Map](docs/gifs/RLTreeMap.gif)
+
+---
+
 ## 📚 Detailed Chart Documentation
 
 For comprehensive documentation on each chart type, including full API references and examples:

@@ -1,5 +1,7 @@
 # RLScatterPlot
 
+![RLScatterPlot Animation](gifs/RLScatterPlot.gif)
+
 A high-performance scatter plot for raylib with multiple series support and spline interpolation.
 
 ## Features

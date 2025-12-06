@@ -1,5 +1,7 @@
 # RLGauge
 
+![RLGauge Animation](gifs/RLGauge.gif)
+
 A circular gauge display for raylib with smooth animations.
 
 ## Features

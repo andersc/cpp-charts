@@ -1,5 +1,7 @@
 # RLOrderBookVis
 
+![RLOrderBookVis Animation](gifs/RLOrderBookVis.gif)
+
 A full depth-of-market (DOM) order book visualization with both 2D heatmap and 3D landscape views.
 
 ## Features

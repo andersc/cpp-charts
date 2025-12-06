@@ -1,5 +1,7 @@
 # RLHeatMap
 
+![RLHeatMap Animation](gifs/RLHeatMap.gif)
+
 A heat map visualization for matrix data with color gradients.
 
 ## Features

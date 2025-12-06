@@ -1,5 +1,7 @@
 # RLTimeSeries
 
+![RLTimeSeries Animation](gifs/RLTimeSeries.gif)
+
 A high-performance streaming time series visualizer for raylib with multiple trace support.
 
 ## Features

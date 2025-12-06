@@ -2,6 +2,8 @@
 
 A fast, animated bar chart for raylib supporting both vertical and horizontal orientations.
 
+![RLBarChart Animation](gifs/RLBarChart.gif)
+
 ## Features
 
 - Smooth animations between data states

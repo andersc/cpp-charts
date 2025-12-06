@@ -1,5 +1,7 @@
 # RLPieChart
 
+![RLPieChart Animation](gifs/RLPieChart.gif)
+
 An animated pie/donut chart for raylib.
 
 ## Features
