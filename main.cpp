@@ -6,9 +6,11 @@
 #include "src/charts/RLCandlestickChart.h"
 #include "src/charts/RLGauge.h"
 #include "src/charts/RLHeatMap.h"
+#include "src/charts/RLLogPlot.h"
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
 #include "src/charts/RLScatterPlot.h"
+#include "src/charts/RLTimeSeries.h"
 #include "src/charts/RLTreeMap.h"
 #include <vector>
 #include <cstdlib>
@@ -298,6 +300,57 @@ int main() {
 
     lTreeMap.setData(lTreeRoot);
 
+    // ===== 11. Time Series =====
+    RLTimeSeriesChartStyle lTSStyle;
+    lTSStyle.mBackground = Color{20, 22, 28, 255};
+    lTSStyle.mShowGrid = true;
+    lTSStyle.mAutoScaleY = true;
+    lTSStyle.mSmoothScale = true;
+
+    RLTimeSeries lTimeSeries(getChartBounds(2, 2), 200);
+    lTimeSeries.setStyle(lTSStyle);
+
+    RLTimeSeriesTraceStyle lTSTraceStyle;
+    lTSTraceStyle.mColor = Color{80, 200, 255, 255};
+    lTSTraceStyle.mLineThickness = 2.0f;
+    lTSTraceStyle.mLineMode = RLTimeSeriesLineMode::Spline;
+    size_t lTSTrace1 = lTimeSeries.addTrace(lTSTraceStyle);
+
+    lTSTraceStyle.mColor = Color{255, 150, 80, 255};
+    size_t lTSTrace2 = lTimeSeries.addTrace(lTSTraceStyle);
+
+    // Pre-populate with some data
+    for (int i = 0; i < 100; ++i) {
+        float lT = (float)i * 0.05f;
+        lTimeSeries.pushSample(lTSTrace1, 0.5f * sinf(lT * 2.0f) + randFloat(-0.05f, 0.05f));
+        lTimeSeries.pushSample(lTSTrace2, 0.4f * cosf(lT * 1.5f) + randFloat(-0.05f, 0.05f));
+    }
+
+    // ===== 12. Log Plot =====
+    RLLogPlotStyle lLogStyle;
+    lLogStyle.mBackground = Color{20, 22, 28, 255};
+    lLogStyle.mShowGrid = true;
+    lLogStyle.mAutoScaleX = true;
+    lLogStyle.mAutoScaleY = true;
+    lLogStyle.mSmoothAnimate = true;
+
+    RLLogPlot lLogPlot(getChartBounds(2, 3));
+    lLogPlot.setLogPlotStyle(lLogStyle);
+    lLogPlot.setTimeSeriesHeight(0.0f);  // No time series portion
+
+    // Add a log-log trace (e.g., power law)
+    RLLogPlotTrace lLogTrace;
+    for (int i = 1; i <= 20; ++i) {
+        float lX = (float)i;
+        float lY = 10.0f / sqrtf(lX) + randFloat(-0.5f, 0.5f);  // 1/sqrt(x) decay
+        lLogTrace.mXValues.push_back(lX);
+        lLogTrace.mYValues.push_back(lY);
+    }
+    lLogTrace.mStyle.mLineColor = Color{150, 100, 255, 255};
+    lLogTrace.mStyle.mLineThickness = 2.5f;
+    lLogTrace.mStyle.mShowPoints = true;
+    lLogPlot.addTrace(lLogTrace);
+
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
@@ -342,6 +395,13 @@ int main() {
         lBarChart2.update(lDt);
         lOrderBook.update(lDt);
         lTreeMap.update(lDt);
+        lTimeSeries.update(lDt);
+        lLogPlot.update(lDt);
+
+        // Animate time series with new samples
+        float lTSTime = lTime * 2.0f;
+        lTimeSeries.pushSample(lTSTrace1, 0.5f * sinf(lTSTime * 2.0f) + randFloat(-0.05f, 0.05f));
+        lTimeSeries.pushSample(lTSTrace2, 0.4f * cosf(lTSTime * 1.5f) + randFloat(-0.05f, 0.05f));
 
         // Draw
         BeginDrawing();
@@ -362,12 +422,14 @@ int main() {
         lBarChart2.draw();
         lOrderBook.draw2D();
         lTreeMap.draw();
+        lTimeSeries.draw();
+        lLogPlot.draw();
 
-        // Draw labels for each chart (4x3 grid, 10 charts)
+        // Draw labels for each chart (4x3 grid, 12 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
             "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
-            "Order Book", "TreeMap", "", ""
+            "Order Book", "TreeMap", "Time Series", "Log Plot"
         };
 
         for (int lRow = 0; lRow < 3; ++lRow) {

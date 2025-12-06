@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstring>
+#include <cstdint>
 
 RLOrderBookVis::RLOrderBookVis(Rectangle aBounds, size_t aHistoryLength, size_t aPriceLevels)
     : mBounds(aBounds)

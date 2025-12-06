@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>
+#include <cstdint>
 
 // Fast PRNG (Xorshift)
 static uint32_t gRngState = 123456789;
