@@ -9,7 +9,7 @@ THIS PROJECT IS WIP. DO NOT USE IN PRODUCTION YET.
 
 ## The Problem
 
-Let's face it: there is no really simple C++ library for great-looking graphs**. Most visualization libraries are either:
+Let's face it: there is no really simple C++ library for great-looking graphs. Most visualization libraries are either:
 - Too heavy-weight with complex dependencies
 - Designed for Python or JavaScript
 - Lack modern, animated, beautiful aesthetics
@@ -245,7 +245,7 @@ brew install raylib zlib
 
 ```bash
 sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev zlib1g-dev
-cd (your installation root path)
+cd (temporary directory or where you want to build raylib)
 git clone --branch 5.5 https://github.com/raysan5/raylib.git raylib
 cd raylib
 mkdir build && cd build
@@ -262,13 +262,13 @@ See the windows build actions for reference. The below builds the x86_64 binarie
 
 
 ```bash
-cd (your installation root path)
+cd (temporary directory or where you want to build zlib)
 git clone --branch v1.3.1 https://github.com/madler/zlib.git
 cd zlib
 cmake -S . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target install --config Release
 
-cd (your installation root path)
+cd (temporary directory or where you want to build raylib)
 git clone --branch 5.5 https://github.com/raysan5/raylib.git
 cd raylib
 mkdir build
@@ -290,7 +290,7 @@ project(single_guage)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package (raylib 2.0 REQUIRED)
+find_package (raylib 5.0 REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (Threads REQUIRED)
 

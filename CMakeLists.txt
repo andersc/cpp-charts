@@ -3,7 +3,7 @@ project(cpp_charts)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package (raylib 2.0 REQUIRED)
+find_package (raylib 5.0 REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (Threads REQUIRED)
 
