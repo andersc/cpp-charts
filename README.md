@@ -519,6 +519,9 @@ Built with ❤️ using [raylib](https://www.raylib.com/) - a simple and easy-to
 ### Bar Chart
 ![Bar Chart](docs/gifs/RLBarChart.gif)
 
+### 3D Heatmap / Scientific plot
+![3D Heat Map](docs/gifs/RLHeatMap3D.gif)
+
 ### Pie Chart
 ![Pie Chart](docs/gifs/RLPieChart.gif)
 
