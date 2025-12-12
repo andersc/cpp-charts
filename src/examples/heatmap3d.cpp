@@ -38,6 +38,14 @@ enum class DemoMode {
     ModeCount
 };
 
+// Render style enumeration for W key cycling
+enum class RenderStyle {
+    Scatter,            // Scatter point mode
+    Surface,            // Surface mesh without wireframe
+    SurfaceWireframe,   // Surface mesh with wireframe overlay
+    StyleCount
+};
+
 // Generate Gaussian hill dataset
 static void generateGaussianHill(std::vector<float>& rValues, int aWidth, int aHeight) {
     rValues.resize((size_t)(aWidth * aHeight));
@@ -320,6 +328,7 @@ int main() {
     float lTime = 0.0f;
     int lDatasetIndex = 0; // 0 = Gaussian, 1 = Saddle
     bool lAutoRange = true; // Auto-range vs fixed range toggle
+    RenderStyle lRenderStyle = RenderStyle::SurfaceWireframe; // W key cycle state
 
     // Load font for UI
     Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
@@ -338,12 +347,17 @@ int main() {
 
         // Handle mode change - reset data when switching modes
         if (lMode != lPrevMode) {
-            // Update render mode based on new mode
+            // Update render mode and style based on new mode
             if (lMode == DemoMode::ScatterStatic || lMode == DemoMode::ScatterLive) {
-                lHeatMap.setMode(RLHeatMap3DMode::Scatter);
+                lStyle.mMode = RLHeatMap3DMode::Scatter;
+                lStyle.mShowWireframe = false;
+                lRenderStyle = RenderStyle::Scatter;
             } else {
-                lHeatMap.setMode(RLHeatMap3DMode::Surface);
+                lStyle.mMode = RLHeatMap3DMode::Surface;
+                lStyle.mShowWireframe = true;
+                lRenderStyle = RenderStyle::SurfaceWireframe;
             }
+            lHeatMap.setStyle(lStyle);
 
             // Reset base data for partial mode
             if (lMode == DemoMode::SurfacePartial) {
@@ -354,7 +368,28 @@ int main() {
         }
 
         if (IsKeyPressed(KEY_W)) {
-            lStyle.mShowWireframe = !lStyle.mShowWireframe;
+            // Cycle through render styles: Scatter -> Surface -> SurfaceWireframe -> Scatter
+            int lStyleInt = (int)lRenderStyle;
+            lStyleInt = (lStyleInt + 1) % (int)RenderStyle::StyleCount;
+            lRenderStyle = (RenderStyle)lStyleInt;
+
+            // Apply the new render style - update lStyle.mMode so setStyle() applies it correctly
+            switch (lRenderStyle) {
+                case RenderStyle::Scatter:
+                    lStyle.mMode = RLHeatMap3DMode::Scatter;
+                    lStyle.mShowWireframe = false;
+                    break;
+                case RenderStyle::Surface:
+                    lStyle.mMode = RLHeatMap3DMode::Surface;
+                    lStyle.mShowWireframe = false;
+                    break;
+                case RenderStyle::SurfaceWireframe:
+                    lStyle.mMode = RLHeatMap3DMode::Surface;
+                    lStyle.mShowWireframe = true;
+                    break;
+                default:
+                    break;
+            }
             lHeatMap.setStyle(lStyle);
         }
 
@@ -527,7 +562,7 @@ int main() {
         DrawTextEx(lFont, "  Mouse Drag: Rotate view", Vector2{20, 110}, 14, 1, GRAY);
         DrawTextEx(lFont, "  Mouse Wheel: Zoom", Vector2{20, 128}, 14, 1, GRAY);
         DrawTextEx(lFont, "  SPACE: Cycle modes (6 total)", Vector2{20, 146}, 14, 1, GRAY);
-        DrawTextEx(lFont, "  W: Toggle wireframe", Vector2{20, 164}, 14, 1, GRAY);
+        DrawTextEx(lFont, "  W: Cycle style (Scatter/Surface/Wire)", Vector2{20, 164}, 14, 1, GRAY);
         DrawTextEx(lFont, "  G: Toggle floor grid", Vector2{20, 182}, 14, 1, GRAY);
         DrawTextEx(lFont, "  B: Toggle axis box", Vector2{20, 200}, 14, 1, GRAY);
         DrawTextEx(lFont, "  A: Toggle auto-range", Vector2{20, 218}, 14, 1, GRAY);
@@ -538,8 +573,12 @@ int main() {
         int lStatusY = SCREEN_HEIGHT - 100;
         char lStatusBuf[64];
 
-        snprintf(lStatusBuf, sizeof(lStatusBuf), "Wireframe: %s", lStyle.mShowWireframe ? "ON" : "OFF");
-        DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)lStatusY}, 14, 1, lStyle.mShowWireframe ? GREEN : GRAY);
+        // Render style status
+        const char* lRenderStyleNames[] = {"SCATTER", "SURFACE", "SURFACE+WIRE"};
+        snprintf(lStatusBuf, sizeof(lStatusBuf), "Style: %s", lRenderStyleNames[(int)lRenderStyle]);
+        Color lStyleColor = (lRenderStyle == RenderStyle::Scatter) ? Color{255, 180, 80, 255} :
+                            (lRenderStyle == RenderStyle::Surface) ? Color{80, 200, 255, 255} : GREEN;
+        DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)lStatusY}, 14, 1, lStyleColor);
 
         snprintf(lStatusBuf, sizeof(lStatusBuf), "Floor Grid: %s", lStyle.mShowFloorGrid ? "ON" : "OFF");
         DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)(lStatusY + 18)}, 14, 1, lStyle.mShowFloorGrid ? GREEN : GRAY);

@@ -496,6 +496,7 @@ void RLHeatMap3D::drawScatterPoints(Vector3 aPosition, float aScale) const {
         return;
     }
 
+
     // Disable backface culling for the scatter cubes
     rlDisableBackfaceCulling();
 

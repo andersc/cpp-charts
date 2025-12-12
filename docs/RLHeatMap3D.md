@@ -356,7 +356,7 @@ The `heatmap3d` demo showcases 6 different modes:
 ### Demo Controls
 
 - **SPACE**: Cycle through modes
-- **W**: Toggle wireframe
+- **W**: Cycle render style (Scatter → Surface → Surface+Wireframe)
 - **G**: Toggle floor grid
 - **B**: Toggle axis box
 - **A**: Toggle auto-range (AUTO vs FIXED 0-1)
