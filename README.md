@@ -30,6 +30,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
+- 🏔️ **3D Heat Maps** - 3D surface visualization with palette-based coloring and smooth transitions
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
 - 📈 **Time Series** - High-performance streaming time series with multiple traces and spline interpolation
 - 📊 **Order Book** - Full depth-of-market visualization with 2D heatmap and 3D landscape views
@@ -58,6 +59,7 @@ For comprehensive documentation on each chart type, including full API reference
 | 🕯️ Candlestick | Financial OHLCV charts | [RLCandlestickChart.md](docs/RLCandlestickChart.md) |
 | 🌡️ Gauge | Circular gauge displays | [RLGauge.md](docs/RLGauge.md) |
 | 🗺️ Heat Map | Matrix color visualization | [RLHeatMap.md](docs/RLHeatMap.md) |
+| 🏔️ 3D Heat Map | 3D surface visualization | [RLHeatMap3D.md](docs/RLHeatMap3D.md) |
 | 📉 Log-Log Plot | Allan variance analysis | [RLLogPlot.md](docs/RLLogPlot.md) |
 | 📊 Order Book | DOM depth heatmap (2D/3D) | [RLOrderBookVis.md](docs/RLOrderBookVis.md) |
 | 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |
@@ -204,8 +206,6 @@ while (running) {
 }
 ```
 
-See [LOGPLOT_README.md](LOGPLOT_README.md) for comprehensive documentation.
-
 ### Time Series (Streaming)
 
 ```cpp
@@ -341,7 +341,7 @@ include(ExternalProject)
 ExternalProject_Add(
     cpp_charts_external
     GIT_REPOSITORY https://github.com/andersc/cpp-charts.git
-    GIT_TAG master
+    GIT_TAG main
     PREFIX ${CMAKE_BINARY_DIR}/external/cpp-charts
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

@@ -6,6 +6,7 @@
 #include "src/charts/RLCandlestickChart.h"
 #include "src/charts/RLGauge.h"
 #include "src/charts/RLHeatMap.h"
+#include "src/charts/RLHeatMap3D.h"
 #include "src/charts/RLLogPlot.h"
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
@@ -49,11 +50,11 @@ int main() {
     // Load custom font
     Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
 
-    // Layout: 4x3 grid with small gaps (allows for 12 charts, using 10)
+    // Layout: 4x4 grid with small gaps (allows for 16 charts, using 13)
     const float GAP = 8.0f;
     const float MARGIN = 15.0f;
     const float CHART_WIDTH = (SCREEN_WIDTH - 2 * MARGIN - 3 * GAP) / 4.0f;
-    const float CHART_HEIGHT = (SCREEN_HEIGHT - 2 * MARGIN - 2 * GAP) / 3.0f;
+    const float CHART_HEIGHT = (SCREEN_HEIGHT - 2 * MARGIN - 3 * GAP) / 4.0f;
 
     // Helper to get chart bounds
     auto getChartBounds = [&](int aRow, int aCol) -> Rectangle {
@@ -351,6 +352,53 @@ int main() {
     lLogTrace.mStyle.mShowPoints = true;
     lLogPlot.addTrace(lLogTrace);
 
+    // ===== 13. 3D Heat Map =====
+    // Create a render texture for the 3D heat map (to display in 2D grid)
+    Rectangle lHeatMap3DBounds = getChartBounds(3, 0);
+    RenderTexture2D lHeatMap3DRT = LoadRenderTexture((int)lHeatMap3DBounds.width, (int)lHeatMap3DBounds.height);
+
+    // Create 3D camera for the heat map
+    Camera3D lHeatMap3DCamera = {0};
+    lHeatMap3DCamera.position = Vector3{1.5f, 1.2f, 1.5f};
+    lHeatMap3DCamera.target = Vector3{0.0f, 0.3f, 0.0f};
+    lHeatMap3DCamera.up = Vector3{0.0f, 1.0f, 0.0f};
+    lHeatMap3DCamera.fovy = 45.0f;
+    lHeatMap3DCamera.projection = CAMERA_PERSPECTIVE;
+
+    // Create 3D heat map with scientific plot style
+    RLHeatMap3D lHeatMap3D(24, 24);
+
+    RLHeatMap3DStyle lHeatMap3DStyle;
+    lHeatMap3DStyle.mMode = RLHeatMap3DMode::Surface;
+    lHeatMap3DStyle.mSmoothingSpeed = 4.0f;
+    lHeatMap3DStyle.mShowWireframe = true;
+    lHeatMap3DStyle.mWireframeColor = Color{60, 60, 70, 150};
+    lHeatMap3DStyle.mSurfaceOpacity = 0.9f;
+    lHeatMap3DStyle.mShowAxisBox = true;
+    lHeatMap3DStyle.mShowFloorGrid = true;
+    lHeatMap3DStyle.mGridDivisions = 8;
+    lHeatMap3D.setStyle(lHeatMap3DStyle);
+
+    lHeatMap3D.setPalette(
+        Color{30, 60, 180, 255},
+        Color{0, 180, 200, 255},
+        Color{100, 220, 100, 255},
+        Color{255, 180, 50, 255}
+    );
+
+    // Initialize with sine wave pattern
+    std::vector<float> lHeatMap3DValues(24 * 24);
+    for (int lY = 0; lY < 24; ++lY) {
+        for (int lX = 0; lX < 24; ++lX) {
+            float lNx = (float)lX / 24.0f;
+            float lNy = (float)lY / 24.0f;
+            lHeatMap3DValues[(size_t)(lY * 24 + lX)] = 0.5f + 0.3f * sinf(lNx * 6.28318f * 2.0f) * cosf(lNy * 6.28318f * 2.0f);
+        }
+    }
+    lHeatMap3D.setValues(lHeatMap3DValues.data(), (int)lHeatMap3DValues.size());
+
+    float lHeatMap3DRotation = 0.0f;
+
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
@@ -398,6 +446,26 @@ int main() {
         lTimeSeries.update(lDt);
         lLogPlot.update(lDt);
 
+        // Update 3D heat map with animated data
+        lHeatMap3DRotation += lDt * 0.5f;
+        for (int lY = 0; lY < 24; ++lY) {
+            for (int lX = 0; lX < 24; ++lX) {
+                float lNx = (float)lX / 24.0f;
+                float lNy = (float)lY / 24.0f;
+                float lWave1 = sinf(lNx * 6.28318f * 2.0f + lTime * 2.0f) * 0.25f;
+                float lWave2 = cosf(lNy * 6.28318f * 2.0f + lTime * 1.5f) * 0.25f;
+                lHeatMap3DValues[(size_t)(lY * 24 + lX)] = 0.5f + lWave1 + lWave2;
+            }
+        }
+        lHeatMap3D.setValues(lHeatMap3DValues.data(), (int)lHeatMap3DValues.size());
+        lHeatMap3D.update(lDt);
+
+        // Update 3D camera rotation for heat map (orbit around the plot)
+        float lCamDist = 2.5f;
+        lHeatMap3DCamera.position.x = sinf(lHeatMap3DRotation) * cosf(0.5f) * lCamDist;
+        lHeatMap3DCamera.position.y = sinf(0.5f) * lCamDist;
+        lHeatMap3DCamera.position.z = cosf(lHeatMap3DRotation) * cosf(0.5f) * lCamDist;
+
         // Animate time series with new samples
         float lTSTime = lTime * 2.0f;
         lTimeSeries.pushSample(lTSTrace1, 0.5f * sinf(lTSTime * 2.0f) + randFloat(-0.05f, 0.05f));
@@ -406,6 +474,14 @@ int main() {
         // Draw
         BeginDrawing();
         ClearBackground(Color{15, 17, 20, 255});
+
+        // Render 3D heat map to texture
+        BeginTextureMode(lHeatMap3DRT);
+        ClearBackground(Color{25, 28, 35, 255});
+        BeginMode3D(lHeatMap3DCamera);
+        lHeatMap3D.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lHeatMap3DCamera);
+        EndMode3D();
+        EndTextureMode();
 
         // Draw title
         DrawText("RayLib Charts - All Chart Types (Testing Static Conflicts)",
@@ -425,14 +501,20 @@ int main() {
         lTimeSeries.draw();
         lLogPlot.draw();
 
-        // Draw labels for each chart (4x3 grid, 12 charts)
+        // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
+        DrawTextureRec(lHeatMap3DRT.texture,
+                       Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
+                       Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
+
+        // Draw labels for each chart (4x4 grid, 13 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
             "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
-            "Order Book", "TreeMap", "Time Series", "Log Plot"
+            "Order Book", "TreeMap", "Time Series", "Log Plot",
+            "3D Heat Map", "", "", ""
         };
 
-        for (int lRow = 0; lRow < 3; ++lRow) {
+        for (int lRow = 0; lRow < 4; ++lRow) {
             for (int lCol = 0; lCol < 4; ++lCol) {
                 int lIndex = lRow * 4 + lCol;
                 if (lLabels[lIndex][0] != '\0') {
@@ -449,6 +531,7 @@ int main() {
     }
 
     UnloadFont(lBaseFont);
+    UnloadRenderTexture(lHeatMap3DRT);
     CloseWindow();
     return 0;
 }

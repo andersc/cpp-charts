@@ -177,6 +177,19 @@ if(WIN32)
     target_link_libraries(raylib_treemap winmm)
 endif()
 
+# Build the 3D heat map visualization demo
+add_executable(raylib_heatmap3d
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/heatmap3d.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap3D.cpp
+)
+target_link_libraries(raylib_heatmap3d
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_heatmap3d winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -185,6 +198,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLGauge.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap3D.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLPieChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
