@@ -258,26 +258,26 @@ void RLHeatMap3D::draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)
         return;
     }
 
-    // Draw back walls first (with transparency based on view angle)
-    if (mStyle.mShowAxisBox) {
-        drawBackWalls(aPosition, aScale, rCamera);
-    }
-
-    // Draw floor grid
+    // Draw floor grid first (opaque)
     if (mStyle.mShowFloorGrid) {
         drawFloorGrid(aPosition, aScale);
     }
 
-    // Draw data (surface or scatter)
+    // Draw data (surface or scatter) - this is the main content
     if (mStyle.mMode == RLHeatMap3DMode::Surface) {
         drawSurface(aPosition, aScale);
     } else {
         drawScatterPoints(aPosition, aScale);
     }
 
-    // Draw axis box edges
+    // Draw axis box edges (lines, always visible)
     if (mStyle.mShowAxisBox) {
         drawAxisBox(aPosition, aScale, rCamera);
+    }
+
+    // Draw back walls LAST with transparency (so they don't occlude the data)
+    if (mStyle.mShowAxisBox) {
+        drawBackWalls(aPosition, aScale, rCamera);
     }
 
     // Draw labels and ticks (done in 2D after 3D, but we prepare here)
@@ -286,68 +286,79 @@ void RLHeatMap3D::draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)
 
 void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D& rCamera) const {
     float lHalfSize = BOX_SIZE * 0.5f * aScale;
+    float lHeight = BOX_SIZE * aScale;
 
-    // Disable depth writing for transparent walls so they don't occlude the data
+    // Disable depth writing and enable blending for transparent walls
     rlDisableDepthMask();
+    rlEnableColorBlend();
+    rlSetBlendMode(BLEND_ALPHA);
 
-    // Back wall (XZ plane at Y = -halfSize)
-    Vector3 lBackNormal = {0.0f, 1.0f, 0.0f};
-    float lBackAlpha = calculateWallAlpha(lBackNormal, rCamera);
-    if (lBackAlpha > 0.01f) {
-        Color lBackColor = mStyle.mBackWallColor;
-        lBackColor.a = (unsigned char)(lBackColor.a * lBackAlpha);
+    // Calculate camera position relative to the box center
+    float lCamRelX = rCamera.position.x - aPosition.x;
+    float lCamRelZ = rCamera.position.z - aPosition.z;
+
+    // Only draw walls that are on the OPPOSITE side from the camera
+    // This makes them appear as background reference planes
+
+    // Back wall (at Z = -halfSize) - only draw if camera is in front (Z > 0)
+    if (lCamRelZ > 0) {
+        Color lWallColor = mStyle.mBackWallColor;
+        // Fade based on how much the camera is in front
+        float lFade = lCamRelZ / (lHalfSize * 3.0f);
+        if (lFade > 1.0f) lFade = 1.0f;
+        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
 
         Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
         Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z - lHalfSize};
-        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z - lHalfSize};
-        DrawTriangle3D(lV1, lV2, lV3, lBackColor);
-        DrawTriangle3D(lV1, lV3, lV4, lBackColor);
+        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        DrawTriangle3D(lV1, lV2, lV3, lWallColor);
+        DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
 
-    // Left wall (YZ plane at X = -halfSize)
-    Vector3 lLeftNormal = {1.0f, 0.0f, 0.0f};
-    float lLeftAlpha = calculateWallAlpha(lLeftNormal, rCamera);
-    if (lLeftAlpha > 0.01f) {
-        Color lLeftColor = mStyle.mBackWallColor;
-        lLeftColor.a = (unsigned char)(lLeftColor.a * lLeftAlpha);
+    // Front wall (at Z = +halfSize) - only draw if camera is behind (Z < 0)
+    if (lCamRelZ < 0) {
+        Color lWallColor = mStyle.mBackWallColor;
+        float lFade = -lCamRelZ / (lHalfSize * 3.0f);
+        if (lFade > 1.0f) lFade = 1.0f;
+        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
+
+        Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        DrawTriangle3D(lV1, lV2, lV3, lWallColor);
+        DrawTriangle3D(lV1, lV3, lV4, lWallColor);
+    }
+
+    // Left wall (at X = -halfSize) - only draw if camera is to the right (X > 0)
+    if (lCamRelX > 0) {
+        Color lWallColor = mStyle.mBackWallColor;
+        float lFade = lCamRelX / (lHalfSize * 3.0f);
+        if (lFade > 1.0f) lFade = 1.0f;
+        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
 
         Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
         Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z + lHalfSize};
-        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z - lHalfSize};
-        DrawTriangle3D(lV1, lV2, lV3, lLeftColor);
-        DrawTriangle3D(lV1, lV3, lV4, lLeftColor);
+        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        DrawTriangle3D(lV1, lV2, lV3, lWallColor);
+        DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
 
-    // Right wall (YZ plane at X = +halfSize)
-    Vector3 lRightNormal = {-1.0f, 0.0f, 0.0f};
-    float lRightAlpha = calculateWallAlpha(lRightNormal, rCamera);
-    if (lRightAlpha > 0.01f) {
-        Color lRightColor = mStyle.mBackWallColor;
-        lRightColor.a = (unsigned char)(lRightColor.a * lRightAlpha);
+    // Right wall (at X = +halfSize) - only draw if camera is to the left (X < 0)
+    if (lCamRelX < 0) {
+        Color lWallColor = mStyle.mBackWallColor;
+        float lFade = -lCamRelX / (lHalfSize * 3.0f);
+        if (lFade > 1.0f) lFade = 1.0f;
+        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
 
         Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
         Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z - lHalfSize};
-        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z + lHalfSize};
-        DrawTriangle3D(lV1, lV2, lV3, lRightColor);
-        DrawTriangle3D(lV1, lV3, lV4, lRightColor);
-    }
-
-    // Front wall (XZ plane at Y = +halfSize) - usually not drawn as it's facing viewer
-    Vector3 lFrontNormal = {0.0f, -1.0f, 0.0f};
-    float lFrontAlpha = calculateWallAlpha(lFrontNormal, rCamera);
-    if (lFrontAlpha > 0.01f) {
-        Color lFrontColor = mStyle.mBackWallColor;
-        lFrontColor.a = (unsigned char)(lFrontColor.a * lFrontAlpha * 0.3f); // Even more transparent
-
-        Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z + lHalfSize};
-        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHalfSize * 2.0f, aPosition.z + lHalfSize};
-        DrawTriangle3D(lV1, lV2, lV3, lFrontColor);
-        DrawTriangle3D(lV1, lV3, lV4, lFrontColor);
+        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        DrawTriangle3D(lV1, lV2, lV3, lWallColor);
+        DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
 
     // Re-enable depth writing
