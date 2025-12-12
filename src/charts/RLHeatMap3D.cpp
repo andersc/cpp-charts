@@ -287,6 +287,9 @@ void RLHeatMap3D::draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)
 void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D& rCamera) const {
     float lHalfSize = BOX_SIZE * 0.5f * aScale;
 
+    // Disable depth writing for transparent walls so they don't occlude the data
+    rlDisableDepthMask();
+
     // Back wall (XZ plane at Y = -halfSize)
     Vector3 lBackNormal = {0.0f, 1.0f, 0.0f};
     float lBackAlpha = calculateWallAlpha(lBackNormal, rCamera);
@@ -346,6 +349,9 @@ void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D&
         DrawTriangle3D(lV1, lV2, lV3, lFrontColor);
         DrawTriangle3D(lV1, lV3, lV4, lFrontColor);
     }
+
+    // Re-enable depth writing
+    rlEnableDepthMask();
 }
 
 void RLHeatMap3D::drawFloorGrid(Vector3 aPosition, float aScale) const {

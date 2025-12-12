@@ -13,6 +13,8 @@ A scientific 3D plot visualization that renders a grid of scalar values as eithe
 - Configurable color palette (3-4 color stops)
 - Smooth transitions when data changes
 - Support for both static and live-updating data
+- **Live streaming data** support with smooth interpolation
+- **Partial region updates** for efficient localized data changes
 - Efficient vertex-only updates (no full mesh rebuild)
 - Optional wireframe overlay
 
@@ -267,6 +269,101 @@ A grid on the bottom plane (Z=0) that:
 - Provides spatial reference
 - Configurable divisions and color
 - Can be toggled on/off
+
+## Live Streaming Data
+
+For real-time data visualization (e.g., sensor feeds), update values frequently with smooth interpolation:
+
+```cpp
+// Streaming state with smoothing
+std::vector<float> lCurrentValues(gridSize, 0.5f);
+std::vector<float> lTargetValues(gridSize, 0.5f);
+
+// In update loop - receive new data periodically
+if (newDataAvailable) {
+    // Copy incoming data to target buffer
+    lTargetValues = incomingData;
+}
+
+// Smooth interpolation towards target
+float lAlpha = 1.0f - expf(-8.0f * lDt);
+for (size_t i = 0; i < lCurrentValues.size(); ++i) {
+    lCurrentValues[i] += (lTargetValues[i] - lCurrentValues[i]) * lAlpha;
+}
+
+// Update heat map
+lHeatMap.setValues(lCurrentValues.data(), (int)lCurrentValues.size());
+lHeatMap.update(lDt);
+```
+
+## Partial Region Updates
+
+For efficient updates to specific regions (e.g., moving hotspots, localized changes):
+
+```cpp
+// Define the region to update
+int lRegionX = 10;      // Starting X position
+int lRegionY = 15;      // Starting Y position
+int lRegionW = 8;       // Region width
+int lRegionH = 8;       // Region height
+
+// Prepare region data (row-major order)
+std::vector<float> lRegionValues(lRegionW * lRegionH);
+for (int lY = 0; lY < lRegionH; ++lY) {
+    for (int lX = 0; lX < lRegionW; ++lX) {
+        // Generate hotspot value
+        float lCx = lRegionW * 0.5f;
+        float lCy = lRegionH * 0.5f;
+        float lDist = sqrtf((lX - lCx) * (lX - lCx) + (lY - lCy) * (lY - lCy));
+        lRegionValues[lY * lRegionW + lX] = expf(-lDist * 0.5f);
+    }
+}
+
+// Apply partial update - only this region is modified
+lHeatMap.updatePartialValues(lRegionX, lRegionY, lRegionW, lRegionH, lRegionValues.data());
+```
+
+This is much more efficient than updating the entire grid when only a small region changes.
+
+## Fixed vs Auto Value Range
+
+By default, the value range (Z-axis) is automatically calculated from the data. For stable visualizations where data may vary significantly, you can set a fixed range:
+
+```cpp
+// Auto-range mode (default) - range adjusts to data
+lHeatMap.setAutoRange(true);
+
+// Fixed range mode - range stays constant regardless of data
+lHeatMap.setValueRange(0.0f, 1.0f);  // Z-axis always spans 0 to 1
+```
+
+Fixed range is useful when:
+- Comparing multiple datasets with different value distributions
+- Streaming data where you want consistent visual scale
+- Preventing the visualization from "jumping" when data range changes
+
+## Demo Modes
+
+The `heatmap3d` demo showcases 6 different modes:
+
+1. **Surface Static** - Static datasets (Gaussian hill, Saddle surface) with breathing effect
+2. **Surface Animated** - Animated overlapping sine waves
+3. **Surface Streaming** - Simulated live sensor data feed at 20 Hz
+4. **Surface Partial** - Moving hotspot region updates every 1.5 seconds
+5. **Scatter Static** - Static point cloud visualization
+6. **Scatter Animated** - Animated ripple pattern as scatter points
+
+### Demo Controls
+
+- **SPACE**: Cycle through modes
+- **W**: Toggle wireframe
+- **G**: Toggle floor grid
+- **B**: Toggle axis box
+- **A**: Toggle auto-range (AUTO vs FIXED 0-1)
+- **D**: Cycle datasets (static modes only)
+- **R**: Reset camera
+- **Mouse drag**: Rotate view
+- **Mouse wheel**: Zoom
 
 ## Performance Notes
 
