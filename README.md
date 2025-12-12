@@ -1,6 +1,5 @@
 # 📊 cpp-charts
 
-THIS PROJECT IS WIP. DO NOT USE IN PRODUCTION YET.
 
 [![windows](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/windows.yml)
 [![ubuntu_x86_64](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml)
