@@ -144,11 +144,20 @@ private:
     bool mMeshValid = false;
     bool mMeshDirty = false;
 
+    // Mesh resources (for scatter mode)
+    Mesh mScatterMesh{};
+    Model mScatterModel{};
+    bool mScatterMeshValid = false;
+    bool mScatterMeshDirty = false;
+
     // Internal methods
     void rebuildLut();
     void buildMesh();
     void updateMeshVertices();
     void freeMesh();
+    void buildScatterMesh();
+    void updateScatterMeshVertices();
+    void freeScatterMesh();
     float normalizeValue(float aValue) const;
     Color getColorForValue(float aNormalizedValue) const;
 

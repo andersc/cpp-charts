@@ -27,6 +27,7 @@ RLHeatMap3D::RLHeatMap3D(int aWidth, int aHeight) : RLHeatMap3D() {
 
 RLHeatMap3D::~RLHeatMap3D() {
     freeMesh();
+    freeScatterMesh();
 }
 
 void RLHeatMap3D::setGridSize(int aWidth, int aHeight) {
@@ -62,6 +63,7 @@ void RLHeatMap3D::setGridSize(int aWidth, int aHeight) {
     mAxisMaxY = (float)(mHeight - 1);
 
     freeMesh();
+    freeScatterMesh();
     buildMesh();
 }
 
@@ -220,11 +222,13 @@ void RLHeatMap3D::setWireframe(bool aEnabled) {
 
 void RLHeatMap3D::setPointSize(float aSize) {
     mStyle.mPointSize = aSize > 0.0f ? aSize : 0.01f;
+    mScatterMeshDirty = true;
 }
 
 void RLHeatMap3D::setStyle(const RLHeatMap3DStyle& rStyle) {
     mStyle = rStyle;
     mMeshDirty = true;
+    mScatterMeshDirty = true;
 }
 
 void RLHeatMap3D::update(float aDt) {
@@ -247,9 +251,20 @@ void RLHeatMap3D::update(float aDt) {
         }
     }
 
-    if ((lChanged || mMeshDirty) && mStyle.mMode == RLHeatMap3DMode::Surface) {
-        updateMeshVertices();
-        mMeshDirty = false;
+    if (mStyle.mMode == RLHeatMap3DMode::Surface) {
+        if (lChanged || mMeshDirty) {
+            updateMeshVertices();
+            mMeshDirty = false;
+        }
+    } else {
+        // Scatter mode - build mesh on demand if not yet created
+        if (!mScatterMeshValid) {
+            const_cast<RLHeatMap3D*>(this)->buildScatterMesh();
+        }
+        if (lChanged || mScatterMeshDirty) {
+            const_cast<RLHeatMap3D*>(this)->updateScatterMeshVertices();
+            mScatterMeshDirty = false;
+        }
     }
 }
 
@@ -477,36 +492,17 @@ void RLHeatMap3D::drawSurface(Vector3 aPosition, float aScale) const {
 }
 
 void RLHeatMap3D::drawScatterPoints(Vector3 aPosition, float aScale) const {
-    float lHalfSize = BOX_SIZE * 0.5f;
-    float lHeight = BOX_SIZE;
-
-    for (int lY = 0; lY < mHeight; ++lY) {
-        for (int lX = 0; lX < mWidth; ++lX) {
-            int lIdx = lY * mWidth + lX;
-            float lValue = mCurrentValues[(size_t)lIdx];
-            float lNorm = normalizeValue(lValue);
-
-            // Map grid position to box coordinates
-            float lPx = -lHalfSize + ((float)lX / (float)(mWidth - 1)) * lHalfSize * 2.0f;
-            float lPz = -lHalfSize + ((float)lY / (float)(mHeight - 1)) * lHalfSize * 2.0f;
-            float lPy = lNorm * lHeight;
-
-            Vector3 lPos = {
-                aPosition.x + lPx * aScale,
-                aPosition.y + lPy * aScale,
-                aPosition.z + lPz * aScale
-            };
-
-            Color lColor = getColorForValue(lNorm);
-            float lRadius = mStyle.mPointSize * aScale;
-
-            DrawSphere(lPos, lRadius, lColor);
-
-            if (mStyle.mShowPointOutline) {
-                DrawSphereWires(lPos, lRadius * 1.05f, 4, 4, mStyle.mWireframeColor);
-            }
-        }
+    if (!mScatterMeshValid) {
+        return;
     }
+
+    // Disable backface culling for the scatter cubes
+    rlDisableBackfaceCulling();
+
+    DrawModelEx(mScatterModel, aPosition, Vector3{0, 1, 0}, 0.0f,
+                Vector3{aScale, aScale, aScale}, WHITE);
+
+    rlEnableBackfaceCulling();
 }
 
 void RLHeatMap3D::drawAxisLabelsAndTicks(Vector3 aPosition, float aScale, const Camera3D& rCamera) const {
@@ -735,6 +731,420 @@ void RLHeatMap3D::freeMesh() {
     mModel = Model{};
 }
 
+void RLHeatMap3D::buildScatterMesh() {
+    if (mWidth < 2 || mHeight < 2) {
+        return;
+    }
+
+    freeScatterMesh();
+
+    int lPointCount = mWidth * mHeight;
+    int lTrianglesPerPoint = 12; // 6 faces x 2 triangles per cube
+    int lTriangleCount = lPointCount * lTrianglesPerPoint;
+    int lVertexCount = lTriangleCount * 3;
+
+    mScatterMesh.triangleCount = lTriangleCount;
+    mScatterMesh.vertexCount = lVertexCount;
+
+    mScatterMesh.vertices = (float*)MemAlloc((size_t)lVertexCount * 3 * sizeof(float));
+    mScatterMesh.normals = (float*)MemAlloc((size_t)lVertexCount * 3 * sizeof(float));
+    mScatterMesh.colors = (unsigned char*)MemAlloc((size_t)lVertexCount * 4 * sizeof(unsigned char));
+
+    // Initialize normals (simple per-face normals pointing outward)
+    for (int i = 0; i < lVertexCount; ++i) {
+        mScatterMesh.normals[(size_t)i * 3 + 0] = 0.0f;
+        mScatterMesh.normals[(size_t)i * 3 + 1] = 1.0f;
+        mScatterMesh.normals[(size_t)i * 3 + 2] = 0.0f;
+    }
+
+    // Initialize with current values
+    updateScatterMeshVertices();
+
+    UploadMesh(&mScatterMesh, true); // dynamic = true for frequent updates
+    mScatterModel = LoadModelFromMesh(mScatterMesh);
+
+    mScatterMeshValid = true;
+    mScatterMeshDirty = false;
+}
+
+void RLHeatMap3D::updateScatterMeshVertices() {
+    if (mWidth < 2 || mHeight < 2) {
+        return;
+    }
+
+    if (!mScatterMeshValid && mScatterMesh.vertices == nullptr) {
+        return;
+    }
+
+    float lHalfSize = BOX_SIZE * 0.5f;
+    float lHeight = BOX_SIZE;
+    float lS = mStyle.mPointSize * 0.5f; // Half-size of cube
+
+    int lVertIdx = 0;
+    for (int lY = 0; lY < mHeight; ++lY) {
+        for (int lX = 0; lX < mWidth; ++lX) {
+            int lIdx = lY * mWidth + lX;
+            float lValue = mCurrentValues[(size_t)lIdx];
+            float lNorm = normalizeValue(lValue);
+
+            // Map grid position to box coordinates
+            float lPx = -lHalfSize + ((float)lX / (float)(mWidth - 1)) * lHalfSize * 2.0f;
+            float lPz = -lHalfSize + ((float)lY / (float)(mHeight - 1)) * lHalfSize * 2.0f;
+            float lPy = lNorm * lHeight;
+
+            Color lC = getColorForValue(lNorm);
+
+            // 36 vertices per cube (12 triangles x 3 vertices)
+            // Each face has 2 triangles = 6 vertices
+
+            // Front face (+Z) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            // Back face (-Z) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            // Top face (+Y) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            // Bottom face (-Y) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            // Right face (+X) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            // Left face (-X) - 6 vertices
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz + lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 0] = lPx - lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 1] = lPy + lS;
+            mScatterMesh.vertices[(size_t)lVertIdx * 3 + 2] = lPz - lS;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 0] = lC.r;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 1] = lC.g;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 2] = lC.b;
+            mScatterMesh.colors[(size_t)lVertIdx * 4 + 3] = lC.a;
+            lVertIdx++;
+        }
+    }
+
+    // Update GPU buffers if mesh is already uploaded
+    if (mScatterMeshValid) {
+        UpdateMeshBuffer(mScatterMesh, 0, mScatterMesh.vertices, mScatterMesh.vertexCount * 3 * (int)sizeof(float), 0);
+        UpdateMeshBuffer(mScatterMesh, 3, mScatterMesh.colors, mScatterMesh.vertexCount * 4 * (int)sizeof(unsigned char), 0);
+    }
+}
+
+void RLHeatMap3D::freeScatterMesh() {
+    if (mScatterMeshValid) {
+        UnloadModel(mScatterModel);
+        mScatterMeshValid = false;
+    }
+    mScatterMesh = Mesh{};
+    mScatterModel = Model{};
+}
+
 float RLHeatMap3D::normalizeValue(float aValue) const {
     float lRange = mMaxValue - mMinValue;
     if (lRange < 1e-6f) {
@@ -751,4 +1161,3 @@ Color RLHeatMap3D::getColorForValue(float aNormalizedValue) const {
     if (lIdx > 255) lIdx = 255;
     return mLut[lIdx];
 }
-

@@ -368,8 +368,8 @@ The `heatmap3d` demo showcases 6 different modes:
 ## Performance Notes
 
 - Grid sizes up to 256×256 are recommended for smooth performance
-- Surface mode is generally faster than scatter mode for large grids
-- Scatter mode creates individual spheres, which can be expensive for large grids
-- The mesh vertices are updated efficiently without full rebuild
+- Both Surface and Scatter modes use GPU-uploaded meshes for efficient rendering
+- Mesh vertices and colors are updated efficiently without full mesh rebuild
+- Scatter mode builds a mesh of small cubes, one per grid point
 - Use `setSmoothing()` to control transition animation speed
 
