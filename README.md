@@ -398,6 +398,35 @@ Simply copy the `src/charts/` folder into your project and include the headers a
 
 ---
 
+## 🌐 WebAssembly Build
+
+cpp-charts can be compiled to WebAssembly, allowing all demos to run directly in web browsers!
+
+### Quick Start
+
+```bash
+# Install Emscripten SDK first (see wasm/README.md for details)
+cd wasm
+./build.sh
+
+# Serve the demos
+cd build
+python3 -m http.server 8080
+# Open http://localhost:8080 in your browser
+```
+
+### Features
+
+- 🎮 All 13 chart demos compiled to WebAssembly
+- 🎨 Beautiful custom landing page with dark theme
+- ⚡ Fast loading with progress indicator
+- 📱 Fullscreen support
+- 🔧 Self-contained build (fetches raylib 5.5 automatically)
+
+For complete build instructions, prerequisites, and troubleshooting, see **[wasm/README.md](wasm/README.md)**.
+
+---
+
 ## 🎨 Customization
 
 All charts support extensive styling. Here's an example with a bar chart:

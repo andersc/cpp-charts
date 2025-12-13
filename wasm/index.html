@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cpp-charts - WebAssembly Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e4e4e7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .badge-icon {
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-color, #3b82f6), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #f4f4f5;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #60a5fa;
+        }
+
+        .tag.tag-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .tag.tag-purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+        }
+
+        .tag.tag-orange {
+            background: rgba(249, 115, 22, 0.15);
+            color: #fb923c;
+        }
+
+        .tag.tag-pink {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        footer p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e4e4e7;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+        }
+
+        .github-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Category headers */
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">📊</div>
+            <h1>cpp-charts</h1>
+            <p class="subtitle">Beautiful, animated C++ charting library powered by raylib</p>
+            <div class="badges">
+                <span class="badge"><span class="badge-icon">⚡</span> WebAssembly</span>
+                <span class="badge"><span class="badge-icon">🎨</span> 13 Chart Types</span>
+                <span class="badge"><span class="badge-icon">✨</span> Smooth Animations</span>
+                <span class="badge"><span class="badge-icon">🎮</span> raylib 5.5</span>
+            </div>
+        </header>
+
+        <div class="category">
+            <h2 class="category-title">📈 Basic Charts</h2>
+            <div class="grid">
+                <a href="barchart.html" class="card" style="--card-color: #3b82f6;">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Bar Chart</h3>
+                    <p class="card-description">Vertical and horizontal bar charts with smooth animations, labels, and customizable colors.</p>
+                    <div class="card-tags">
+                        <span class="tag">Animated</span>
+                        <span class="tag tag-green">Interactive</span>
+                    </div>
+                </a>
+
+                <a href="piechart.html" class="card" style="--card-color: #ec4899;">
+                    <div class="card-icon">🥧</div>
+                    <h3 class="card-title">Pie Chart</h3>
+                    <p class="card-description">Classic pie and donut charts with slice animations and smart label positioning.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-pink">Donut Mode</span>
+                        <span class="tag">Animated</span>
+                    </div>
+                </a>
+
+                <a href="scatter.html" class="card" style="--card-color: #8b5cf6;">
+                    <div class="card-icon">📈</div>
+                    <h3 class="card-title">Scatter Plot</h3>
+                    <p class="card-description">Multi-series scatter and line plots with customizable markers and automatic scaling.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-purple">Multi-series</span>
+                        <span class="tag">Line Mode</span>
+                    </div>
+                </a>
+
+                <a href="bubble.html" class="card" style="--card-color: #06b6d4;">
+                    <div class="card-icon">🫧</div>
+                    <h3 class="card-title">Bubble Chart</h3>
+                    <p class="card-description">Multi-dimensional data visualization with gravity simulation and size encoding.</p>
+                    <div class="card-tags">
+                        <span class="tag">Physics</span>
+                        <span class="tag tag-green">3D Data</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">💹 Financial & Time Series</h2>
+            <div class="grid">
+                <a href="candlestick.html" class="card" style="--card-color: #22c55e;">
+                    <div class="card-icon">🕯️</div>
+                    <h3 class="card-title">Candlestick Chart</h3>
+                    <p class="card-description">Financial OHLCV visualization with real JPM stock data, zoom, and pan controls.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-green">Real Data</span>
+                        <span class="tag tag-orange">Finance</span>
+                    </div>
+                </a>
+
+                <a href="candlestick2.html" class="card" style="--card-color: #f59e0b;">
+                    <div class="card-icon">📉</div>
+                    <h3 class="card-title">Candlestick (Live)</h3>
+                    <p class="card-description">Live streaming candlestick chart with real-time candle formation from tick data.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-orange">Streaming</span>
+                        <span class="tag">Live Updates</span>
+                    </div>
+                </a>
+
+                <a href="timeseries.html" class="card" style="--card-color: #3b82f6;">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Time Series</h3>
+                    <p class="card-description">High-performance streaming time series with multiple traces and spline interpolation.</p>
+                    <div class="card-tags">
+                        <span class="tag">Streaming</span>
+                        <span class="tag tag-purple">Spline</span>
+                    </div>
+                </a>
+
+                <a href="orderbook.html" class="card" style="--card-color: #ef4444;">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Order Book</h3>
+                    <p class="card-description">Full depth-of-market visualization with 2D heatmap and 3D landscape views.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-orange">DOM</span>
+                        <span class="tag tag-purple">3D View</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">🔬 Scientific & Analysis</h2>
+            <div class="grid">
+                <a href="heatmap.html" class="card" style="--card-color: #f97316;">
+                    <div class="card-icon">🗺️</div>
+                    <h3 class="card-title">Heat Map</h3>
+                    <p class="card-description">2D matrix data visualization with customizable color gradients and cell labels.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-orange">Matrix</span>
+                        <span class="tag">Gradient</span>
+                    </div>
+                </a>
+
+                <a href="heatmap3d.html" class="card" style="--card-color: #8b5cf6;">
+                    <div class="card-icon">🏔️</div>
+                    <h3 class="card-title">3D Heat Map</h3>
+                    <p class="card-description">Interactive 3D surface visualization with orbit controls, wireframe, and live streaming.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-purple">3D Surface</span>
+                        <span class="tag tag-green">Interactive</span>
+                    </div>
+                </a>
+
+                <a href="logplot.html" class="card" style="--card-color: #14b8a6;">
+                    <div class="card-icon">📉</div>
+                    <h3 class="card-title">Log-Log Plot</h3>
+                    <p class="card-description">Allan variance-style analysis with dynamic confidence intervals and real-time streaming.</p>
+                    <div class="card-tags">
+                        <span class="tag">Allan Variance</span>
+                        <span class="tag tag-green">Confidence</span>
+                    </div>
+                </a>
+
+                <a href="treemap.html" class="card" style="--card-color: #22c55e;">
+                    <div class="card-icon">🌳</div>
+                    <h3 class="card-title">Tree Map</h3>
+                    <p class="card-description">D3-style hierarchical data visualization with squarified layout and drill-down.</p>
+                    <div class="card-tags">
+                        <span class="tag tag-green">Hierarchical</span>
+                        <span class="tag">Squarified</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">🎛️ Indicators & Gauges</h2>
+            <div class="grid">
+                <a href="gauges.html" class="card" style="--card-color: #ef4444;">
+                    <div class="card-icon">🌡️</div>
+                    <h3 class="card-title">Gauges</h3>
+                    <p class="card-description">Circular and semi-circular gauge displays with smooth needle animation and arc indicators.</p>
+                    <div class="card-tags">
+                        <span class="tag">Animated Needle</span>
+                        <span class="tag tag-orange">Dashboard</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                Built with <a href="https://www.raylib.com/" target="_blank">raylib</a> •
+                Compiled with <a href="https://emscripten.org/" target="_blank">Emscripten</a> •
+                <a href="https://github.com/andersc/cpp-charts" target="_blank">View Source</a>
+            </p>
+            <a href="https://github.com/andersc/cpp-charts" target="_blank" class="github-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </footer>
+    </div>
+</body>
+</html>
+
