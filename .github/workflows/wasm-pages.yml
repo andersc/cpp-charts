@@ -1,0 +1,78 @@
+# Build WASM demos and deploy to GitHub Pages
+name: Deploy WASM Demos
+
+on:
+  push:
+    branches: ["main"]
+
+# Cancel in-progress deployments when a new push arrives
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+# Required permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  BUILD_TYPE: Release
+  EM_VERSION: 3.1.51
+  EM_CACHE_FOLDER: "emsdk-cache"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten SDK
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ env.EM_VERSION }}
+          actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}
+
+      - name: Verify Emscripten
+        run: emcc --version
+
+      - name: Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: |
+            wasm/build/_deps
+          key: wasm-cmake-${{ runner.os }}-${{ hashFiles('wasm/CMakeLists.txt') }}
+          restore-keys: |
+            wasm-cmake-${{ runner.os }}-
+
+      - name: Configure WASM build
+        working-directory: wasm
+        run: |
+          mkdir -p build
+          cd build
+          emcmake cmake .. -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build WASM demos
+        working-directory: wasm/build
+        run: emmake make -j$(nproc)
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: wasm/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

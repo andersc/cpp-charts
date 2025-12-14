@@ -5,6 +5,7 @@
 [![ubuntu_x86_64](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/ubuntu_x86_64.yml)
 [![MacOS](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml/badge.svg)](https://github.com/andersc/cpp-charts/actions/workflows/MacOS.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](https://andersc.github.io/cpp-charts/)
 
 ## The Problem
 
@@ -43,6 +44,16 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 🔤 Custom font support (load your own TTF fonts)
 - ⚡ High performance with raylib rendering
 - 🖱️ Responsive design with various display modes
+
+---
+
+## 🌐 Live Web Demos
+
+Try cpp-charts directly in your browser! All demos are compiled to WebAssembly and automatically deployed on every push to main.
+
+**👉 [Launch Live Demos](https://andersc.github.io/cpp-charts/)**
+
+See the [wasm/](wasm/) directory for build instructions if you want to compile the demos yourself.
 
 ---
 

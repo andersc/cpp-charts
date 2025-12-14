@@ -2,6 +2,12 @@
 
 This directory contains everything needed to build cpp-charts demos for WebAssembly, allowing them to run directly in web browsers.
 
+## 🚀 Live Demo
+
+**👉 [https://andersc.github.io/cpp-charts/](https://andersc.github.io/cpp-charts/)**
+
+The demos are automatically built and deployed to GitHub Pages on every push to `main`. No manual deployment needed!
+
 ## Prerequisites
 
 ### Emscripten SDK
