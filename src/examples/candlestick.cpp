@@ -63,16 +63,22 @@ static std::vector<CSVRow> loadCSV(const std::string &aPath){
 
 static std::string resolveCSVPath(){
     // Try common paths relative to typical CMake build dirs
+    // Note: For WASM builds, the file is preloaded at root path
     const char* lCandidates[] = {
         "JPM_1_minute_bars.csv",
+        "./JPM_1_minute_bars.csv",
         "../JPM_1_minute_bars.csv",
         "../../JPM_1_minute_bars.csv",
         "../../../JPM_1_minute_bars.csv"
     };
-    for (const char* p : lCandidates){
-        std::ifstream lTry(p);
-        if (lTry.is_open()) return std::string(p);
+    for (const char* lPath : lCandidates){
+        std::ifstream lTry(lPath);
+        if (lTry.is_open()) {
+            std::cerr << "Found CSV at: " << lPath << "\n";
+            return std::string(lPath);
+        }
     }
+    std::cerr << "CSV not found in any of the candidate paths\n";
     return std::string();
 }
 

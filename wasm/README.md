@@ -106,6 +106,7 @@ wasm/
 ├── build.sh          # Build script
 ├── shell.html        # Custom HTML template for demos
 ├── index.html        # Landing page (copied to build/)
+├── JPM_sample.csv    # Smaller stock data sample (100 rows) for web demos
 ├── README.md         # This file
 └── build/            # Build output (created by build.sh)
     ├── index.html    # Landing page

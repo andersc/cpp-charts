@@ -50,7 +50,8 @@ list(JOIN COMMON_LINK_FLAGS " " COMMON_LINK_FLAGS_STR)
 
 # Copy assets to build directory
 configure_file(${EXAMPLES_DIR}/base.ttf ${CMAKE_CURRENT_BINARY_DIR}/base.ttf COPYONLY)
-configure_file(${ROOT_DIR}/JPM_1_minute_bars.csv ${CMAKE_CURRENT_BINARY_DIR}/JPM_1_minute_bars.csv COPYONLY)
+# Use smaller sample CSV for WASM demos (web-friendly size)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JPM_sample.csv ${CMAKE_CURRENT_BINARY_DIR}/JPM_1_minute_bars.csv COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html COPYONLY)
 
 # Preload flags for assets
