@@ -24,7 +24,7 @@ jobs:
     
     - name: Install raylib
       run: |
-        sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+        sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev xvfb
         git clone https://github.com/raysan5/raylib.git raylib
         cd raylib
         mkdir build && cd build

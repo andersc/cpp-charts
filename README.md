@@ -492,7 +492,7 @@ cpp-charts includes a comprehensive test suite using [doctest](https://github.co
 - **Chart logic** - Value clamping, animation convergence, data handling
 - **Instantiation** - All chart types can be created without conflicts
 
-### Running Tests
+### Running Tests Locally
 
 ```bash
 # Build and run tests
@@ -502,7 +502,18 @@ cmake --build .
 ctest --output-on-failure
 ```
 
-Tests run automatically on all platforms (Ubuntu, macOS, Windows) via GitHub Actions on every push and pull request.
+### CI Behavior
+
+Tests run automatically on all platforms via GitHub Actions:
+
+- **Ubuntu** - Full test suite runs with `xvfb-run` for virtual display
+- **macOS/Windows** - Math utility tests run; chart tests are skipped (no GPU on CI runners)
+
+To skip raylib-dependent tests locally (e.g., for headless environments):
+
+```bash
+CPP_CHARTS_SKIP_RAYLIB=1 ctest --output-on-failure
+```
 
 ---
 

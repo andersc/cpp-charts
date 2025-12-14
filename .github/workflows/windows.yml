@@ -51,4 +51,7 @@ jobs:
       run: cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Test
+      # Skip raylib-dependent tests on Windows CI (GPU may not be available)
+      env:
+        CPP_CHARTS_SKIP_RAYLIB: 1
       run: ctest --output-on-failure --build-config ${{env.BUILD_TYPE}}

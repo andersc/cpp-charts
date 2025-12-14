@@ -13,7 +13,12 @@
 #include "RLScatterPlot.h"
 #include "RLTimeSeries.h"
 #include "RLTreeMap.h"
-#include <cmath>
+
+// Global flag from test_main.cpp indicating raylib availability
+extern bool gRaylibAvailable;
+
+// Helper macro to skip tests when raylib isn't available
+#define REQUIRE_RAYLIB() do { if (!gRaylibAvailable) { MESSAGE("Skipping: no raylib context"); return; } } while(0)
 
 // Test bounds used across tests
 const Rectangle TEST_BOUNDS = {0, 0, 400, 300};
@@ -21,6 +26,8 @@ const Rectangle TEST_BOUNDS = {0, 0, 400, 300};
 TEST_SUITE("Chart Instantiation") {
 
     TEST_CASE("All charts can be instantiated without conflicts") {
+        REQUIRE_RAYLIB();
+
         // Verify no static initialization conflicts between chart types
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
         RLBarChart lBarChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
@@ -46,6 +53,8 @@ TEST_SUITE("Chart Instantiation") {
 TEST_SUITE("RLGauge") {
 
     TEST_CASE("Value clamping") {
+        REQUIRE_RAYLIB();
+
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
 
         SUBCASE("setValue clamps to range") {
@@ -69,6 +78,8 @@ TEST_SUITE("RLGauge") {
     }
 
     TEST_CASE("Range changes") {
+        REQUIRE_RAYLIB();
+
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
         lGauge.setValue(50.0f);
 
@@ -81,6 +92,8 @@ TEST_SUITE("RLGauge") {
     }
 
     TEST_CASE("Animation convergence") {
+        REQUIRE_RAYLIB();
+
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
         lGauge.setValue(0.0f);
         lGauge.setTargetValue(100.0f);
@@ -95,6 +108,8 @@ TEST_SUITE("RLGauge") {
     }
 
     TEST_CASE("Bounds update") {
+        REQUIRE_RAYLIB();
+
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
 
         Rectangle lNewBounds = {100, 100, 200, 200};
@@ -110,6 +125,8 @@ TEST_SUITE("RLGauge") {
 TEST_SUITE("RLBarChart") {
 
     TEST_CASE("Data setting") {
+        REQUIRE_RAYLIB();
+
         RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
 
         std::vector<RLBarData> lData = {
@@ -123,6 +140,8 @@ TEST_SUITE("RLBarChart") {
     }
 
     TEST_CASE("Orientation change") {
+        REQUIRE_RAYLIB();
+
         RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
         CHECK(lChart.getOrientation() == RLBarOrientation::VERTICAL);
 
@@ -131,6 +150,8 @@ TEST_SUITE("RLBarChart") {
     }
 
     TEST_CASE("Animation with target data") {
+        REQUIRE_RAYLIB();
+
         RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
 
         std::vector<RLBarData> lInitial = {{10.0f, RED, false, BLACK, "A"}};
@@ -149,6 +170,8 @@ TEST_SUITE("RLBarChart") {
     }
 
     TEST_CASE("Explicit scale") {
+        REQUIRE_RAYLIB();
+
         RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
 
         RLBarChartStyle lStyle;
@@ -167,6 +190,8 @@ TEST_SUITE("RLBarChart") {
 TEST_SUITE("RLPieChart") {
 
     TEST_CASE("Hollow factor clamping") {
+        REQUIRE_RAYLIB();
+
         RLPieChart lChart(TEST_BOUNDS);
 
         lChart.setHollowFactor(0.5f);
@@ -180,6 +205,8 @@ TEST_SUITE("RLPieChart") {
     }
 
     TEST_CASE("Slice data handling") {
+        REQUIRE_RAYLIB();
+
         RLPieChart lChart(TEST_BOUNDS);
 
         std::vector<RLPieSliceData> lData = {
@@ -194,6 +221,8 @@ TEST_SUITE("RLPieChart") {
     }
 
     TEST_CASE("Animation with target data") {
+        REQUIRE_RAYLIB();
+
         RLPieChart lChart(TEST_BOUNDS);
 
         std::vector<RLPieSliceData> lInitial = {{50.0f, RED, "A"}, {50.0f, BLUE, "B"}};
@@ -214,6 +243,8 @@ TEST_SUITE("RLPieChart") {
 TEST_SUITE("RLScatterPlot") {
 
     TEST_CASE("Series management") {
+        REQUIRE_RAYLIB();
+
         RLScatterPlot lPlot(TEST_BOUNDS);
 
         RLScatterSeries lSeries;
@@ -230,6 +261,8 @@ TEST_SUITE("RLScatterPlot") {
     }
 
     TEST_CASE("Auto scale bounds") {
+        REQUIRE_RAYLIB();
+
         RLScatterPlot lPlot(TEST_BOUNDS);
 
         RLScatterSeries lSeries;
@@ -247,6 +280,8 @@ TEST_SUITE("RLScatterPlot") {
 TEST_SUITE("RLTimeSeries") {
 
     TEST_CASE("Trace management") {
+        REQUIRE_RAYLIB();
+
         RLTimeSeries lTs(TEST_BOUNDS, 100);
 
         CHECK(lTs.getTraceCount() == 0);
@@ -261,6 +296,8 @@ TEST_SUITE("RLTimeSeries") {
     }
 
     TEST_CASE("Sample streaming") {
+        REQUIRE_RAYLIB();
+
         RLTimeSeries lTs(TEST_BOUNDS, 10); // Small window for testing
         size_t lTraceIdx = lTs.addTrace();
 
@@ -274,6 +311,8 @@ TEST_SUITE("RLTimeSeries") {
     }
 
     TEST_CASE("Window size") {
+        REQUIRE_RAYLIB();
+
         RLTimeSeries lTs(TEST_BOUNDS, 50);
 
         CHECK(lTs.getWindowSize() == 50);
@@ -289,6 +328,8 @@ TEST_SUITE("RLTimeSeries") {
 TEST_SUITE("RLHeatMap") {
 
     TEST_CASE("Grid configuration") {
+        REQUIRE_RAYLIB();
+
         RLHeatMap lHm(TEST_BOUNDS, 32, 32);
 
         CHECK(lHm.getCellsX() == 32);
@@ -300,6 +341,8 @@ TEST_SUITE("RLHeatMap") {
     }
 
     TEST_CASE("Update modes") {
+        REQUIRE_RAYLIB();
+
         RLHeatMap lHm(TEST_BOUNDS, 16, 16);
 
         lHm.setUpdateMode(RLHeatMapUpdateMode::Replace);
@@ -313,6 +356,8 @@ TEST_SUITE("RLHeatMap") {
     }
 
     TEST_CASE("Point addition") {
+        REQUIRE_RAYLIB();
+
         RLHeatMap lHm(TEST_BOUNDS, 16, 16);
 
         Vector2 lPoints[] = {{0.0f, 0.0f}, {0.5f, 0.5f}, {-0.5f, -0.5f}};
@@ -324,6 +369,8 @@ TEST_SUITE("RLHeatMap") {
     }
 
     TEST_CASE("Clear") {
+        REQUIRE_RAYLIB();
+
         RLHeatMap lHm(TEST_BOUNDS, 16, 16);
 
         Vector2 lPoints[] = {{0.0f, 0.0f}};
@@ -339,6 +386,8 @@ TEST_SUITE("RLHeatMap") {
 TEST_SUITE("RLCandlestickChart") {
 
     TEST_CASE("Sample aggregation") {
+        REQUIRE_RAYLIB();
+
         RLCandlestickChart lChart(TEST_BOUNDS, 5, 20);
 
         RLCandlestickChart::CandleInput lSample;
@@ -360,6 +409,8 @@ TEST_SUITE("RLCandlestickChart") {
     }
 
     TEST_CASE("Configuration changes") {
+        REQUIRE_RAYLIB();
+
         RLCandlestickChart lChart(TEST_BOUNDS, 5, 20);
 
         lChart.setValuesPerCandle(10);
@@ -378,6 +429,8 @@ TEST_SUITE("RLCandlestickChart") {
 TEST_SUITE("RLTreeMap") {
 
     TEST_CASE("Hierarchy data") {
+        REQUIRE_RAYLIB();
+
         RLTreeMap lTm(TEST_BOUNDS);
 
         RLTreeNode lRoot;
@@ -394,6 +447,8 @@ TEST_SUITE("RLTreeMap") {
     }
 
     TEST_CASE("Layout modes") {
+        REQUIRE_RAYLIB();
+
         RLTreeMap lTm(TEST_BOUNDS);
 
         lTm.setLayout(RLTreeMapLayout::SQUARIFIED);
@@ -409,6 +464,8 @@ TEST_SUITE("RLTreeMap") {
 TEST_SUITE("RLLogPlot") {
 
     TEST_CASE("Time series streaming") {
+        REQUIRE_RAYLIB();
+
         RLLogPlot lPlot(TEST_BOUNDS);
 
         lPlot.setWindowSize(100);
@@ -426,6 +483,8 @@ TEST_SUITE("RLLogPlot") {
     }
 
     TEST_CASE("Trace management") {
+        REQUIRE_RAYLIB();
+
         RLLogPlot lPlot(TEST_BOUNDS);
 
         RLLogPlotTrace lTrace;
@@ -445,6 +504,8 @@ TEST_SUITE("RLLogPlot") {
 TEST_SUITE("RLOrderBookVis") {
 
     TEST_CASE("Configuration") {
+        REQUIRE_RAYLIB();
+
         RLOrderBookVis lOb(TEST_BOUNDS, 100, 10);
 
         CHECK(lOb.getPriceLevels() == 10);
@@ -458,6 +519,8 @@ TEST_SUITE("RLOrderBookVis") {
     }
 
     TEST_CASE("Snapshot updates") {
+        REQUIRE_RAYLIB();
+
         RLOrderBookVis lOb(TEST_BOUNDS, 10, 5);
 
         RLOrderBookSnapshot lSnapshot;
@@ -476,6 +539,8 @@ TEST_SUITE("RLOrderBookVis") {
 TEST_SUITE("RLBubble") {
 
     TEST_CASE("Bubble data") {
+        REQUIRE_RAYLIB();
+
         RLBubble lBubble(TEST_BOUNDS);
 
         std::vector<RLBubblePoint> lData = {
@@ -491,6 +556,8 @@ TEST_SUITE("RLBubble") {
     }
 
     TEST_CASE("Animation") {
+        REQUIRE_RAYLIB();
+
         RLBubble lBubble(TEST_BOUNDS);
 
         std::vector<RLBubblePoint> lInitial = {{0.5f, 0.5f, 10.0f, RED}};
