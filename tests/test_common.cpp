@@ -1,7 +1,11 @@
 // test_common.cpp
 // Unit tests for RLCommon.h utility functions
-#include "doctest/doctest.h"
+
+// IMPORTANT: On Windows, raylib.h must be included BEFORE other headers
+// to avoid conflicts with Windows SDK (Rectangle, CloseWindow, etc.)
 #include "RLCommon.h"
+
+#include "doctest/doctest.h"
 #include <cmath>
 
 TEST_SUITE("RLCommon") {

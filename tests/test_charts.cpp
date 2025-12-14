@@ -1,6 +1,8 @@
 // test_charts.cpp
 // Unit tests for chart classes (logic only, no draw() calls)
-#include "doctest/doctest.h"
+
+// IMPORTANT: On Windows, raylib.h must be included BEFORE other headers
+// to avoid conflicts with Windows SDK (Rectangle, CloseWindow, etc.)
 #include "RLBarChart.h"
 #include "RLBubble.h"
 #include "RLCandlestickChart.h"
@@ -13,6 +15,8 @@
 #include "RLScatterPlot.h"
 #include "RLTimeSeries.h"
 #include "RLTreeMap.h"
+
+#include "doctest/doctest.h"
 
 // Global flag from test_main.cpp indicating raylib availability
 extern bool gRaylibAvailable;
