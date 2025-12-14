@@ -1,8 +1,12 @@
 // test_charts.cpp
 // Unit tests for chart classes (logic only, no draw() calls)
 
-// IMPORTANT: On Windows, raylib.h must be included BEFORE other headers
-// to avoid conflicts with Windows SDK (Rectangle, CloseWindow, etc.)
+// IMPORTANT: On Windows, we need to prevent Windows SDK conflicts with raylib
+#if defined(_WIN32)
+    #define NOGDI             // Excludes GDI (Rectangle, etc.)
+    #define NOUSER            // Excludes USER (CloseWindow, ShowCursor, etc.)
+#endif
+
 #include "RLBarChart.h"
 #include "RLBubble.h"
 #include "RLCandlestickChart.h"

@@ -1,10 +1,17 @@
 // test_main.cpp
 // Doctest entry point with optional headless raylib initialization
 
-// IMPORTANT: On Windows, raylib.h must be included BEFORE standard library headers
-// to avoid conflicts with Windows SDK (Rectangle, CloseWindow, LoadImage, etc.)
+// IMPORTANT: On Windows, we need to prevent Windows SDK conflicts with raylib
+// by defining these macros before including any headers
+#if defined(_WIN32)
+    // Prevent Windows SDK from defining functions that conflict with raylib
+    #define NOGDI             // Excludes GDI (Rectangle, etc.)
+    #define NOUSER            // Excludes USER (CloseWindow, ShowCursor, etc.)
+#endif
+
 #include "raylib.h"
 
+// After including raylib, we can safely include other headers
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest/doctest.h"
 #include <cstdlib>
