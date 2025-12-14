@@ -484,6 +484,28 @@ Release\raylib_barchart.exe    # Windows
 
 ---
 
+## 🧪 Testing
+
+cpp-charts includes a comprehensive test suite using [doctest](https://github.com/doctest/doctest). Tests cover:
+
+- **RLCommon utilities** - Math functions (clamp, lerp, color interpolation, etc.)
+- **Chart logic** - Value clamping, animation convergence, data handling
+- **Instantiation** - All chart types can be created without conflicts
+
+### Running Tests
+
+```bash
+# Build and run tests
+cd build
+cmake ..
+cmake --build .
+ctest --output-on-failure
+```
+
+Tests run automatically on all platforms (Ubuntu, macOS, Windows) via GitHub Actions on every push and pull request.
+
+---
+
 ## 📋 Requirements
 
 - **CMake** 3.28 or higher

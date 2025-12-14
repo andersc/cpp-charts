@@ -227,3 +227,6 @@ add_custom_target(copy_font ALL
     COMMENT "Copying base.ttf font to build directory"
 )
 
+# Testing
+enable_testing()
+add_subdirectory(tests)
