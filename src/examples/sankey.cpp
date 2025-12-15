@@ -243,6 +243,9 @@ int main() {
     float lFluctuateTimer = 0.0f;
     int lColorModeIndex = 0;
     const char* COLOR_MODE_NAMES[] = {"Gradient", "Source", "Target"};
+    int lFlowModeIndex = 0;
+    const char* FLOW_MODE_NAMES[] = {"Normalized", "Raw Value"};
+    bool lStrictMode = false;
 
     // Store original link values for fluctuation
     std::vector<float> lOriginalValues1;
@@ -297,6 +300,32 @@ int main() {
             lStyle2.mShowLabels = lStyle.mShowLabels;
             lChart1.setStyle(lStyle);
             lChart2.setStyle(lStyle2);
+        }
+
+        // Toggle flow mode
+        if (IsKeyPressed(KEY_N)) {
+            lFlowModeIndex = (lFlowModeIndex + 1) % 2;
+            RLSankeyFlowMode lNewMode = (lFlowModeIndex == 0)
+                ? RLSankeyFlowMode::NORMALIZED
+                : RLSankeyFlowMode::RAW_VALUE;
+            lStyle.mFlowMode = lNewMode;
+            lStyle2.mFlowMode = lNewMode;
+            lChart1.setStyle(lStyle);
+            lChart2.setStyle(lStyle2);
+        }
+
+        // Toggle strict flow conservation
+        if (IsKeyPressed(KEY_S)) {
+            lStrictMode = !lStrictMode;
+            lStyle.mStrictFlowConservation = lStrictMode;
+            lStyle2.mStrictFlowConservation = lStrictMode;
+            lChart1.setStyle(lStyle);
+            lChart2.setStyle(lStyle2);
+            // Validate and log warnings if strict mode is enabled
+            if (lStrictMode) {
+                lChart1.validateFlowConservation();
+                lChart2.validateFlowConservation();
+            }
         }
 
         // Manual add/remove demo
@@ -388,10 +417,11 @@ int main() {
         int lHelpSize = 14;
         float lHelpY = SCREEN_HEIGHT - 30.0f;
 
-        char lHelpText[256];
+        char lHelpText[512];
         snprintf(lHelpText, sizeof(lHelpText),
-                 "[C] Color Mode: %s    [L] Toggle Labels    [A] Add Node    [R] Remove Node    |    Values fluctuate every %.1fs",
-                 COLOR_MODE_NAMES[lColorModeIndex], UPDATE_INTERVAL);
+                 "[C] Color: %s  [N] Flow: %s  [S] Strict: %s  [L] Labels  [A] Add  [R] Remove  |  Values fluctuate every %.1fs",
+                 COLOR_MODE_NAMES[lColorModeIndex], FLOW_MODE_NAMES[lFlowModeIndex],
+                 lStrictMode ? "ON" : "OFF", UPDATE_INTERVAL);
 
         DrawTextEx(lFont, lHelpText, {lMargin, lHelpY}, (float)lHelpSize, 1.0f, lHelpColor);
 

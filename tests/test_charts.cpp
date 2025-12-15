@@ -973,4 +973,122 @@ TEST_SUITE("RLSankey") {
         CHECK(lSankey.getColumnCount() == 3);
     }
 
+    TEST_CASE("Flow conservation validation - valid flow") {
+        REQUIRE_RAYLIB();
+
+        RLSankeyStyle lStyle;
+        lStyle.mStrictFlowConservation = true;
+        lStyle.mFlowTolerance = 0.001f;
+        RLSankey lSankey(TEST_BOUNDS, lStyle);
+
+        // Create a balanced flow: A(50) + B(30) -> Middle(80) -> X(45) + Y(35)
+        std::vector<RLSankeyNode> lNodes = {
+            {"Source A", RED, 0},
+            {"Source B", GREEN, 0},
+            {"Middle", BLUE, 1},
+            {"Target X", ORANGE, 2},
+            {"Target Y", PURPLE, 2}
+        };
+
+        std::vector<RLSankeyLink> lLinks = {
+            {0, 2, 50.0f},  // A -> Middle
+            {1, 2, 30.0f},  // B -> Middle (total in = 80)
+            {2, 3, 45.0f},  // Middle -> X
+            {2, 4, 35.0f}   // Middle -> Y (total out = 80)
+        };
+
+        bool lValid = lSankey.setData(lNodes, lLinks);
+        CHECK(lValid == true);
+        CHECK(lSankey.validateFlowConservation() == true);
+    }
+
+    TEST_CASE("Flow conservation validation - invalid flow") {
+        REQUIRE_RAYLIB();
+
+        RLSankeyStyle lStyle;
+        lStyle.mStrictFlowConservation = true;
+        lStyle.mFlowTolerance = 0.001f;
+        RLSankey lSankey(TEST_BOUNDS, lStyle);
+
+        // Create an unbalanced flow: A(50) + B(30) -> Middle(80) -> X(45) + Y(20)
+        // Inflow = 80, Outflow = 65 (difference of 15)
+        std::vector<RLSankeyNode> lNodes = {
+            {"Source A", RED, 0},
+            {"Source B", GREEN, 0},
+            {"Middle", BLUE, 1},
+            {"Target X", ORANGE, 2},
+            {"Target Y", PURPLE, 2}
+        };
+
+        std::vector<RLSankeyLink> lLinks = {
+            {0, 2, 50.0f},  // A -> Middle
+            {1, 2, 30.0f},  // B -> Middle (total in = 80)
+            {2, 3, 45.0f},  // Middle -> X
+            {2, 4, 20.0f}   // Middle -> Y (total out = 65, unbalanced!)
+        };
+
+        bool lValid = lSankey.setData(lNodes, lLinks);
+        CHECK(lValid == false);
+        CHECK(lSankey.validateFlowConservation() == false);
+    }
+
+    TEST_CASE("Flow conservation - edge nodes excluded") {
+        REQUIRE_RAYLIB();
+
+        RLSankeyStyle lStyle;
+        lStyle.mStrictFlowConservation = true;
+        lStyle.mFlowTolerance = 0.001f;
+        RLSankey lSankey(TEST_BOUNDS, lStyle);
+
+        // Edge nodes (source-only or sink-only) should not be validated
+        std::vector<RLSankeyNode> lNodes = {
+            {"Source", RED, 0},
+            {"Target", BLUE, 1}
+        };
+
+        std::vector<RLSankeyLink> lLinks = {
+            {0, 1, 100.0f}
+        };
+
+        // This should be valid - no intermediate nodes to check
+        bool lValid = lSankey.setData(lNodes, lLinks);
+        CHECK(lValid == true);
+        CHECK(lSankey.validateFlowConservation() == true);
+    }
+
+    TEST_CASE("Flow mode - normalized vs raw") {
+        REQUIRE_RAYLIB();
+
+        // Test that both flow modes can be set without issues
+        RLSankeyStyle lStyleNorm;
+        lStyleNorm.mFlowMode = RLSankeyFlowMode::NORMALIZED;
+        RLSankey lSankeyNorm(TEST_BOUNDS, lStyleNorm);
+
+        RLSankeyStyle lStyleRaw;
+        lStyleRaw.mFlowMode = RLSankeyFlowMode::RAW_VALUE;
+        RLSankey lSankeyRaw(TEST_BOUNDS, lStyleRaw);
+
+        // Add same data to both
+        std::vector<RLSankeyNode> lNodes = {
+            {"A", RED, 0},
+            {"B", GREEN, 1},
+            {"C", BLUE, 2}
+        };
+
+        std::vector<RLSankeyLink> lLinks = {
+            {0, 1, 100.0f},
+            {1, 2, 80.0f}  // Intentionally unbalanced
+        };
+
+        lSankeyNorm.setData(lNodes, lLinks);
+        lSankeyRaw.setData(lNodes, lLinks);
+
+        // Both should update without issues
+        lSankeyNorm.update(0.016f);
+        lSankeyRaw.update(0.016f);
+
+        CHECK(lSankeyNorm.getNodeCount() == 3);
+        CHECK(lSankeyRaw.getNodeCount() == 3);
+    }
+
 }

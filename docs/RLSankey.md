@@ -64,6 +64,20 @@ enum class RLSankeyLinkColorMode {
 | `GRADIENT` | Links fade from source to target color |
 | `CUSTOM` | Links use their own custom color |
 
+### Flow Mode
+
+```cpp
+enum class RLSankeyFlowMode {
+    RAW_VALUE,   // Link thickness is proportional to value (may not fill node height)
+    NORMALIZED   // Link bands are scaled to fill node height on both sides
+};
+```
+
+| Mode | Description |
+|------|-------------|
+| `RAW_VALUE` | Link thickness directly represents value; bands may not fill node height if inflow ≠ outflow |
+| `NORMALIZED` | Link bands are scaled proportionally to fill the full node height on both sides (proper Sankey behavior) |
+
 ## Style Configuration
 
 ```cpp
@@ -86,6 +100,11 @@ struct RLSankeyStyle {
     float mLinkAlpha{0.6f};             // Alpha for link ribbons
     int mLinkSegments{24};              // Number of segments for Bezier curves
     RLSankeyLinkColorMode mLinkColorMode{RLSankeyLinkColorMode::GRADIENT};
+    RLSankeyFlowMode mFlowMode{RLSankeyFlowMode::NORMALIZED}; // Band width mode
+
+    // Flow conservation
+    bool mStrictFlowConservation{false}; // Validate inflow == outflow for intermediate nodes
+    float mFlowTolerance{0.001f};        // Tolerance for flow conservation validation
 
     // Labels
     bool mShowLabels{true};
@@ -151,10 +170,20 @@ void removeLink(size_t aLinkId);
 
 ```cpp
 // Set all nodes and links at once
-void setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks);
+// Returns true if flow conservation is valid (when strict mode enabled)
+bool setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks);
 
 // Clear all data
 void clear();
+```
+
+### Flow Conservation Validation
+
+```cpp
+// Check if flow is conserved at all intermediate nodes
+// Returns true if all intermediate nodes have inflow == outflow (within tolerance)
+// Logs warnings for any violations
+bool validateFlowConservation() const;
 ```
 
 ### Update and Draw
@@ -251,6 +280,44 @@ lStyle.mLabelFontSize = 16;
 RLSankey lSankey(lBounds, lStyle);
 ```
 
+### Flow Mode Configuration
+
+```cpp
+RLSankeyStyle lStyle;
+
+// NORMALIZED mode (default): Link bands fill node height on both sides
+// This is the proper Sankey behavior where bands are scaled proportionally
+lStyle.mFlowMode = RLSankeyFlowMode::NORMALIZED;
+
+// RAW_VALUE mode: Link thickness directly represents value
+// Bands may not fill node height if inflow ≠ outflow
+lStyle.mFlowMode = RLSankeyFlowMode::RAW_VALUE;
+
+RLSankey lSankey(lBounds, lStyle);
+```
+
+### Strict Flow Conservation
+
+```cpp
+RLSankeyStyle lStyle;
+lStyle.mStrictFlowConservation = true;  // Enable validation
+lStyle.mFlowTolerance = 0.01f;          // Allow small rounding errors
+
+RLSankey lSankey(lBounds, lStyle);
+
+// setData returns false and logs warnings if flow conservation is violated
+bool lValid = lSankey.setData(lNodes, lLinks);
+if (!lValid) {
+    // Handle flow conservation violation
+    // Warnings are logged for each node where inflow ≠ outflow
+}
+
+// You can also validate at any time
+if (!lSankey.validateFlowConservation()) {
+    // Flow is not conserved at one or more intermediate nodes
+}
+```
+
 ### Dynamic Updates with Animation
 
 ```cpp
@@ -292,6 +359,8 @@ Run the `sankey` demo to see a full interactive example with:
 - Website analytics flow
 - Dynamic value fluctuations
 - Color mode toggling (press C)
+- Flow mode toggling (press N) - switch between Normalized and Raw Value
+- Strict flow conservation toggle (press S) - validates inflow == outflow
 - Label visibility toggle (press L)
 - Add/remove nodes dynamically (press A/R)
 - Hover highlighting

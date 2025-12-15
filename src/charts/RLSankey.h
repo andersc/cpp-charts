@@ -18,6 +18,12 @@ enum class RLSankeyLinkColorMode {
     CUSTOM          // Use per-link custom color
 };
 
+// Flow mode for link band widths
+enum class RLSankeyFlowMode {
+    RAW_VALUE,      // Link thickness is proportional to value (may not fill node height)
+    NORMALIZED      // Link bands are scaled to fill node height on both sides
+};
+
 // Node definition
 struct RLSankeyNode {
     std::string mLabel;
@@ -53,6 +59,11 @@ struct RLSankeyStyle {
     float mLinkAlpha{0.6f};             // Alpha for link ribbons
     int mLinkSegments{24};              // Number of segments for Bezier curves
     RLSankeyLinkColorMode mLinkColorMode{RLSankeyLinkColorMode::GRADIENT};
+    RLSankeyFlowMode mFlowMode{RLSankeyFlowMode::NORMALIZED}; // Band width mode
+
+    // Flow conservation
+    bool mStrictFlowConservation{false}; // Validate inflow == outflow for intermediate nodes
+    float mFlowTolerance{0.001f};        // Tolerance for flow conservation validation
 
     // Labels
     bool mShowLabels{true};
@@ -93,9 +104,12 @@ public:
     void setLinkColor(size_t aLinkId, Color aColor);
     void removeLink(size_t aLinkId);
 
-    // Batch data setting
-    void setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks);
+    // Batch data setting - returns true if flow conservation is valid (when strict mode enabled)
+    bool setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks);
     void clear();
+
+    // Flow conservation validation
+    bool validateFlowConservation() const;
 
     // Per-frame update and draw
     void update(float aDt);
@@ -147,9 +161,11 @@ private:
         float mVisibilityTarget{1.0f};
         bool mPendingRemoval{false};
 
-        // Computed layout
-        float mThickness{0.0f};
-        float mThicknessTarget{0.0f};
+        // Computed layout (separate thicknesses for source and target sides)
+        float mSourceThickness{0.0f};
+        float mSourceThicknessTarget{0.0f};
+        float mTargetThickness{0.0f};
+        float mTargetThicknessTarget{0.0f};
         float mSourceY{0.0f};           // Y offset within source node
         float mSourceYTarget{0.0f};
         float mTargetY{0.0f};           // Y offset within target node
@@ -167,6 +183,7 @@ private:
     void computeNodePositions();
     void computeLinkPositions();
     float computeTotalFlow(size_t aNodeId, bool aOutgoing) const;
+    bool isIntermediateNode(size_t aNodeId) const;
 
     // Drawing helpers
     void drawBackground() const;

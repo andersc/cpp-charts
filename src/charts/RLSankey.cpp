@@ -81,7 +81,8 @@ void RLSankey::removeNode(size_t aNodeId) {
         if (rLink.mSourceId == aNodeId || rLink.mTargetId == aNodeId) {
             rLink.mVisibilityTarget = 0.0f;
             rLink.mPendingRemoval = true;
-            rLink.mThicknessTarget = 0.0f;
+            rLink.mSourceThicknessTarget = 0.0f;
+            rLink.mTargetThicknessTarget = 0.0f;
         }
     }
 }
@@ -134,7 +135,8 @@ void RLSankey::removeLink(size_t aLinkId) {
 
     mLinks[aLinkId].mVisibilityTarget = 0.0f;
     mLinks[aLinkId].mPendingRemoval = true;
-    mLinks[aLinkId].mThicknessTarget = 0.0f;
+    mLinks[aLinkId].mSourceThicknessTarget = 0.0f;
+    mLinks[aLinkId].mTargetThicknessTarget = 0.0f;
     mLinks[aLinkId].mValueTarget = 0.0f;
 }
 
@@ -142,7 +144,7 @@ void RLSankey::removeLink(size_t aLinkId) {
 // Batch Data
 // ============================================================================
 
-void RLSankey::setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks) {
+bool RLSankey::setData(const std::vector<RLSankeyNode>& rNodes, const std::vector<RLSankeyLink>& rLinks) {
     clear();
 
     for (const auto& rNode : rNodes) {
@@ -152,6 +154,12 @@ void RLSankey::setData(const std::vector<RLSankeyNode>& rNodes, const std::vecto
     for (const auto& rLink : rLinks) {
         addLink(rLink);
     }
+
+    // Validate flow conservation if strict mode is enabled
+    if (mStyle.mStrictFlowConservation) {
+        return validateFlowConservation();
+    }
+    return true;
 }
 
 void RLSankey::clear() {
@@ -206,7 +214,8 @@ void RLSankey::update(float aDt) {
         }
         for (auto& rLink : mLinks) {
             rLink.mValue = rLink.mValueTarget;
-            rLink.mThickness = rLink.mThicknessTarget;
+            rLink.mSourceThickness = rLink.mSourceThicknessTarget;
+            rLink.mTargetThickness = rLink.mTargetThicknessTarget;
             rLink.mSourceY = rLink.mSourceYTarget;
             rLink.mTargetY = rLink.mTargetYTarget;
             rLink.mColor = rLink.mColorTarget;
@@ -228,14 +237,19 @@ void RLSankey::update(float aDt) {
         // Animate links
         for (auto& rLink : mLinks) {
             float lOldValue = rLink.mValue;
+            float lOldSourceThickness = rLink.mSourceThickness;
+            float lOldTargetThickness = rLink.mTargetThickness;
             rLink.mValue = approach(rLink.mValue, rLink.mValueTarget, lValueSpeed);
-            rLink.mThickness = approach(rLink.mThickness, rLink.mThicknessTarget, lValueSpeed);
+            rLink.mSourceThickness = approach(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed);
+            rLink.mTargetThickness = approach(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed);
             rLink.mSourceY = approach(rLink.mSourceY, rLink.mSourceYTarget, lValueSpeed);
             rLink.mTargetY = approach(rLink.mTargetY, rLink.mTargetYTarget, lValueSpeed);
             rLink.mColor = lerpColor(rLink.mColor, rLink.mColorTarget, lValueSpeed);
             rLink.mVisibility = approach(rLink.mVisibility, rLink.mVisibilityTarget, lFadeSpeed);
 
-            if (rLink.mValue != lOldValue || rLink.mThickness != rLink.mThicknessTarget) {
+            if (rLink.mValue != lOldValue ||
+                rLink.mSourceThickness != lOldSourceThickness ||
+                rLink.mTargetThickness != lOldTargetThickness) {
                 rLink.mCacheDirty = true;
             }
         }
@@ -485,10 +499,26 @@ void RLSankey::computeLinkPositions() {
         rNode.mInflowOffset = 0.0f;
     }
 
-    // Sort links by value for consistent ordering
-    std::vector<size_t> lLinkOrder(mLinks.size());
-    for (size_t i = 0; i < mLinks.size(); ++i) {
-        lLinkOrder[i] = i;
+    // Pre-compute per-node scale factors for NORMALIZED mode
+    std::vector<float> lOutflowScale(mNodes.size(), 1.0f);
+    std::vector<float> lInflowScale(mNodes.size(), 1.0f);
+
+    if (mStyle.mFlowMode == RLSankeyFlowMode::NORMALIZED) {
+        for (size_t i = 0; i < mNodes.size(); ++i) {
+            if (mNodes[i].mPendingRemoval) continue;
+
+            float lInflow = computeTotalFlow(i, false);
+            float lOutflow = computeTotalFlow(i, true);
+            float lNodeHeight = mNodes[i].mHeightTarget;
+
+            // Scale factors to make bands fill the node height
+            if (lOutflow > 0.001f) {
+                lOutflowScale[i] = lNodeHeight / (lOutflow * mValueToPixelScale);
+            }
+            if (lInflow > 0.001f) {
+                lInflowScale[i] = lNodeHeight / (lInflow * mValueToPixelScale);
+            }
+        }
     }
 
     // Compute link positions
@@ -501,27 +531,38 @@ void RLSankey::computeLinkPositions() {
         NodeDyn& rSource = mNodes[rLink.mSourceId];
         NodeDyn& rTarget = mNodes[rLink.mTargetId];
 
-        // Link thickness based on value
-        float lThickness = rLink.mValueTarget * mValueToPixelScale;
-        if (lThickness < mStyle.mMinLinkThickness) {
-            lThickness = mStyle.mMinLinkThickness;
+        // Base link thickness from value
+        float lBaseThickness = rLink.mValueTarget * mValueToPixelScale;
+        if (lBaseThickness < mStyle.mMinLinkThickness) {
+            lBaseThickness = mStyle.mMinLinkThickness;
         }
 
-        rLink.mThicknessTarget = lThickness;
+        // Compute source and target thicknesses based on flow mode
+        float lSourceThickness = lBaseThickness;
+        float lTargetThickness = lBaseThickness;
+
+        if (mStyle.mFlowMode == RLSankeyFlowMode::NORMALIZED) {
+            lSourceThickness = lBaseThickness * lOutflowScale[rLink.mSourceId];
+            lTargetThickness = lBaseThickness * lInflowScale[rLink.mTargetId];
+        }
+
+        rLink.mSourceThicknessTarget = lSourceThickness;
+        rLink.mTargetThicknessTarget = lTargetThickness;
 
         // Source Y offset (within source node)
         rLink.mSourceYTarget = rSource.mOutflowOffset;
-        rSource.mOutflowOffset += lThickness;
+        rSource.mOutflowOffset += lSourceThickness;
 
         // Target Y offset (within target node)
         rLink.mTargetYTarget = rTarget.mInflowOffset;
-        rTarget.mInflowOffset += lThickness;
+        rTarget.mInflowOffset += lTargetThickness;
 
         // Initialize current values if new
         if (rLink.mVisibility < 0.01f && !rLink.mPendingRemoval) {
             rLink.mSourceY = rLink.mSourceYTarget;
             rLink.mTargetY = rLink.mTargetYTarget;
-            rLink.mThickness = 0.0f; // Start thin, grow
+            rLink.mSourceThickness = 0.0f; // Start thin, grow
+            rLink.mTargetThickness = 0.0f;
         }
 
         rLink.mCacheDirty = true;
@@ -542,6 +583,51 @@ float RLSankey::computeTotalFlow(size_t aNodeId, bool aOutgoing) const {
     }
 
     return lTotal;
+}
+
+bool RLSankey::isIntermediateNode(size_t aNodeId) const {
+    if (aNodeId >= mNodes.size()) return false;
+    if (mNodes[aNodeId].mPendingRemoval) return false;
+
+    bool lHasIncoming = false;
+    bool lHasOutgoing = false;
+
+    for (const auto& rLink : mLinks) {
+        if (rLink.mPendingRemoval) continue;
+
+        if (rLink.mSourceId == aNodeId) {
+            lHasOutgoing = true;
+        }
+        if (rLink.mTargetId == aNodeId) {
+            lHasIncoming = true;
+        }
+
+        if (lHasIncoming && lHasOutgoing) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool RLSankey::validateFlowConservation() const {
+    bool lValid = true;
+
+    for (size_t i = 0; i < mNodes.size(); ++i) {
+        if (!isIntermediateNode(i)) continue;
+
+        float lInflow = computeTotalFlow(i, false);
+        float lOutflow = computeTotalFlow(i, true);
+        float lDifference = (lInflow > lOutflow) ? (lInflow - lOutflow) : (lOutflow - lInflow);
+
+        if (lDifference > mStyle.mFlowTolerance) {
+            TraceLog(LOG_WARNING, "RLSankey: Flow conservation violated at node '%s' (id=%zu): inflow=%.3f, outflow=%.3f, diff=%.3f",
+                     mNodes[i].mLabel.c_str(), i, lInflow, lOutflow, lDifference);
+            lValid = false;
+        }
+    }
+
+    return lValid;
 }
 
 // ============================================================================
@@ -678,7 +764,10 @@ void RLSankey::drawLink(const LinkDyn& rLink) const {
     const NodeDyn& rSource = mNodes[rLink.mSourceId];
     const NodeDyn& rTarget = mNodes[rLink.mTargetId];
 
-    if (rLink.mThickness < 0.5f) return;
+    // Check if link has sufficient thickness to draw
+    float lMaxThickness = (rLink.mSourceThickness > rLink.mTargetThickness)
+                          ? rLink.mSourceThickness : rLink.mTargetThickness;
+    if (lMaxThickness < 0.5f) return;
 
     // Compute curve if dirty
     computeLinkCurve(rLink);
@@ -757,36 +846,37 @@ void RLSankey::computeLinkCurve(const LinkDyn& rLink) const {
     float lSourceX = getNodeX(rSource.mColumn) + mStyle.mNodeWidth;
     float lTargetX = getNodeX(rTarget.mColumn);
 
-    // Source and target Y positions (center of link within node)
+    // Source and target Y positions (top edge of link within node)
     float lSourceYTop = rSource.mY + rLink.mSourceY;
-    float lSourceYBot = lSourceYTop + rLink.mThickness;
     float lTargetYTop = rTarget.mY + rLink.mTargetY;
-    float lTargetYBot = lTargetYTop + rLink.mThickness;
 
-    // Control points for cubic Bezier (S-curve)
+    // Control points for cubic Bezier (S-curve) - centerline
     float lMidX = (lSourceX + lTargetX) * 0.5f;
 
-    // Top curve control points
-    Vector2 lP0Top = {lSourceX, lSourceYTop};
-    Vector2 lP1Top = {lMidX, lSourceYTop};
-    Vector2 lP2Top = {lMidX, lTargetYTop};
-    Vector2 lP3Top = {lTargetX, lTargetYTop};
+    // Centerline control points (we'll offset by interpolated half-thickness)
+    Vector2 lP0 = {lSourceX, lSourceYTop + rLink.mSourceThickness * 0.5f};
+    Vector2 lP1 = {lMidX, lSourceYTop + rLink.mSourceThickness * 0.5f};
+    Vector2 lP2 = {lMidX, lTargetYTop + rLink.mTargetThickness * 0.5f};
+    Vector2 lP3 = {lTargetX, lTargetYTop + rLink.mTargetThickness * 0.5f};
 
-    // Bottom curve control points
-    Vector2 lP0Bot = {lSourceX, lSourceYBot};
-    Vector2 lP1Bot = {lMidX, lSourceYBot};
-    Vector2 lP2Bot = {lMidX, lTargetYBot};
-    Vector2 lP3Bot = {lTargetX, lTargetYBot};
-
-    // Generate curve points
+    // Generate curve points with interpolated thickness
     int lSegments = mStyle.mLinkSegments;
     rLink.mCachedTopCurve.resize(lSegments + 1);
     rLink.mCachedBottomCurve.resize(lSegments + 1);
 
     for (int i = 0; i <= lSegments; ++i) {
         float lT = (float)i / (float)lSegments;
-        rLink.mCachedTopCurve[i] = cubicBezier(lP0Top, lP1Top, lP2Top, lP3Top, lT);
-        rLink.mCachedBottomCurve[i] = cubicBezier(lP0Bot, lP1Bot, lP2Bot, lP3Bot, lT);
+
+        // Get centerline point
+        Vector2 lCenter = cubicBezier(lP0, lP1, lP2, lP3, lT);
+
+        // Interpolate thickness along the curve
+        float lThickness = rLink.mSourceThickness + (rLink.mTargetThickness - rLink.mSourceThickness) * lT;
+        float lHalfThickness = lThickness * 0.5f;
+
+        // Offset top and bottom from centerline
+        rLink.mCachedTopCurve[i] = {lCenter.x, lCenter.y - lHalfThickness};
+        rLink.mCachedBottomCurve[i] = {lCenter.x, lCenter.y + lHalfThickness};
     }
 
     rLink.mCacheDirty = false;
