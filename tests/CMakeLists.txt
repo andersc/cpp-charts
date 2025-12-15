@@ -25,6 +25,7 @@ set(CHART_SOURCES
     ${CMAKE_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLPieChart.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLRadarChart.cpp
+    ${CMAKE_SOURCE_DIR}/src/charts/RLSankey.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLScatterPlot.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLTreeMap.cpp

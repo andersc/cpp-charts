@@ -12,6 +12,7 @@
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
 #include "src/charts/RLRadarChart.h"
+#include "src/charts/RLSankey.h"
 #include "src/charts/RLScatterPlot.h"
 #include "src/charts/RLTimeSeries.h"
 #include "src/charts/RLTreeMap.h"
@@ -425,7 +426,49 @@ int main() {
     lRadarSeries2.mShowMarkers = true;
     lRadarChart.addSeries(lRadarSeries2);
 
-    // ===== 15. 3D Heat Map =====
+    // ===== 15. Sankey Diagram =====
+    RLSankeyStyle lSankeyStyle;
+    lSankeyStyle.mShowBackground = true;
+    lSankeyStyle.mBackground = Color{20, 22, 28, 255};
+    lSankeyStyle.mNodeWidth = 12.0f;
+    lSankeyStyle.mNodePadding = 6.0f;
+    lSankeyStyle.mNodeCornerRadius = 2.0f;
+    lSankeyStyle.mShowNodeBorder = true;
+    lSankeyStyle.mNodeBorderColor = Color{255, 255, 255, 30};
+    lSankeyStyle.mMinLinkThickness = 1.5f;
+    lSankeyStyle.mLinkAlpha = 0.5f;
+    lSankeyStyle.mLinkSegments = 20;
+    lSankeyStyle.mLinkColorMode = RLSankeyLinkColorMode::GRADIENT;
+    lSankeyStyle.mShowLabels = false;  // Small chart, skip labels
+    lSankeyStyle.mPadding = 20.0f;
+    lSankeyStyle.mSmoothAnimate = true;
+    lSankeyStyle.mAnimateSpeed = 5.0f;
+
+    RLSankey lSankey(getChartBounds(3, 1), lSankeyStyle);
+
+    // Create a simple flow: 3 sources -> 2 middle -> 2 targets
+    lSankey.addNode("A", paletteColor(0), 0);
+    lSankey.addNode("B", paletteColor(1), 0);
+    lSankey.addNode("C", paletteColor(2), 0);
+    lSankey.addNode("X", paletteColor(3), 1);
+    lSankey.addNode("Y", paletteColor(4), 1);
+    lSankey.addNode("P", paletteColor(5), 2);
+    lSankey.addNode("Q", paletteColor(6), 2);
+
+    // Links from sources to middle
+    lSankey.addLink(0, 3, 30.0f);  // A -> X
+    lSankey.addLink(0, 4, 20.0f);  // A -> Y
+    lSankey.addLink(1, 3, 25.0f);  // B -> X
+    lSankey.addLink(1, 4, 15.0f);  // B -> Y
+    lSankey.addLink(2, 4, 35.0f);  // C -> Y
+
+    // Links from middle to targets
+    lSankey.addLink(3, 5, 40.0f);  // X -> P
+    lSankey.addLink(3, 6, 15.0f);  // X -> Q
+    lSankey.addLink(4, 5, 30.0f);  // Y -> P
+    lSankey.addLink(4, 6, 40.0f);  // Y -> Q
+
+    // ===== 16. 3D Heat Map =====
     // Create a render texture for the 3D heat map (to display in 2D grid)
     Rectangle lHeatMap3DBounds = getChartBounds(3, 3);
     RenderTexture2D lHeatMap3DRT = LoadRenderTexture((int)lHeatMap3DBounds.width, (int)lHeatMap3DBounds.height);
@@ -520,6 +563,7 @@ int main() {
         lLogPlot.update(lDt);
         lAreaChart.update(lDt);
         lRadarChart.update(lDt);
+        lSankey.update(lDt);
 
         // Update 3D heat map with animated data
         lHeatMap3DRotation += lDt * 0.5f;
@@ -577,18 +621,19 @@ int main() {
         lLogPlot.draw();
         lAreaChart.draw();
         lRadarChart.draw();
+        lSankey.draw();
 
         // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
         DrawTextureRec(lHeatMap3DRT.texture,
                        Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
                        Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
 
-        // Draw labels for each chart (4x4 grid, 15 charts)
+        // Draw labels for each chart (4x4 grid, 16 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
             "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
             "Order Book", "TreeMap", "Time Series", "Log Plot",
-            "Area Chart", "Radar Chart", "3D Heat Map", ""
+            "Area Chart", "Sankey", "Radar Chart", "3D Heat Map"
         };
 
         for (int lRow = 0; lRow < 4; ++lRow) {

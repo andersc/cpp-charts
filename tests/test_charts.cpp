@@ -18,6 +18,7 @@
 #include "RLOrderBookVis.h"
 #include "RLPieChart.h"
 #include "RLRadarChart.h"
+#include "RLSankey.h"
 #include "RLScatterPlot.h"
 #include "RLTimeSeries.h"
 #include "RLTreeMap.h"
@@ -44,6 +45,7 @@ TEST_SUITE("Chart Instantiation") {
         RLBarChart lBarChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
         RLPieChart lPieChart(TEST_BOUNDS);
         RLRadarChart lRadarChart(TEST_BOUNDS);
+        RLSankey lSankey(TEST_BOUNDS);
         RLScatterPlot lScatter(TEST_BOUNDS);
         RLTimeSeries lTimeSeries(TEST_BOUNDS, 100);
         RLHeatMap lHeatMap(TEST_BOUNDS, 32, 32);
@@ -60,6 +62,7 @@ TEST_SUITE("Chart Instantiation") {
         CHECK(lBarChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lPieChart.getBounds().height == doctest::Approx(300.0f));
         CHECK(lRadarChart.getBounds().width == doctest::Approx(400.0f));
+        CHECK(lSankey.getBounds().width == doctest::Approx(400.0f));
     }
 
 }
@@ -805,3 +808,169 @@ TEST_SUITE("RLBubble") {
 
 }
 
+TEST_SUITE("RLSankey") {
+
+    TEST_CASE("Node management") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        // Add nodes
+        size_t lNode1 = lSankey.addNode("Source A", RED, 0);
+        size_t lNode2 = lSankey.addNode("Target B", BLUE, 1);
+
+        CHECK(lNode1 == 0);
+        CHECK(lNode2 == 1);
+        CHECK(lSankey.getNodeCount() == 2);
+
+        // Update and check bounds
+        lSankey.update(0.016f);
+        CHECK(lSankey.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("Link management") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        size_t lNode1 = lSankey.addNode("A", RED, 0);
+        size_t lNode2 = lSankey.addNode("B", GREEN, 1);
+        size_t lNode3 = lSankey.addNode("C", BLUE, 1);
+
+        size_t lLink1 = lSankey.addLink(lNode1, lNode2, 50.0f);
+        size_t lLink2 = lSankey.addLink(lNode1, lNode3, 30.0f);
+
+        CHECK(lLink1 == 0);
+        CHECK(lLink2 == 1);
+        CHECK(lSankey.getLinkCount() == 2);
+
+        lSankey.update(0.016f);
+        CHECK(lSankey.getColumnCount() == 2);
+    }
+
+    TEST_CASE("Batch data") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        std::vector<RLSankeyNode> lNodes = {
+            {"Source", RED, 0},
+            {"Middle", GREEN, 1},
+            {"Target", BLUE, 2}
+        };
+
+        std::vector<RLSankeyLink> lLinks = {
+            {0, 1, 100.0f},
+            {1, 2, 80.0f}
+        };
+
+        lSankey.setData(lNodes, lLinks);
+
+        CHECK(lSankey.getNodeCount() == 3);
+        CHECK(lSankey.getLinkCount() == 2);
+
+        lSankey.update(0.016f);
+        CHECK(lSankey.getColumnCount() == 3);
+    }
+
+    TEST_CASE("Value animation") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        lSankey.addNode("A", RED, 0);
+        lSankey.addNode("B", BLUE, 1);
+        size_t lLinkId = lSankey.addLink(0, 1, 50.0f);
+
+        // Update several times
+        for (int i = 0; i < 60; i++) {
+            lSankey.update(0.016f);
+        }
+
+        // Change link value
+        lSankey.setLinkValue(lLinkId, 100.0f);
+
+        // Update more
+        for (int i = 0; i < 60; i++) {
+            lSankey.update(0.016f);
+        }
+
+        CHECK(lSankey.getBounds().height == doctest::Approx(300.0f));
+    }
+
+    TEST_CASE("Node removal") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        lSankey.addNode("A", RED, 0);
+        lSankey.addNode("B", GREEN, 1);
+        lSankey.addNode("C", BLUE, 2);
+        lSankey.addLink(0, 1, 50.0f);
+        lSankey.addLink(1, 2, 40.0f);
+
+        CHECK(lSankey.getNodeCount() == 3);
+
+        // Remove middle node
+        lSankey.removeNode(1);
+
+        // Animate removal
+        for (int i = 0; i < 120; i++) {
+            lSankey.update(0.016f);
+        }
+
+        // Node count should decrease after fade-out
+        CHECK(lSankey.getNodeCount() < 3);
+    }
+
+    TEST_CASE("Clear") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        lSankey.addNode("A", RED, 0);
+        lSankey.addNode("B", BLUE, 1);
+        lSankey.addLink(0, 1, 50.0f);
+
+        CHECK(lSankey.getNodeCount() == 2);
+        CHECK(lSankey.getLinkCount() == 1);
+
+        lSankey.clear();
+
+        CHECK(lSankey.getNodeCount() == 0);
+        CHECK(lSankey.getLinkCount() == 0);
+    }
+
+    TEST_CASE("Auto column assignment") {
+        REQUIRE_RAYLIB();
+
+        RLSankey lSankey(TEST_BOUNDS);
+
+        // Add nodes without explicit columns
+        RLSankeyNode lNodeA;
+        lNodeA.mLabel = "A";
+        lNodeA.mColumn = -1; // Auto
+
+        RLSankeyNode lNodeB;
+        lNodeB.mLabel = "B";
+        lNodeB.mColumn = -1;
+
+        RLSankeyNode lNodeC;
+        lNodeC.mLabel = "C";
+        lNodeC.mColumn = -1;
+
+        lSankey.addNode(lNodeA);
+        lSankey.addNode(lNodeB);
+        lSankey.addNode(lNodeC);
+
+        // Links: A -> B -> C
+        lSankey.addLink(0, 1, 50.0f);
+        lSankey.addLink(1, 2, 40.0f);
+
+        lSankey.update(0.016f);
+
+        // Should auto-assign 3 columns
+        CHECK(lSankey.getColumnCount() == 3);
+    }
+
+}

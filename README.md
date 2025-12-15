@@ -37,6 +37,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 📊 **Order Book** - Full depth-of-market visualization with 2D heatmap and 3D landscape views
 - 🌳 **Tree Maps** - D3-style hierarchical data visualization with squarified layout
 - 🕸️ **Radar Charts** - Spider/radar charts with multiple series and smooth morphing animations
+- 🔀 **Sankey Diagrams** - Flow visualization with weighted connections and smooth ribbon curves
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
@@ -77,6 +78,7 @@ For comprehensive documentation on each chart type, including full API reference
 | 📊 Order Book | DOM depth heatmap (2D/3D) | [RLOrderBookVis.md](docs/RLOrderBookVis.md) |
 | 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |
 | 🕸️ Radar Chart | Spider/radar multi-series charts | [RLRadarChart.md](docs/RLRadarChart.md) |
+| 🔀 Sankey Diagram | Flow visualization with ribbons | [RLSankey.md](docs/RLSankey.md) |
 | 📈 Scatter Plot | Multi-series scatter/line plots | [RLScatterPlot.md](docs/RLScatterPlot.md) |
 | 📊 Time Series | Streaming time series | [RLTimeSeries.md](docs/RLTimeSeries.md) |
 | 🌳 Tree Map | D3-style hierarchical treemap | [RLTreeMap.md](docs/RLTreeMap.md) |

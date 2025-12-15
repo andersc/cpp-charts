@@ -185,11 +185,18 @@ add_wasm_demo(radar
     ""
 )
 
+# Sankey diagram demo
+add_wasm_demo(sankey
+    "sankey.cpp"
+    "${CHARTS_DIR}/RLSankey.cpp"
+    ""
+)
+
 message(STATUS "")
 message(STATUS "=== cpp-charts WebAssembly Build ===")
 message(STATUS "Demos to build: gauges, bubble, barchart, candlestick, candlestick2,")
 message(STATUS "                heatmap, scatter, piechart, logplot, timeseries,")
-message(STATUS "                areachart, orderbook, treemap, heatmap3d, radar")
+message(STATUS "                areachart, orderbook, treemap, heatmap3d, radar, sankey")
 message(STATUS "")
 message(STATUS "After build, serve the build directory with a web server:")
 message(STATUS "  cd build && python3 -m http.server 8080")
