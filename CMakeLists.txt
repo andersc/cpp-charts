@@ -151,6 +151,19 @@ if(WIN32)
     target_link_libraries(raylib_timeseries winmm)
 endif()
 
+# Build the area chart demo
+add_executable(raylib_areachart
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/areachart.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLAreaChart.cpp
+)
+target_link_libraries(raylib_areachart
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_areachart winmm)
+endif()
+
 # Build the order book visualization demo
 add_executable(raylib_orderbook
         ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/orderbook.cpp
@@ -193,6 +206,7 @@ endif()
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLAreaChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLBarChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLBubble.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp

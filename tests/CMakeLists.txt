@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(doctest)
 
 # Collect all chart source files
 set(CHART_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/charts/RLAreaChart.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLBarChart.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLBubble.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLCandlestickChart.cpp

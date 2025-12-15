@@ -7,6 +7,7 @@
     #define NOUSER            // Excludes USER (CloseWindow, ShowCursor, etc.)
 #endif
 
+#include "RLAreaChart.h"
 #include "RLBarChart.h"
 #include "RLBubble.h"
 #include "RLCandlestickChart.h"
@@ -37,6 +38,7 @@ TEST_SUITE("Chart Instantiation") {
         REQUIRE_RAYLIB();
 
         // Verify no static initialization conflicts between chart types
+        RLAreaChart lAreaChart(TEST_BOUNDS, RLAreaChartMode::STACKED);
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
         RLBarChart lBarChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
         RLPieChart lPieChart(TEST_BOUNDS);
@@ -51,6 +53,7 @@ TEST_SUITE("Chart Instantiation") {
         RLBubble lBubble(TEST_BOUNDS);
 
         // Basic sanity checks
+        CHECK(lAreaChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lGauge.getValue() == doctest::Approx(0.0f));
         CHECK(lBarChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lPieChart.getBounds().height == doctest::Approx(300.0f));
@@ -126,6 +129,92 @@ TEST_SUITE("RLGauge") {
         // Value should be preserved after bounds change
         lGauge.setValue(75.0f);
         CHECK(lGauge.getValue() == doctest::Approx(75.0f));
+    }
+
+}
+
+TEST_SUITE("RLAreaChart") {
+
+    TEST_CASE("Mode switching") {
+        REQUIRE_RAYLIB();
+
+        RLAreaChart lChart(TEST_BOUNDS, RLAreaChartMode::STACKED);
+        CHECK(lChart.getMode() == RLAreaChartMode::STACKED);
+
+        lChart.setMode(RLAreaChartMode::OVERLAPPED);
+        CHECK(lChart.getMode() == RLAreaChartMode::OVERLAPPED);
+
+        lChart.setMode(RLAreaChartMode::PERCENT);
+        CHECK(lChart.getMode() == RLAreaChartMode::PERCENT);
+    }
+
+    TEST_CASE("Data setting") {
+        REQUIRE_RAYLIB();
+
+        RLAreaChart lChart(TEST_BOUNDS, RLAreaChartMode::STACKED);
+
+        std::vector<RLAreaSeries> lData;
+        RLAreaSeries lSeries1;
+        lSeries1.mValues = {10.0f, 20.0f, 30.0f};
+        lSeries1.mColor = RED;
+        lSeries1.mLabel = "Series A";
+        lData.push_back(lSeries1);
+
+        RLAreaSeries lSeries2;
+        lSeries2.mValues = {15.0f, 25.0f, 35.0f};
+        lSeries2.mColor = BLUE;
+        lSeries2.mLabel = "Series B";
+        lData.push_back(lSeries2);
+
+        lChart.setData(lData);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("Animation with target data") {
+        REQUIRE_RAYLIB();
+
+        RLAreaChart lChart(TEST_BOUNDS, RLAreaChartMode::STACKED);
+
+        std::vector<RLAreaSeries> lInitial;
+        RLAreaSeries lS1;
+        lS1.mValues = {10.0f, 20.0f, 30.0f};
+        lInitial.push_back(lS1);
+
+        std::vector<RLAreaSeries> lTarget;
+        RLAreaSeries lS2;
+        lS2.mValues = {50.0f, 60.0f, 70.0f};
+        lTarget.push_back(lS2);
+
+        lChart.setData(lInitial);
+        lChart.setTargetData(lTarget);
+
+        // Run animation
+        for (int i = 0; i < 100; i++) {
+            lChart.update(0.016f);
+        }
+
+        // Chart should have processed the animation (no crash)
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("Percent mode max value") {
+        REQUIRE_RAYLIB();
+
+        RLAreaChart lChart(TEST_BOUNDS, RLAreaChartMode::PERCENT);
+
+        std::vector<RLAreaSeries> lData;
+        RLAreaSeries lS1;
+        lS1.mValues = {10.0f, 20.0f, 30.0f};
+        lData.push_back(lS1);
+
+        lChart.setData(lData);
+
+        // In percent mode, max value should be 100
+        // (need to update first to converge)
+        for (int i = 0; i < 50; i++) {
+            lChart.update(0.016f);
+        }
+        CHECK(lChart.getMaxValue() == doctest::Approx(100.0f).epsilon(0.1));
     }
 
 }

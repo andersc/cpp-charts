@@ -26,6 +26,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 📊 **Bar Charts** - Vertical and horizontal orientations with smooth animations
 - 🥧 **Pie Charts** - Classic pie and donut charts with slice animations
 - 📈 **Scatter Plots** - Data point visualization with customizable markers
+- 📈 **Area Charts** - Overlapped, stacked, and 100% stacked area charts with smooth transitions
 - 🫧 **Bubble Charts** - Multi-dimensional data visualization
 - 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
@@ -64,6 +65,7 @@ For comprehensive documentation on each chart type, including full API reference
 
 | Chart Type | Description | Documentation |
 |------------|-------------|---------------|
+| 📈 Area Chart | Overlapped/stacked area charts | [RLAreaChart.md](docs/RLAreaChart.md) |
 | 📊 Bar Chart | Vertical/horizontal bar charts | [RLBarChart.md](docs/RLBarChart.md) |
 | 🫧 Bubble Chart | Scatter/gravity bubble visualization | [RLBubble.md](docs/RLBubble.md) |
 | 🕯️ Candlestick | Financial OHLCV charts | [RLCandlestickChart.md](docs/RLCandlestickChart.md) |
@@ -232,6 +234,36 @@ size_t traceIdx = chart.addTrace(traceStyle);
 // Stream data
 float sample = getSensorData();
 chart.pushSample(traceIdx, sample);
+
+chart.update(dt);
+chart.draw();
+```
+
+### Area Chart
+
+```cpp
+#include "RLAreaChart.h"
+
+RLAreaChart chart(bounds, RLAreaChartMode::STACKED);
+
+std::vector<RLAreaSeries> series;
+
+RLAreaSeries s1;
+s1.mLabel = "Product A";
+s1.mColor = Color{80, 180, 255, 255};
+s1.mValues = {10, 15, 20, 25, 30, 28, 32};
+series.push_back(s1);
+
+RLAreaSeries s2;
+s2.mLabel = "Product B";
+s2.mColor = Color{255, 120, 80, 255};
+s2.mValues = {8, 12, 18, 22, 18, 20, 24};
+series.push_back(s2);
+
+chart.setData(series);
+
+// Smooth transition to new data
+chart.setTargetData(newSeries);
 
 chart.update(dt);
 chart.draw();
@@ -623,6 +655,9 @@ Built with ❤️ using [raylib](https://www.raylib.com/) - a simple and easy-to
 
 ### Tree Map
 ![Tree Map](docs/gifs/RLTreeMap.gif)
+
+### Area Chart
+![Area Chart](docs/gifs/RLAreaChart.gif)
 
 ---
 

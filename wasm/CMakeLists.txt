@@ -150,6 +150,13 @@ add_wasm_demo(timeseries
     ""
 )
 
+# Area chart demo
+add_wasm_demo(areachart
+    "areachart.cpp"
+    "${CHARTS_DIR}/RLAreaChart.cpp"
+    ""
+)
+
 # Order book demo
 add_wasm_demo(orderbook
     "orderbook.cpp"
@@ -175,7 +182,7 @@ message(STATUS "")
 message(STATUS "=== cpp-charts WebAssembly Build ===")
 message(STATUS "Demos to build: gauges, bubble, barchart, candlestick, candlestick2,")
 message(STATUS "                heatmap, scatter, piechart, logplot, timeseries,")
-message(STATUS "                orderbook, treemap, heatmap3d")
+message(STATUS "                areachart, orderbook, treemap, heatmap3d")
 message(STATUS "")
 message(STATUS "After build, serve the build directory with a web server:")
 message(STATUS "  cd build && python3 -m http.server 8080")

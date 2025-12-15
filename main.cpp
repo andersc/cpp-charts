@@ -1,6 +1,7 @@
 // main.cpp
 // Demonstration of all chart types together to test for static declaration conflicts
 #include "raylib.h"
+#include "src/charts/RLAreaChart.h"
 #include "src/charts/RLBarChart.h"
 #include "src/charts/RLBubble.h"
 #include "src/charts/RLCandlestickChart.h"
@@ -352,9 +353,34 @@ int main() {
     lLogTrace.mStyle.mShowPoints = true;
     lLogPlot.addTrace(lLogTrace);
 
-    // ===== 13. 3D Heat Map =====
+    // ===== 13. Area Chart =====
+    RLAreaChartStyle lAreaStyle;
+    lAreaStyle.mBackground = Color{20, 22, 28, 255};
+    lAreaStyle.mShowGrid = true;
+    lAreaStyle.mGridLines = 4;
+    lAreaStyle.mPadding = 35.0f;
+    lAreaStyle.mLineThickness = 1.5f;
+    lAreaStyle.mShowLegend = false;
+    lAreaStyle.mSmoothAnimate = true;
+    lAreaStyle.mAnimateSpeed = 5.0f;
+
+    RLAreaChart lAreaChart(getChartBounds(3, 0), RLAreaChartMode::STACKED, lAreaStyle);
+
+    std::vector<RLAreaSeries> lAreaData;
+    for (int s = 0; s < 3; ++s) {
+        RLAreaSeries lSeries;
+        lSeries.mColor = paletteColor(s);
+        lSeries.mAlpha = 0.7f;
+        for (int i = 0; i < 10; ++i) {
+            lSeries.mValues.push_back(randFloat(15.0f, 40.0f));
+        }
+        lAreaData.push_back(lSeries);
+    }
+    lAreaChart.setData(lAreaData);
+
+    // ===== 14. 3D Heat Map =====
     // Create a render texture for the 3D heat map (to display in 2D grid)
-    Rectangle lHeatMap3DBounds = getChartBounds(3, 0);
+    Rectangle lHeatMap3DBounds = getChartBounds(3, 1);
     RenderTexture2D lHeatMap3DRT = LoadRenderTexture((int)lHeatMap3DBounds.width, (int)lHeatMap3DBounds.height);
 
     // Create 3D camera for the heat map
@@ -445,6 +471,7 @@ int main() {
         lTreeMap.update(lDt);
         lTimeSeries.update(lDt);
         lLogPlot.update(lDt);
+        lAreaChart.update(lDt);
 
         // Update 3D heat map with animated data
         lHeatMap3DRotation += lDt * 0.5f;
@@ -500,18 +527,19 @@ int main() {
         lTreeMap.draw();
         lTimeSeries.draw();
         lLogPlot.draw();
+        lAreaChart.draw();
 
         // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
         DrawTextureRec(lHeatMap3DRT.texture,
                        Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
                        Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
 
-        // Draw labels for each chart (4x4 grid, 13 charts)
+        // Draw labels for each chart (4x4 grid, 14 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
             "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
             "Order Book", "TreeMap", "Time Series", "Log Plot",
-            "3D Heat Map", "", "", ""
+            "Area Chart", "3D Heat Map", "", ""
         };
 
         for (int lRow = 0; lRow < 4; ++lRow) {
