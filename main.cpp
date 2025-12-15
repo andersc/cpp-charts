@@ -11,6 +11,7 @@
 #include "src/charts/RLLogPlot.h"
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
+#include "src/charts/RLRadarChart.h"
 #include "src/charts/RLScatterPlot.h"
 #include "src/charts/RLTimeSeries.h"
 #include "src/charts/RLTreeMap.h"
@@ -378,9 +379,55 @@ int main() {
     }
     lAreaChart.setData(lAreaData);
 
-    // ===== 14. 3D Heat Map =====
+    // ===== 14. Radar Chart =====
+    RLRadarChartStyle lRadarStyle;
+    lRadarStyle.mShowBackground = true;
+    lRadarStyle.mBackground = Color{20, 22, 28, 255};
+    lRadarStyle.mShowGrid = true;
+    lRadarStyle.mGridRings = 4;
+    lRadarStyle.mGridColor = Color{45, 50, 60, 255};
+    lRadarStyle.mShowAxes = true;
+    lRadarStyle.mAxisColor = Color{55, 60, 70, 255};
+    lRadarStyle.mShowLabels = true;
+    lRadarStyle.mLabelColor = Color{160, 170, 190, 255};
+    lRadarStyle.mLabelFont = lBaseFont;
+    lRadarStyle.mLabelFontSize = 10;
+    lRadarStyle.mLabelOffset = 8.0f;
+    lRadarStyle.mShowLegend = true;
+    lRadarStyle.mPadding = 45.0f;
+    lRadarStyle.mSmoothAnimate = true;
+    lRadarStyle.mAnimateSpeed = 5.0f;
+
+    RLRadarChart lRadarChart(getChartBounds(3, 2), lRadarStyle);
+
+    // Set up axes (6 dimensions)
+    std::vector<std::string> lRadarLabels = {"Speed", "Power", "Defense", "Magic", "Stamina", "Luck"};
+    lRadarChart.setAxes(lRadarLabels, 0.0f, 100.0f);
+
+    // Add two series
+    RLRadarSeries lRadarSeries1;
+    lRadarSeries1.mLabel = "Player 1";
+    lRadarSeries1.mValues = {75.0f, 85.0f, 60.0f, 40.0f, 70.0f, 55.0f};
+    lRadarSeries1.mLineColor = paletteColor(0);
+    lRadarSeries1.mFillColor = Color{paletteColor(0).r, paletteColor(0).g, paletteColor(0).b, 50};
+    lRadarSeries1.mLineThickness = 2.0f;
+    lRadarSeries1.mShowFill = true;
+    lRadarSeries1.mShowMarkers = true;
+    lRadarChart.addSeries(lRadarSeries1);
+
+    RLRadarSeries lRadarSeries2;
+    lRadarSeries2.mLabel = "Player 2";
+    lRadarSeries2.mValues = {55.0f, 65.0f, 90.0f, 80.0f, 50.0f, 70.0f};
+    lRadarSeries2.mLineColor = paletteColor(1);
+    lRadarSeries2.mFillColor = Color{paletteColor(1).r, paletteColor(1).g, paletteColor(1).b, 50};
+    lRadarSeries2.mLineThickness = 2.0f;
+    lRadarSeries2.mShowFill = true;
+    lRadarSeries2.mShowMarkers = true;
+    lRadarChart.addSeries(lRadarSeries2);
+
+    // ===== 15. 3D Heat Map =====
     // Create a render texture for the 3D heat map (to display in 2D grid)
-    Rectangle lHeatMap3DBounds = getChartBounds(3, 1);
+    Rectangle lHeatMap3DBounds = getChartBounds(3, 3);
     RenderTexture2D lHeatMap3DRT = LoadRenderTexture((int)lHeatMap3DBounds.width, (int)lHeatMap3DBounds.height);
 
     // Create 3D camera for the heat map
@@ -472,6 +519,7 @@ int main() {
         lTimeSeries.update(lDt);
         lLogPlot.update(lDt);
         lAreaChart.update(lDt);
+        lRadarChart.update(lDt);
 
         // Update 3D heat map with animated data
         lHeatMap3DRotation += lDt * 0.5f;
@@ -528,18 +576,19 @@ int main() {
         lTimeSeries.draw();
         lLogPlot.draw();
         lAreaChart.draw();
+        lRadarChart.draw();
 
         // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
         DrawTextureRec(lHeatMap3DRT.texture,
                        Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
                        Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
 
-        // Draw labels for each chart (4x4 grid, 14 charts)
+        // Draw labels for each chart (4x4 grid, 15 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
             "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
             "Order Book", "TreeMap", "Time Series", "Log Plot",
-            "Area Chart", "3D Heat Map", "", ""
+            "Area Chart", "Radar Chart", "3D Heat Map", ""
         };
 
         for (int lRow = 0; lRow < 4; ++lRow) {

@@ -178,11 +178,18 @@ add_wasm_demo(heatmap3d
     ""
 )
 
+# Radar chart demo
+add_wasm_demo(radar
+    "radar.cpp"
+    "${CHARTS_DIR}/RLRadarChart.cpp"
+    ""
+)
+
 message(STATUS "")
 message(STATUS "=== cpp-charts WebAssembly Build ===")
 message(STATUS "Demos to build: gauges, bubble, barchart, candlestick, candlestick2,")
 message(STATUS "                heatmap, scatter, piechart, logplot, timeseries,")
-message(STATUS "                areachart, orderbook, treemap, heatmap3d")
+message(STATUS "                areachart, orderbook, treemap, heatmap3d, radar")
 message(STATUS "")
 message(STATUS "After build, serve the build directory with a web server:")
 message(STATUS "  cd build && python3 -m http.server 8080")

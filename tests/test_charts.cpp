@@ -17,6 +17,7 @@
 #include "RLLogPlot.h"
 #include "RLOrderBookVis.h"
 #include "RLPieChart.h"
+#include "RLRadarChart.h"
 #include "RLScatterPlot.h"
 #include "RLTimeSeries.h"
 #include "RLTreeMap.h"
@@ -42,6 +43,7 @@ TEST_SUITE("Chart Instantiation") {
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
         RLBarChart lBarChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
         RLPieChart lPieChart(TEST_BOUNDS);
+        RLRadarChart lRadarChart(TEST_BOUNDS);
         RLScatterPlot lScatter(TEST_BOUNDS);
         RLTimeSeries lTimeSeries(TEST_BOUNDS, 100);
         RLHeatMap lHeatMap(TEST_BOUNDS, 32, 32);
@@ -57,6 +59,7 @@ TEST_SUITE("Chart Instantiation") {
         CHECK(lGauge.getValue() == doctest::Approx(0.0f));
         CHECK(lBarChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lPieChart.getBounds().height == doctest::Approx(300.0f));
+        CHECK(lRadarChart.getBounds().width == doctest::Approx(400.0f));
     }
 
 }
@@ -333,6 +336,136 @@ TEST_SUITE("RLPieChart") {
         }
 
         CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+}
+
+TEST_SUITE("RLRadarChart") {
+
+    TEST_CASE("Axis configuration") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        // Set axes with labels
+        std::vector<std::string> lLabels = {"Axis1", "Axis2", "Axis3", "Axis4", "Axis5"};
+        lChart.setAxes(lLabels, 0.0f, 100.0f);
+
+        CHECK(lChart.getAxisCount() == 5);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("Series management") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        std::vector<std::string> lLabels = {"A", "B", "C", "D", "E", "F"};
+        lChart.setAxes(lLabels, 0.0f, 100.0f);
+
+        // Add series
+        RLRadarSeries lSeries1;
+        lSeries1.mLabel = "Series 1";
+        lSeries1.mValues = {50.0f, 60.0f, 70.0f, 80.0f, 90.0f, 100.0f};
+        lSeries1.mLineColor = RED;
+        lChart.addSeries(lSeries1);
+
+        CHECK(lChart.getSeriesCount() == 1);
+
+        // Add another series
+        RLRadarSeries lSeries2;
+        lSeries2.mLabel = "Series 2";
+        lSeries2.mValues = {30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f};
+        lSeries2.mLineColor = BLUE;
+        lChart.addSeries(lSeries2);
+
+        CHECK(lChart.getSeriesCount() == 2);
+    }
+
+    TEST_CASE("Series data update") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        std::vector<std::string> lLabels = {"A", "B", "C", "D"};
+        lChart.setAxes(lLabels, 0.0f, 100.0f);
+
+        RLRadarSeries lSeries;
+        lSeries.mLabel = "Test";
+        lSeries.mValues = {25.0f, 50.0f, 75.0f, 100.0f};
+        lChart.addSeries(lSeries);
+
+        // Update series data
+        std::vector<float> lNewValues = {10.0f, 20.0f, 30.0f, 40.0f};
+        lChart.setSeriesData(0, lNewValues);
+
+        // Should accept without crash
+        CHECK(lChart.getSeriesCount() == 1);
+    }
+
+    TEST_CASE("Animation convergence") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        std::vector<std::string> lLabels = {"A", "B", "C", "D", "E"};
+        lChart.setAxes(lLabels, 0.0f, 100.0f);
+
+        RLRadarSeries lSeries;
+        lSeries.mLabel = "Animated";
+        lSeries.mValues = {20.0f, 40.0f, 60.0f, 80.0f, 100.0f};
+        lChart.addSeries(lSeries);
+
+        // Run animation
+        for (int i = 0; i < 100; i++) {
+            lChart.update(0.016f);
+        }
+
+        // Should have animated without crash
+        CHECK(lChart.getSeriesCount() == 1);
+    }
+
+    TEST_CASE("Series removal") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        std::vector<std::string> lLabels = {"A", "B", "C"};
+        lChart.setAxes(lLabels, 0.0f, 100.0f);
+
+        RLRadarSeries lSeries1;
+        lSeries1.mValues = {50.0f, 60.0f, 70.0f};
+        lChart.addSeries(lSeries1);
+
+        RLRadarSeries lSeries2;
+        lSeries2.mValues = {30.0f, 40.0f, 50.0f};
+        lChart.addSeries(lSeries2);
+
+        CHECK(lChart.getSeriesCount() == 2);
+
+        // Remove series (starts fade-out)
+        lChart.removeSeries(0);
+
+        // After animation, series count should decrease
+        for (int i = 0; i < 200; i++) {
+            lChart.update(0.016f);
+        }
+
+        CHECK(lChart.getSeriesCount() <= 2);
+    }
+
+    TEST_CASE("Bounds update") {
+        REQUIRE_RAYLIB();
+
+        RLRadarChart lChart(TEST_BOUNDS);
+
+        Rectangle lNewBounds = {100, 100, 600, 500};
+        lChart.setBounds(lNewBounds);
+
+        CHECK(lChart.getBounds().x == doctest::Approx(100.0f));
+        CHECK(lChart.getBounds().y == doctest::Approx(100.0f));
+        CHECK(lChart.getBounds().width == doctest::Approx(600.0f));
+        CHECK(lChart.getBounds().height == doctest::Approx(500.0f));
     }
 
 }

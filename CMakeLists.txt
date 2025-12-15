@@ -203,6 +203,19 @@ if(WIN32)
     target_link_libraries(raylib_heatmap3d winmm)
 endif()
 
+# Build the radar chart demo
+add_executable(raylib_radar
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/radar.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLRadarChart.cpp
+)
+target_link_libraries(raylib_radar
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_radar winmm)
+endif()
+
 # Build the main demo with all charts
 add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -219,6 +232,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLogPlot.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTimeSeries.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLTreeMap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLRadarChart.cpp
 )
 target_link_libraries(raylib_all_charts
         raylib
