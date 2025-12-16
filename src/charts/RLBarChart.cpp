@@ -242,12 +242,13 @@ void RLBarChart::draw() const{
 
             if (r.width > 0.5f){
                 Color c = b.mColor; c.a = (unsigned char)((int)c.a * s);
-                float lCorner = (r.width < lCorner*2.0f)? (r.width*0.5f/lBarH) : (lCorner/lBarH);
-                DrawRectangleRounded(r, lCorner, 6, c);
+                float corner = (r.width < lCorner*2.0f)? (r.width*0.5f/lBarH) : (lCorner/lBarH);
+                DrawRectangleRounded(r, corner, 6, c);
             }
             if (b.mShowBorder && r.width > 1.0f){
                 Color bc = b.mBorderColor; bc.a = (unsigned char)((int)bc.a * s);
-                DrawRectangleRoundedLines(r, lCorner/lBarH, 6, bc);
+                float corner = (r.width < lCorner*2.0f)? (r.width*0.5f/lBarH) : (lCorner/lBarH);
+                DrawRectangleRoundedLines(r, corner, 6, bc);
             }
             if (mStyle.mShowLabels && !b.mLabel.empty() && r.width > 2.0f){
                 Vector2 ts = MeasureTextEx(lFont, b.mLabel.c_str(), lFontSize, 0);

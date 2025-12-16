@@ -54,7 +54,6 @@ void RLGauge::recomputeGeometry(){
     mTicks.reserve((size_t)mStyle.mTickCount + 1);
 
     float innerR = mRadius - mStyle.mThickness;
-    float outerR = mRadius;
     float a0 = mStyle.mStartAngle;
     float a1 = mStyle.mEndAngle;
     float step = (a1 - a0) / (float)mStyle.mTickCount;

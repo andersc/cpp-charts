@@ -369,7 +369,7 @@ void RLOrderBookVis::rebuildTexture() {
     if (mTextureValid && mTexture.id != 0) return; // Already valid
 
     // Create texture from pixel buffer
-    Image lImg = {0};
+    Image lImg = {};
     lImg.data = mPixels.data();
     lImg.width = (int)mHistoryLength;
     lImg.height = (int)mPriceLevels;
@@ -386,7 +386,6 @@ void RLOrderBookVis::rebuildTexture() {
 void RLOrderBookVis::updateTexturePixels() {
     if (mSnapshotCount == 0) return;
 
-    size_t lVisibleCount = mSnapshotCount < mHistoryLength ? mSnapshotCount : mHistoryLength;
 
     // Inverse max for scaling
     float lInvMaxBid = (mCurrentMaxBid > 0.001f) ? (1.0f / mCurrentMaxBid) : 1.0f;

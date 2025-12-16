@@ -431,9 +431,6 @@ void RLLogPlot::drawLogPlot() const {
 void RLLogPlot::drawLogGrid(Rectangle aPlotRect) const {
     if (!mLogPlotStyle.mShowGrid) return;
 
-    // Major grid lines - powers of 10
-    float lLogRangeX = mLogMaxX - mLogMinX;
-    float lLogRangeY = mLogMaxY - mLogMinY;
 
     // X grid
     int lStartDecadeX = (int)floorf(mLogMinX);
@@ -605,7 +602,6 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
             float lLogLower = log10f(lLower);
             float lLogUpper = log10f(lUpper);
 
-            Vector2 lCenter = mapLogPoint(lLogX, log10f((*pYVals)[i]), aPlotRect);
             Vector2 lLowerPt = mapLogPoint(lLogX, lLogLower, aPlotRect);
             Vector2 lUpperPt = mapLogPoint(lLogX, lLogUpper, aPlotRect);
 

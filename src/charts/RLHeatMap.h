@@ -66,7 +66,6 @@ private:
     std::vector<unsigned char> mPixels; // RGBA
     Texture2D mTexture{};
     bool mTextureValid{false};
-    bool mTextureDirty{false};
 
     // Decay (exponential by half-life)
     float mDecayHalfLife{0.0f};

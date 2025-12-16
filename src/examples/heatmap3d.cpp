@@ -259,7 +259,7 @@ int main() {
     SetTargetFPS(60);
 
     // Camera setup for orbit control
-    Camera3D lCamera = {0};
+    Camera3D lCamera = {};
     lCamera.position = Vector3{2.0f, 1.5f, 2.0f};
     lCamera.target = Vector3{0.0f, 0.4f, 0.0f};
     lCamera.up = Vector3{0.0f, 1.0f, 0.0f};

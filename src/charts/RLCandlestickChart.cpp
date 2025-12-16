@@ -214,7 +214,7 @@ void RLCandlestickChart::draw() const{
     if (mHasIncoming && mIncoming.mVolume > lMaxVol) lMaxVol = mIncoming.mVolume;
 
     // Helper to draw a single candle at absolute X
-    auto drawSingleCandle = [&](const CandleDyn& aC, float aX, bool aIsWorking) {
+    auto drawSingleCandle = [&](const CandleDyn& aC, float aX) {
         if (aX + lBodyWidth < lPriceR.x - 2.0f) return;
         if (aX > lPriceR.x + lPriceR.width + 2.0f) return;
 
@@ -286,7 +286,7 @@ void RLCandlestickChart::draw() const{
             // We want (Slot0 + Unit) - Slide.
             lWorkingX += lUnit;
         }
-        drawSingleCandle(mWorking, lWorkingX + lSlideOffset, true);
+        drawSingleCandle(mWorking, lWorkingX + lSlideOffset);
     }
 
     // 2. Draw Incoming Candle (only if sliding)
@@ -295,7 +295,7 @@ void RLCandlestickChart::draw() const{
     // At Progress=1: Pos = Slot0 - Unit.
     // Formula: Slot0 + SlideOffset matches this.
     if (mIsSliding && mHasIncoming) {
-        drawSingleCandle(mIncoming, lSlot0_X + lSlideOffset, false);
+        drawSingleCandle(mIncoming, lSlot0_X + lSlideOffset);
     }
 
     // 3. Draw History Candles (mCandles)
@@ -313,6 +313,6 @@ void RLCandlestickChart::draw() const{
         int lDist = (lCount - 1) - i; // 0 for newest
         float lX = lHistoryStartX - (lDist * lUnit);
 
-        drawSingleCandle(mCandles[i], lX, false);
+        drawSingleCandle(mCandles[i], lX);
     }
 }

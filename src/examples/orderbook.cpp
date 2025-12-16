@@ -225,7 +225,7 @@ int main() {
     OrderBookSimulator lSim(100.0f, 0.01f, 50);
 
     // 3D camera setup
-    Camera3D lCamera = {0};
+    Camera3D lCamera = {};
     lCamera.position = Vector3{15.0f, 12.0f, 15.0f};
     lCamera.target = Vector3{0.0f, 0.0f, 0.0f};
     lCamera.up = Vector3{0.0f, 1.0f, 0.0f};

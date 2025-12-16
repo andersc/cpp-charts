@@ -67,14 +67,12 @@ int main(){
     // Ensure targets are initialized so bubbles are visible without pressing G
     gravity.setTargetData(dataG);
 
-    float t = 0.0f;
     float switchT = 0.0f;
     float switchInterval = 3.0f;
     bool pause = false;
 
     while (!WindowShouldClose()){
         float dt = GetFrameTime();
-        if (!pause) t += dt;
 
         // periodically animate to new data
         if (!pause){

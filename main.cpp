@@ -474,7 +474,7 @@ int main() {
     RenderTexture2D lHeatMap3DRT = LoadRenderTexture((int)lHeatMap3DBounds.width, (int)lHeatMap3DBounds.height);
 
     // Create 3D camera for the heat map
-    Camera3D lHeatMap3DCamera = {0};
+    Camera3D lHeatMap3DCamera = {};
     lHeatMap3DCamera.position = Vector3{1.5f, 1.2f, 1.5f};
     lHeatMap3DCamera.target = Vector3{0.0f, 0.3f, 0.0f};
     lHeatMap3DCamera.up = Vector3{0.0f, 1.0f, 0.0f};

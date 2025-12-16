@@ -239,7 +239,6 @@ int main() {
     // ========================================================================
     // Animation state
     // ========================================================================
-    float lTimer = 0.0f;
     float lFluctuateTimer = 0.0f;
     int lColorModeIndex = 0;
     const char* COLOR_MODE_NAMES[] = {"Gradient", "Source", "Target"};
@@ -259,9 +258,6 @@ int main() {
 
     // Track added nodes/links for removal demo
     int lExtraNodeId = -1;
-    int lExtraLinkId1 = -1;
-    int lExtraLinkId2 = -1;
-    float lAddRemoveTimer = 0.0f;
     bool lExtraAdded = false;
 
     // ========================================================================
@@ -269,9 +265,7 @@ int main() {
     // ========================================================================
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
-        lTimer += lDt;
         lFluctuateTimer += lDt;
-        lAddRemoveTimer += lDt;
 
         // ====================================================================
         // Input handling
@@ -332,8 +326,8 @@ int main() {
         if (IsKeyPressed(KEY_A) && !lExtraAdded) {
             // Add a new node and links to chart 1
             lExtraNodeId = (int)lChart1.addNode("New Source", {255, 100, 150, 255}, 0);
-            lExtraLinkId1 = (int)lChart1.addLink(lExtraNodeId, 4, 20.0f);
-            lExtraLinkId2 = (int)lChart1.addLink(lExtraNodeId, 5, 10.0f);
+            lChart1.addLink(lExtraNodeId, 4, 20.0f);
+            lChart1.addLink(lExtraNodeId, 5, 10.0f);
             lExtraAdded = true;
         }
 
@@ -342,8 +336,6 @@ int main() {
             lChart1.removeNode(lExtraNodeId);
             lExtraAdded = false;
             lExtraNodeId = -1;
-            lExtraLinkId1 = -1;
-            lExtraLinkId2 = -1;
         }
 
         // ====================================================================

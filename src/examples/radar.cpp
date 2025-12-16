@@ -48,14 +48,6 @@ static Color withAlpha(Color aColor, unsigned char aAlpha) {
     return Color{aColor.r, aColor.g, aColor.b, aAlpha};
 }
 
-static std::vector<float> generateRandomValues(size_t aCount, float aMin, float aMax) {
-    std::vector<float> lValues;
-    lValues.reserve(aCount);
-    for (size_t i = 0; i < aCount; ++i) {
-        lValues.push_back(randFloat(aMin, aMax));
-    }
-    return lValues;
-}
 
 static std::vector<float> generateProfileValues(size_t aCount, float aBase, float aVariance) {
     std::vector<float> lValues;
@@ -176,7 +168,6 @@ int main() {
     int lDatasetIndex = 0;
     bool lShowFill = true;
     bool lShowMarkers = true;
-    int lSeriesCount = 3;
     bool lAddingRemovingSeries = false;
     float lAddRemoveTimer = 0.0f;
 

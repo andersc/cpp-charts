@@ -97,8 +97,6 @@ private:
 
     // animation parameters
     float mLerpSpeed = 6.0f;         // scatter smoothing
-    float mGravity = 200.0f;         // gravity constant
-    float mDamping = 0.85f;          // velocity damping (0.85 = high friction to stop spinning)
 
     // internal helpers
     void buildTargetsForAnimation(const std::vector<RLBubblePoint> &data);

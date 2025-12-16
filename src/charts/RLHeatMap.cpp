@@ -206,7 +206,7 @@ void RLHeatMap::rebuildLUT(){
 void RLHeatMap::rebuildTextureIfNeeded(){
     if (mTextureValid && mTexture.id != 0) return;
 
-    Image img = {0};
+    Image img = {};
     img.data = mPixels.data();
     img.width = mCellsX;
     img.height = mCellsY;

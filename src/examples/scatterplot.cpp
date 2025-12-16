@@ -102,12 +102,10 @@ int main(){
     lPerf.setSingleSeries(lBigA, lBigStyle);
 
     // Animation timers
-    float lTimer = 0.0f;
     float lSwitch = 0.0f;
     float lInterval = 2.5f;
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
-        lTimer += lDt;
         lSwitch += lDt;
         // Periodically change targets to demonstrate smooth animation/fade
         if (lSwitch > lInterval){

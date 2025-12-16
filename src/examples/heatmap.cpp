@@ -179,7 +179,6 @@ int main(){
     size_t lBatch = 120000;
 
     bool lPause = false;
-    float lTimer = 0.0f;
     HeatMode lMode = HeatMode::MovingEmitters;
     std::vector<Emitter> lEmitters;
     int lEmitterCount = 6;
@@ -187,7 +186,6 @@ int main(){
 
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
-        if (!lPause) lTimer += lDt;
 
         // Controls
         if (IsKeyPressed(KEY_SPACE)) lPause = !lPause;

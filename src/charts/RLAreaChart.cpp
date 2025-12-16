@@ -294,7 +294,6 @@ void RLAreaChart::drawAxes() const {
 }
 
 void RLAreaChart::drawGrid() const {
-    float lChartWidth = mBounds.width - mStyle.mPadding * 2.0f;
     float lChartHeight = mBounds.height - mStyle.mPadding * 2.0f - 20.0f;
     float lBaseY = mBounds.y + mBounds.height - mStyle.mPadding;
 
