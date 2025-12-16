@@ -143,18 +143,18 @@ private:
     void layoutSlice(std::vector<size_t>& rChildIndices, Rectangle aAvailable, bool aVertical);
 
     // Helper: sum values of children
-    float sumChildValues(const std::vector<size_t>& rIndices) const;
+    [[nodiscard]] float sumChildValues(const std::vector<size_t>& rIndices) const;
 
     // Helper: compute total value of a subtree
-    float computeSubtreeValue(const RLTreeNode& rNode) const;
+    [[nodiscard]] float computeSubtreeValue(const RLTreeNode& rNode) const;
 
     // Color computation
-    Color computeNodeColor(const RLTreeNode& rNode, int aDepth) const;
+    [[nodiscard]] Color computeNodeColor(const RLTreeNode& rNode, int aDepth) const;
 
     // Animation helpers
-    float approach(float a, float b, float aSpeedDt) const;
-    Color lerpColor(const Color& a, const Color& b, float t) const;
-    Rectangle lerpRect(const Rectangle& a, const Rectangle& b, float t) const;
+    [[nodiscard]] float approach(float a, float b, float aSpeedDt) const;
+    [[nodiscard]] Color lerpColor(const Color& a, const Color& b, float t) const;
+    [[nodiscard]] Rectangle lerpRect(const Rectangle& a, const Rectangle& b, float t) const;
 
     // Default palette
     void ensureDefaultPalette();

@@ -125,8 +125,6 @@ private:
     void ensureScale() const;
     [[nodiscard]] Vector2 mapPoint(const Vector2 &rPt) const;
 
-    static Vector2 catmullRom(const Vector2 &rP0, const Vector2 &rP1, const Vector2 &rP2, const Vector2 &rP3, float aT);
-    static float dist(const Vector2 &a, const Vector2 &b);
     void buildCaches() const;
 
     void ensureDynInitialized(const RLScatterSeries &rSeries) const;

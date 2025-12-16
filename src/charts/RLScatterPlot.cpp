@@ -126,16 +126,6 @@ Vector2 RLScatterPlot::mapPoint(const Vector2 &rPt) const{
     return lOut;
 }
 
-Vector2 RLScatterPlot::catmullRom(const Vector2 &rP0, const Vector2 &rP1, const Vector2 &rP2, const Vector2 &rP3, float aT){
-    float lT2 = aT*aT; float lT3 = lT2*aT;
-    float lX = 0.5f * ((2.0f*rP1.x) + (-rP0.x + rP2.x)*aT + (2*rP0.x - 5*rP1.x + 4*rP2.x - rP3.x)*lT2 + (-rP0.x + 3*rP1.x - 3*rP2.x + rP3.x)*lT3);
-    float lY = 0.5f * ((2.0f*rP1.y) + (-rP0.y + rP2.y)*aT + (2*rP0.y - 5*rP1.y + 4*rP2.y - rP3.y)*lT2 + (-rP0.y + 3*rP1.y - 3*rP2.y + rP3.y)*lT3);
-    return { lX, lY };
-}
-
-float RLScatterPlot::dist(const Vector2 &a, const Vector2 &b){
-    float lDx = a.x - b.x; float lDy = a.y - b.y; return sqrtf(lDx*lDx + lDy*lDy);
-}
 
 void RLScatterPlot::buildCaches() const{
     Rectangle lRect = plotRect();
@@ -172,12 +162,12 @@ void RLScatterPlot::buildCaches() const{
                 const Vector2 &p1 = lPts[i];
                 const Vector2 &p2 = lPts[i+1];
                 const Vector2 &p3 = (i+2<lN) ? lPts[i+2] : lPts[lN-1];
-                float lSegLen = dist(p1,p2);
+                float lSegLen = RLCharts::distance(p1,p2);
                 int lSteps = (int)RLCharts::maxVal(1.0f, floorf(lSegLen / lTargetPx));
                 float lInv = 1.0f / (float)lSteps;
                 for (int k=0; k<lSteps; ++k){
                     float t = k * lInv;
-                    s.mSpline.push_back(catmullRom(p0,p1,p2,p3,t));
+                    s.mSpline.push_back(RLCharts::catmullRom(p0,p1,p2,p3,t));
                     float lVa = s.mCacheVis[i];
                     float lVb = s.mCacheVis[i+1];
                     s.mSplineVis.push_back(lVa + (lVb - lVa) * t);

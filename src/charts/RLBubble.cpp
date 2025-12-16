@@ -58,18 +58,6 @@ float RLBubble::sizeToRadius(float size) const{
     return std::max(mStyle.mMinRadius, r);
 }
 
-Vector2 RLBubble::lerp(const Vector2 &a, const Vector2 &b, float t) const{
-    return Vector2{ RLCharts::lerpF(a.x,b.x,t), RLCharts::lerpF(a.y,b.y,t) };
-}
-
-Color RLBubble::lerp(const Color &a, const Color &b, float t) const{
-    return Color{
-        (unsigned char)(a.r + (b.r - a.r)*t),
-        (unsigned char)(a.g + (b.g - a.g)*t),
-        (unsigned char)(a.b + (b.b - a.b)*t),
-        (unsigned char)(a.a + (b.a - a.a)*t)
-    };
-}
 
 void RLBubble::setImmediateDataInternal(const std::vector<RLBubblePoint> &data){
     Rectangle cr = chartRect();
@@ -178,14 +166,14 @@ void RLBubble::update(float dt){
 
     for (auto &b : mBubbles){
         b.mRadius = RLCharts::lerpF(b.mRadius, b.mRadiusTarget, lerpT);
-        b.mColor  = lerp(b.mColor,  b.mColorTarget,  lerpT);
+        b.mColor  = RLCharts::lerpColor(b.mColor,  b.mColorTarget,  lerpT);
         if (b.mRadius * 2.0f > maxDiameter) maxDiameter = b.mRadius * 2.0f;
     }
 
     if (mMode == RLBubbleMode::Scatter){
         // --- SCATTER MODE: Simple Lerp ---
         for (auto &b : mBubbles){
-            b.mPos = lerp(b.mPos, b.mPosTarget, lerpT);
+            b.mPos = RLCharts::lerpVector2(b.mPos, b.mPosTarget, lerpT);
             b.mPrevPos = b.mPos; // Keep physics state sync
         }
     } else {

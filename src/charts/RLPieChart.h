@@ -80,6 +80,4 @@ private:
     void ensureSize(size_t aCount);
     void recomputeTargetsFromData(const std::vector<RLPieSliceData> &rData);
     void ensureGeometry() const;
-
-    [[nodiscard]] Color lerp(const Color &a, const Color &b, float t) const;
 };

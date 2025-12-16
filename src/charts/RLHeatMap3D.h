@@ -168,6 +168,6 @@ private:
     void drawSurface(Vector3 aPosition, float aScale) const;
     void drawScatterPoints(Vector3 aPosition, float aScale) const;
     void drawAxisLabelsAndTicks(Vector3 aPosition, float aScale, const Camera3D& rCamera) const;
-    float calculateWallAlpha(Vector3 aWallNormal, const Camera3D& rCamera) const;
+    [[nodiscard]] float calculateWallAlpha(Vector3 aWallNormal, const Camera3D& rCamera) const;
 };
 

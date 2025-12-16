@@ -110,11 +110,6 @@ void RLBarChart::setScale(float aMinValue, float aMaxValue){
     mScaleMaxTarget = mScaleMax;
 }
 
-float RLBarChart::lerp(float a, float b, float t) const { return a + (b-a)*t; }
-
-Color RLBarChart::lerp(const Color &a, const Color &b, float t) const {
-    return RLCharts::lerpColor(a, b, t);
-}
 
 void RLBarChart::update(float aDt){
     if (!mStyle.mSmoothAnimate){
@@ -127,11 +122,11 @@ void RLBarChart::update(float aDt){
     float lLambda = mStyle.mAnimateSpeed; // how fast it converges
     float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
     for (auto &rB : mBars){
-        rB.mValue = lerp(rB.mValue, rB.mTarget, lAlpha);
-        rB.mColor = lerp(rB.mColor, rB.mColorTarget, lAlpha);
-        rB.mVisAlpha = lerp(rB.mVisAlpha, rB.mVisTarget, lAlpha);
+        rB.mValue = RLCharts::lerpF(rB.mValue, rB.mTarget, lAlpha);
+        rB.mColor = RLCharts::lerpColor(rB.mColor, rB.mColorTarget, lAlpha);
+        rB.mVisAlpha = RLCharts::lerpF(rB.mVisAlpha, rB.mVisTarget, lAlpha);
     }
-    mScaleMax = lerp(mScaleMax, mScaleMaxTarget, lAlpha);
+    mScaleMax = RLCharts::lerpF(mScaleMax, mScaleMaxTarget, lAlpha);
 
     // Remove bars that have faded out and are beyond target range (tail)
     if (mBars.size() > mTargetCount){

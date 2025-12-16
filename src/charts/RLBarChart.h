@@ -1,6 +1,7 @@
 // RLBarChart.h
 #pragma once
 #include "raylib.h"
+#include "../RLCommon.h"
 #include <vector>
 #include <string>
 
@@ -100,6 +101,4 @@ private:
     void ensureSize(size_t aCount);
     void recomputeScaleTargetsFromData(const std::vector<RLBarData> &rData);
     [[nodiscard]] float computeAutoMaxFromTargets() const;
-    [[nodiscard]] float lerp(float a, float b, float t) const;
-    [[nodiscard]] Color lerp(const Color &a, const Color &b, float t) const;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "../RLCommon.h"
 #include <vector>
 
 // Simple and fast Bubble Chart for raylib.
@@ -104,6 +105,4 @@ private:
     void setImmediateDataInternal(const std::vector<RLBubblePoint> &data);
     [[nodiscard]] Rectangle chartRect() const;
     [[nodiscard]] float sizeToRadius(float size) const;
-    [[nodiscard]] Vector2 lerp(const Vector2 &a, const Vector2 &b, float t) const;
-    [[nodiscard]] Color lerp(const Color &a, const Color &b, float t) const;
 };

@@ -127,15 +127,6 @@ void RLPieChart::setTargetData(const std::vector<RLPieSliceData> &rData){
     recomputeTargetsFromData(rData);
 }
 
-Color RLPieChart::lerp(const Color &a, const Color &b, float t) const{
-    t = t < 0 ? 0 : (t > 1 ? 1 : t);
-    Color lOut{};
-    lOut.r = (unsigned char)(a.r + (b.r - a.r) * t + 0.5f);
-    lOut.g = (unsigned char)(a.g + (b.g - a.g) * t + 0.5f);
-    lOut.b = (unsigned char)(a.b + (b.b - a.b) * t + 0.5f);
-    lOut.a = (unsigned char)(a.a + (b.a - a.a) * t + 0.5f);
-    return lOut;
-}
 
 void RLPieChart::ensureGeometry() const{
     if (!mGeomDirty) return;
@@ -159,7 +150,7 @@ void RLPieChart::update(float aDt){
         lS.mEnd = RLCharts::approach(lS.mEnd, lS.mEndTarget, lAngleK);
         lS.mVis = RLCharts::approach(lS.mVis, lS.mVisTarget, lFadeK);
         lS.mValue = RLCharts::approach(lS.mValue, lS.mTarget, lAngleK);
-        lS.mColor = lerp(lS.mColor, lS.mColorTarget, RLCharts::clamp01(lColorK));
+        lS.mColor = RLCharts::lerpColor(lS.mColor, lS.mColorTarget, RLCharts::clamp01(lColorK));
     }
 }
 

@@ -170,19 +170,19 @@ private:
     void cleanupMesh();
 
     // Price mapping helpers
-    float priceToNormalized(float aPrice) const;
-    float normalizedToPrice(float aNorm) const;
-    int priceToGridRow(float aPrice) const;
+    [[nodiscard]] float priceToNormalized(float aPrice) const;
+    [[nodiscard]] float normalizedToPrice(float aNorm) const;
+    [[nodiscard]] int priceToGridRow(float aPrice) const;
 
     // Grid access helpers
-    size_t gridIndex(size_t aTimeIdx, size_t aPriceIdx) const;
-    size_t ringTimeIndex(size_t aOffset) const;
+    [[nodiscard]] size_t gridIndex(size_t aTimeIdx, size_t aPriceIdx) const;
+    [[nodiscard]] size_t ringTimeIndex(size_t aOffset) const;
 
     // Drawing helpers
     void drawBackground() const;
     void drawGrid2D() const;
     void drawMidLine2D() const;
     void drawHeatmap2D() const;
-    Rectangle getPlotArea() const;
+    [[nodiscard]] Rectangle getPlotArea() const;
 };
 
