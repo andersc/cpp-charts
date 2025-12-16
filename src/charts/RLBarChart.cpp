@@ -96,7 +96,7 @@ void RLBarChart::setTargetData(const std::vector<RLBarData> &rData){
     for (size_t i=mTargetCount; i<lOldSize; ++i){
         BarDyn &lB = mBars[i];
         lB.mVisTarget = 0.0f;
-        // keep current target/value so they animate out without popping
+        // keep the current target / value so they animate out without popping
     }
     recomputeScaleTargetsFromData(rData);
 }
