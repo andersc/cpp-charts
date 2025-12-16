@@ -90,7 +90,9 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLTimeSeries Demo - Multi-Trace Streaming Visualizer");
     SetTargetFPS(60);
 
-    // Create time series chart
+    Font lFont = LoadFontEx("base.ttf", 24, nullptr, 250);
+
+    // Create a time series chart
     Rectangle lChartBounds = { 20.0f, 60.0f, SCREEN_WIDTH - 40.0f, SCREEN_HEIGHT - 120.0f };
     RLTimeSeries lTimeSeries(lChartBounds, WINDOW_SIZE);
 
@@ -211,11 +213,11 @@ int main() {
         ClearBackground({ 10, 12, 16, 255 });
 
         // Title
-        DrawText("RLTimeSeries - Multi-Trace Streaming Demo", 20, 15, 24, { 220, 225, 235, 255 });
+        DrawTextEx(lFont, "RLTimeSeries - Multi-Trace Streaming Demo", Vector2{20, 15}, 24, 1.0f, { 220, 225, 235, 255 });
 
         // Mode indicator
-        DrawText(TextFormat("Mode: %s (auto-cycles every %.0fs)", MODE_NAMES[lModeIndex], MODE_CYCLE_TIME),
-                 20, 42, 14, { 150, 155, 165, 255 });
+        DrawTextEx(lFont, TextFormat("Mode: %s (auto-cycles every %.0fs)", MODE_NAMES[lModeIndex], MODE_CYCLE_TIME),
+                 Vector2{20, 42}, 14, 1.0f, { 150, 155, 165, 255 });
 
         // Draw chart
         lTimeSeries.draw();
@@ -223,7 +225,7 @@ int main() {
         // Legend
         float lLegendY = SCREEN_HEIGHT - 50.0f;
         float lLegendX = 30.0f;
-        DrawText("Traces:", (int)lLegendX, (int)lLegendY, 14, { 180, 185, 195, 255 });
+        DrawTextEx(lFont, "Traces:", Vector2{lLegendX, lLegendY}, 14, 1.0f, { 180, 185, 195, 255 });
         lLegendX += 60.0f;
 
         for (int i = 0; i < NUM_TRACES; ++i) {
@@ -238,14 +240,14 @@ int main() {
                 case RLTimeSeriesLineMode::Linear: lModeStr = "Linear"; break;
                 case RLTimeSeriesLineMode::Spline: lModeStr = "Spline"; break;
             }
-            DrawText(TextFormat("%d: %s (%.0f Hz)", i + 1, lModeStr, TRACE_RATES[i]),
-                     (int)lLegendX + 25, (int)lLegendY, 12, { 160, 165, 175, 255 });
+            DrawTextEx(lFont, TextFormat("%d: %s (%.0f Hz)", i + 1, lModeStr, TRACE_RATES[i]),
+                     Vector2{lLegendX + 25, lLegendY}, 12, 1.0f, { 160, 165, 175, 255 });
             lLegendX += 160.0f;
         }
 
         // Instructions
-        DrawText("Keys: 1-5 toggle traces | C clear | ESC exit",
-                 SCREEN_WIDTH - 320, SCREEN_HEIGHT - 25, 12, { 100, 105, 115, 255 });
+        DrawTextEx(lFont, "Keys: 1-5 toggle traces | C clear | ESC exit",
+                 Vector2{(float)(SCREEN_WIDTH - 320), (float)(SCREEN_HEIGHT - 25)}, 12, 1.0f, { 100, 105, 115, 255 });
 
         // FPS
         DrawFPS(SCREEN_WIDTH - 90, 15);
@@ -253,7 +255,7 @@ int main() {
         EndDrawing();
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }
-

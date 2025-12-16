@@ -37,6 +37,8 @@ int main(){
     InitWindow(lW, lH, "raylib scatter plot - RLScatterPlot demo");
     SetTargetFPS(120);
 
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     Rectangle lLeft{40,60,(lW-120)*0.5f, lH-120.0f};
     Rectangle lRight{ lLeft.x + lLeft.width + 40.0f, lLeft.y, lLeft.width, lLeft.height };
 
@@ -141,14 +143,14 @@ int main(){
         if (!lShowLarge){
             lSingle.draw();
             lMulti.draw();
-            DrawText("Single-series (left): linear line + points", (int)lLeft.x, (int)(lLeft.y-28), 20, GRAY);
-            DrawText("Multi-series (right): spline vs linear vs scatter-only (animated)", (int)lRight.x, (int)(lRight.y-28), 20, GRAY);
+            DrawTextEx(lFont, "Single-series (left): linear line + points", Vector2{(float)lLeft.x, (float)(lLeft.y-28)}, 20, 1.0f, GRAY);
+            DrawTextEx(lFont, "Multi-series (right): spline vs linear vs scatter-only (animated)", Vector2{(float)lRight.x, (float)(lRight.y-28)}, 20, 1.0f, GRAY);
         } else {
             lPerf.draw();
-            DrawText("Large dataset: 15k points (scatter-only)", (int)lLeft.x, (int)(lLeft.y-28), 20, GRAY);
+            DrawTextEx(lFont, "Large dataset: 15k points (scatter-only)", Vector2{(float)lLeft.x, (float)(lLeft.y-28)}, 20, 1.0f, GRAY);
         }
 
-        DrawText("Space: toggle large dataset view  |  A: add pts to C  |  R: remove pts from C", 40, lH-36, 20, DARKGRAY);
+        DrawTextEx(lFont, "Space: toggle large dataset view  |  A: add pts to C  |  R: remove pts from C", Vector2{40, (float)(lH-36)}, 20, 1.0f, DARKGRAY);
         DrawFPS(16,16);
         EndDrawing();
 
@@ -171,6 +173,7 @@ int main(){
         }
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }

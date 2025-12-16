@@ -48,6 +48,8 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - ⚡ High performance with raylib rendering
 - 🖱️ Responsive design with various display modes
 
+**All demos use the bundled `base.ttf` font for consistent, readable text rendering.**
+
 ---
 
 ## 🌐 Live Web Demos

@@ -175,6 +175,8 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Order Book Visualization - 2D Heatmap & 3D Landscape");
     SetTargetFPS(60);
 
+    Font lFont = LoadFontEx("base.ttf", 30, nullptr, 250);
+
     // Create order book visualization
     Rectangle lBounds2D = {50, 100, 700, 700};
     Rectangle lBounds3DInfo = {800, 100, 750, 700};
@@ -317,7 +319,7 @@ int main() {
         ClearBackground(Color{10, 12, 18, 255});
 
         // Title
-        DrawText("Order Book Visualization", 50, 20, 30, Color{220, 220, 230, 255});
+        DrawTextEx(lFont, "Order Book Visualization", Vector2{50, 20}, 30, 1.0f, Color{220, 220, 230, 255});
 
         // Draw 2D or 3D view
         if (!lShow3D) {
@@ -337,12 +339,12 @@ int main() {
 
                 char lBuf[32];
                 snprintf(lBuf, sizeof(lBuf), "%.2f", (double)lPrice);
-                DrawText(lBuf, (int)(lBounds2D.x + lBounds2D.width + 10), (int)lY - 8, 14, Color{150, 150, 160, 255});
+                DrawTextEx(lFont, lBuf, Vector2{lBounds2D.x + lBounds2D.width + 10, lY - 8}, 14, 1.0f, Color{150, 150, 160, 255});
             }
 
             // Axis labels
-            DrawText("Time ->", (int)(lBounds2D.x + lBounds2D.width/2 - 30), (int)(lBounds2D.y + lBounds2D.height + 15), 16, Color{120, 120, 130, 255});
-            DrawTextPro(GetFontDefault(), "Price", Vector2{lBounds2D.x - 25, lBounds2D.y + lBounds2D.height/2 + 20}, Vector2{0, 0}, -90.0f, 16, 1, Color{120, 120, 130, 255});
+            DrawTextEx(lFont, "Time ->", Vector2{lBounds2D.x + lBounds2D.width/2 - 30, lBounds2D.y + lBounds2D.height + 15}, 16, 1.0f, Color{120, 120, 130, 255});
+            DrawTextPro(lFont, "Price", Vector2{lBounds2D.x - 25, lBounds2D.y + lBounds2D.height/2 + 20}, Vector2{0, 0}, -90.0f, 16, 1, Color{120, 120, 130, 255});
         } else {
             // 3D view
             DrawRectangle((int)lBounds2D.x, (int)lBounds2D.y, (int)lBounds2D.width, (int)lBounds2D.height, Color{15, 17, 22, 255});
@@ -362,96 +364,96 @@ int main() {
         int lInfoX = (int)lBounds3DInfo.x + 20;
         int lLineH = 28;
 
-        DrawText("MARKET DATA", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lFont, "MARKET DATA", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         char lBuf[128];
 
         snprintf(lBuf, sizeof(lBuf), "Mid Price:  $%.4f", (double)lOrderBook.getCurrentMidPrice());
-        DrawText(lBuf, lInfoX, lInfoY, 18, Color{180, 180, 190, 255});
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH;
 
         snprintf(lBuf, sizeof(lBuf), "Spread:     $%.4f (%.2f bps)", (double)lOrderBook.getCurrentSpread(),
                  (double)(lOrderBook.getCurrentSpread() / lOrderBook.getCurrentMidPrice() * 10000.0f));
-        DrawText(lBuf, lInfoX, lInfoY, 18, Color{180, 180, 190, 255});
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH;
 
         snprintf(lBuf, sizeof(lBuf), "Snapshots:  %zu / %zu", lOrderBook.getSnapshotCount(), lOrderBook.getHistoryLength());
-        DrawText(lBuf, lInfoX, lInfoY, 18, Color{180, 180, 190, 255});
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH;
 
         snprintf(lBuf, sizeof(lBuf), "Depth View: +/- %d ticks", lSpreadTicks);
-        DrawText(lBuf, lInfoX, lInfoY, 18, Color{180, 180, 190, 255});
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH + 20;
 
         // Controls
-        DrawText("CONTROLS", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lFont, "CONTROLS", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
-        DrawText("[TAB]    Toggle 2D/3D view", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+        DrawTextEx(lFont, "[TAB]    Toggle 2D/3D view", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[+/-]    Adjust price depth", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+        DrawTextEx(lFont, "[+/-]    Adjust price depth", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[SPACE]  Pause/Resume", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+        DrawTextEx(lFont, "[SPACE]  Pause/Resume", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[R]      Reset history", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+        DrawTextEx(lFont, "[R]      Reset history", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
 
         if (lShow3D) {
-            DrawText("[A]      Toggle auto-rotate", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+            DrawTextEx(lFont, "[A]      Toggle auto-rotate", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
             lInfoY += 22;
-            DrawText("[Mouse]  Drag to orbit, wheel to zoom", lInfoX, lInfoY, 16, Color{140, 140, 150, 255});
+            DrawTextEx(lFont, "[Mouse]  Drag to orbit, wheel to zoom", Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{140, 140, 150, 255});
             lInfoY += 22;
         }
 
         lInfoY += 20;
 
         // Status indicators
-        DrawText("STATUS", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lFont, "STATUS", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         const char* lViewMode = lShow3D ? "3D Landscape" : "2D Heatmap";
         snprintf(lBuf, sizeof(lBuf), "View Mode:  %s", lViewMode);
-        DrawText(lBuf, lInfoX, lInfoY, 18, lShow3D ? Color{100, 180, 255, 255} : Color{100, 255, 150, 255});
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, lShow3D ? Color{100, 180, 255, 255} : Color{100, 255, 150, 255});
         lInfoY += lLineH;
 
         const char* lStatus = lPaused ? "PAUSED" : "STREAMING";
         Color lStatusColor = lPaused ? Color{255, 180, 80, 255} : Color{80, 220, 120, 255};
         snprintf(lBuf, sizeof(lBuf), "Data Feed:  %s", lStatus);
-        DrawText(lBuf, lInfoX, lInfoY, 18, lStatusColor);
+        DrawTextEx(lFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 18, 1.0f, lStatusColor);
         lInfoY += lLineH + 30;
 
         // Legend
-        DrawText("LEGEND", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lFont, "LEGEND", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         // Bid gradient
         DrawRectangle(lInfoX, lInfoY, 150, 20, lBidColors[0]);
         DrawRectangleGradientH(lInfoX, lInfoY, 150, 20, lBidColors[0], lBidColors[3]);
-        DrawText("Bids (Buy Orders)", lInfoX + 160, lInfoY + 2, 16, Color{50, 220, 150, 255});
+        DrawTextEx(lFont, "Bids (Buy Orders)", Vector2{(float)(lInfoX + 160), (float)(lInfoY + 2)}, 16, 1.0f, Color{50, 220, 150, 255});
         lInfoY += 30;
 
         // Ask gradient
         DrawRectangleGradientH(lInfoX, lInfoY, 150, 20, lAskColors[0], lAskColors[3]);
-        DrawText("Asks (Sell Orders)", lInfoX + 160, lInfoY + 2, 16, Color{255, 100, 60, 255});
+        DrawTextEx(lFont, "Asks (Sell Orders)", Vector2{(float)(lInfoX + 160), (float)(lInfoY + 2)}, 16, 1.0f, Color{255, 100, 60, 255});
         lInfoY += 30;
 
         // Mid line
         DrawLine(lInfoX, lInfoY + 10, lInfoX + 150, lInfoY + 10, Color{255, 255, 255, 200});
-        DrawText("Mid Price / Spread", lInfoX + 160, lInfoY + 2, 16, Color{255, 255, 255, 200});
-        lInfoY += 40;
+        DrawTextEx(lFont, "Mid Price / Spread", Vector2{(float)(lInfoX + 160), (float)(lInfoY + 2)}, 16, 1.0f, Color{255, 255, 255, 200});
+        lInfoY += 30;
 
         // Interpretation guide
-        DrawText("INTERPRETATION", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
-        lInfoY += lLineH + 10;
+        DrawTextEx(lFont, "INTERPRETATION", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
+        lInfoY += lLineH + 5;
 
-        DrawText("Bright colors = High liquidity (walls)", lInfoX, lInfoY, 14, Color{130, 130, 140, 255});
+        DrawTextEx(lFont, "Bright colors = High liquidity (walls)", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{130, 130, 140, 255});
         lInfoY += 20;
-        DrawText("Dark colors = Low liquidity", lInfoX, lInfoY, 14, Color{130, 130, 140, 255});
+        DrawTextEx(lFont, "Dark colors = Low liquidity", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{130, 130, 140, 255});
         lInfoY += 20;
-        DrawText("Moving patterns = Price drift", lInfoX, lInfoY, 14, Color{130, 130, 140, 255});
+        DrawTextEx(lFont, "Moving patterns = Price drift", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{130, 130, 140, 255});
         lInfoY += 20;
-        DrawText("Sudden changes = Order fills/cancels", lInfoX, lInfoY, 14, Color{130, 130, 140, 255});
+        DrawTextEx(lFont, "Sudden changes = Order fills/cancels", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{130, 130, 140, 255});
 
         // FPS
         DrawFPS(SCREEN_WIDTH - 100, 10);
@@ -459,7 +461,7 @@ int main() {
         EndDrawing();
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }
-

@@ -37,6 +37,8 @@ int main(){
     InitWindow(screenW, screenH, "raylib bubble chart - RLBubble demo");
     SetTargetFPS(120);
 
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     // Layout
     Rectangle left{ 40, 60, (screenW-120)*0.5f, screenH-120.0f };
     Rectangle right{ left.x + left.width + 40.0f, left.y, left.width, left.height };
@@ -100,9 +102,9 @@ int main(){
         scatter.draw();
         gravity.draw();
 
-        DrawText("Scatter: x,y,size,color (animates between datasets)", (int)left.x, (int)(left.y-28), 20, GRAY);
-        DrawText("Gravity: largest centered, others attract like mass", (int)right.x, (int)(right.y-28), 20, GRAY);
-        DrawText("Space: pause/resume  |  G: regenerate both datasets now", 40, screenH-36, 20, DARKGRAY);
+        DrawTextEx(lFont, "Scatter: x,y,size,color (animates between datasets)", Vector2{(float)left.x, (float)(left.y-28)}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Gravity: largest centered, others attract like mass", Vector2{(float)right.x, (float)(right.y-28)}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Space: pause/resume  |  G: regenerate both datasets now", Vector2{40, (float)(screenH-36)}, 20, 1.0f, DARKGRAY);
         DrawFPS(16,16);
         EndDrawing();
 
@@ -120,6 +122,7 @@ int main(){
         }
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }

@@ -127,6 +127,8 @@ int main(){
     InitWindow(lW, lH, "raylib heat map - RLHeatMap demo");
     SetTargetFPS(120);
 
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     // Layout
     float lPad = 34.0f;
     float lTop = 60.0f;
@@ -226,18 +228,19 @@ int main(){
         lHM_Repl.draw();
         lHM_Decay.draw();
 
-        DrawText("Accumulate (3-color) press 1/2/3", (int)lA.x, (int)(lA.y-28), 20, GRAY);
-        DrawText("Replace per-batch (4-color)", (int)lB.x, (int)(lB.y-28), 20, GRAY);
-        DrawText("Decay (4-color, half-life 1.2s)", (int)lC.x, (int)(lC.y-28), 20, GRAY);
+        DrawTextEx(lFont, "Accumulate (3-color) press 1/2/3", Vector2{lA.x, lA.y-28}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Replace per-batch (4-color)", Vector2{lB.x, lB.y-28}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Decay (4-color, half-life 1.2s)", Vector2{lC.x, lC.y-28}, 20, 1.0f, GRAY);
 
-        DrawText("Space: pause/resume, +/-: batch size, U: Uniform, M: MovingEmitters, E/Q: +/- emitters", (int)lPad, lH-36, 20, DARKGRAY);
-        DrawText(TextFormat("Batch: %d points/frame  |  Mode: %s  |  Emitters: %d",
+        DrawTextEx(lFont, "Space: pause/resume, +/-: batch size, U: Uniform, M: MovingEmitters, E/Q: +/- emitters", Vector2{lPad, (float)(lH-36)}, 20, 1.0f, DARKGRAY);
+        DrawTextEx(lFont, TextFormat("Batch: %d points/frame  |  Mode: %s  |  Emitters: %d",
                 (int)lBatch, lMode==HeatMode::Uniform?"Uniform":"Moving", lEmitterCount),
-                (int)lPad, lH-64, 20, DARKGRAY);
+                Vector2{lPad, (float)(lH-64)}, 20, 1.0f, DARKGRAY);
         DrawFPS(16,16);
         EndDrawing();
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }

@@ -88,6 +88,8 @@ int main(){
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     InitWindow(lScreenW, lScreenH, "Raylib Candlestick Demo");
 
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     std::string lCsvPath = resolveCSVPath();
     if (lCsvPath.empty()) {
         std::cerr << "Could not locate JPM_1_minute_bars.csv. Place it next to the executable or project root.\n";
@@ -151,22 +153,23 @@ int main(){
         lChart3.draw();
 
         // Titles
-        DrawText("valuesPerCandle=5, visible=20", (int)(lR1.x + 10), (int)(lR1.y + 10), 18, {220, 220, 230, 200});
-        DrawText("valuesPerCandle=3, visible=30 (alt colors)", (int)(lR2.x + 10), (int)(lR2.y + 10), 18, {220, 220, 230, 200});
-        DrawText("valuesPerCandle=8, visible=15", (int)(lR3.x + 10), (int)(lR3.y + 10), 18, {220, 220, 230, 200});
+        DrawTextEx(lFont, "valuesPerCandle=5, visible=20", Vector2{lR1.x + 10, lR1.y + 10}, 18, 1.0f, {220, 220, 230, 200});
+        DrawTextEx(lFont, "valuesPerCandle=3, visible=30 (alt colors)", Vector2{lR2.x + 10, lR2.y + 10}, 18, 1.0f, {220, 220, 230, 200});
+        DrawTextEx(lFont, "valuesPerCandle=8, visible=15", Vector2{lR3.x + 10, lR3.y + 10}, 18, 1.0f, {220, 220, 230, 200});
 
         // Status
         if (lData.empty()){
-            DrawText("CSV not found or empty. Place JPM_1_minute_bars.csv in project root or build dir.", 20, lScreenH - 28, 20, {255, 120, 120, 255});
+            DrawTextEx(lFont, "CSV not found or empty. Place JPM_1_minute_bars.csv in project root or build dir.", Vector2{20, (float)(lScreenH - 28)}, 20, 1.0f, {255, 120, 120, 255});
         } else if (lCursor >= lData.size()){
-            DrawText("End of CSV reached", 20, lScreenH - 28, 20, {200, 200, 210, 255});
+            DrawTextEx(lFont, "End of CSV reached", Vector2{20, (float)(lScreenH - 28)}, 20, 1.0f, {200, 200, 210, 255});
         } else {
-            DrawText("Streaming 1 row/sec from JPM_1_minute_bars.csv", 20, lScreenH - 28, 20, {200, 200, 210, 255});
+            DrawTextEx(lFont, "Streaming 1 row/sec from JPM_1_minute_bars.csv", Vector2{20, (float)(lScreenH - 28)}, 20, 1.0f, {200, 200, 210, 255});
         }
 
         EndDrawing();
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }

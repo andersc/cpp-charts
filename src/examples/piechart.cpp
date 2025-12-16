@@ -42,6 +42,8 @@ int main(){
     InitWindow(lScreenW, lScreenH, "raylib pie chart - RLPieChart demo");
     SetTargetFPS(120);
 
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     Rectangle lLeft{ 40, 80, (lScreenW-120)*0.33f, (lScreenH-140) };
     Rectangle lMid{ lLeft.x + lLeft.width + 40.0f, lLeft.y, lLeft.width, lLeft.height };
     Rectangle lRight{ lMid.x + lMid.width + 40.0f, lLeft.y, lLeft.width, lLeft.height };
@@ -117,10 +119,10 @@ int main(){
         lPieB.draw();
         lPieC.draw();
 
-        DrawText("Values change over time (solid)", (int)lLeft.x, (int)(lLeft.y-28), 20, GRAY);
-        DrawText("Add/remove slices (fade) with donut style", (int)lMid.x, (int)(lMid.y-28), 20, GRAY);
-        DrawText("Hollow factor demo: 0.0 -> 0.5 -> 0.9", (int)lRight.x, (int)(lRight.y-28), 20, GRAY);
-        DrawText("Space: pause/resume | R: randomize now", 40, lScreenH-36, 20, DARKGRAY);
+        DrawTextEx(lFont, "Values change over time (solid)", Vector2{(float)lLeft.x, (float)(lLeft.y-28)}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Add/remove slices (fade) donut ", Vector2{(float)lMid.x, (float)(lMid.y-28)}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Hollow demo: 0.0 -> 0.5 -> 0.9", Vector2{(float)lRight.x, (float)(lRight.y-28)}, 20, 1.0f, GRAY);
+        DrawTextEx(lFont, "Space: pause/resume | R: randomize now", Vector2{40, (float)(lScreenH-36)}, 20, 1.0f, DARKGRAY);
         DrawFPS(16,16);
         EndDrawing();
 
@@ -135,6 +137,7 @@ int main(){
         }
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }
