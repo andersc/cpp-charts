@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 #include <string>
 
@@ -80,7 +81,5 @@ private:
     void recomputeTargetsFromData(const std::vector<RLPieSliceData> &rData);
     void ensureGeometry() const;
 
-    static float clamp01(float aX){ return aX < 0 ? 0 : (aX > 1 ? 1 : aX); }
-    static float approach(float a, float b, float speedDt){ float d = b - a; return a + d * (d * d < 1e-8f ? 1.0f : clamp01(speedDt)); }
     [[nodiscard]] Color lerp(const Color &a, const Color &b, float t) const;
 };

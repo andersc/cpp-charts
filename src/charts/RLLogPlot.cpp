@@ -230,16 +230,6 @@ void RLLogPlot::ensureTraceAnimation(RLLogPlotTrace& rTrace) const {
     }
 }
 
-float RLLogPlot::approach(float a, float b, float aSpeedDt) {
-    float lDiff = b - a;
-    if (fabsf(lDiff) < 1e-6f) return b;
-    return a + lDiff * clamp01(aSpeedDt);
-}
-
-Color RLLogPlot::fadeColor(Color aC, float aAlpha) {
-    aC.a = (unsigned char)(aC.a * clamp01(aAlpha));
-    return aC;
-}
 
 void RLLogPlot::update(float aDt) {
     if (!mLogPlotStyle.mSmoothAnimate) return;
@@ -253,18 +243,18 @@ void RLLogPlot::update(float aDt) {
         // Animate each point
         for (size_t i = 0; i < lN; ++i) {
             if (i < lTrace.mAnimX.size()) {
-                lTrace.mAnimX[i] = approach(lTrace.mAnimX[i], lTrace.mXValues[i], lSpeed);
-                lTrace.mAnimY[i] = approach(lTrace.mAnimY[i], lTrace.mYValues[i], lSpeed);
+                lTrace.mAnimX[i] = RLCharts::approach(lTrace.mAnimX[i], lTrace.mXValues[i], lSpeed);
+                lTrace.mAnimY[i] = RLCharts::approach(lTrace.mAnimY[i], lTrace.mYValues[i], lSpeed);
 
                 if (i < lTrace.mConfidence.size() && lTrace.mConfidence[i].mEnabled) {
-                    lTrace.mAnimConfLower[i] = approach(lTrace.mAnimConfLower[i],
+                    lTrace.mAnimConfLower[i] = RLCharts::approach(lTrace.mAnimConfLower[i],
                                                         lTrace.mConfidence[i].mLowerBound, lSpeed);
-                    lTrace.mAnimConfUpper[i] = approach(lTrace.mAnimConfUpper[i],
+                    lTrace.mAnimConfUpper[i] = RLCharts::approach(lTrace.mAnimConfUpper[i],
                                                         lTrace.mConfidence[i].mUpperBound, lSpeed);
                 }
 
                 // Fade in
-                lTrace.mVisibility[i] = approach(lTrace.mVisibility[i], 1.0f, lSpeed);
+                lTrace.mVisibility[i] = RLCharts::approach(lTrace.mVisibility[i], 1.0f, lSpeed);
             }
         }
 
@@ -620,7 +610,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
             Vector2 lUpperPt = mapLogPoint(lLogX, lLogUpper, aPlotRect);
 
             float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            Color lDrawColor = fadeColor(lConfColor, lVis);
+            Color lDrawColor = RLCharts::fadeColor(lConfColor, lVis);
 
             if (rTrace.mStyle.mConfidenceAsBars) {
                 // Error bars
@@ -660,7 +650,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
     // Draw connecting lines
     for (size_t i = 0; i < lScreenPoints.size() - 1; ++i) {
         float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-        Color lDrawColor = fadeColor(rTrace.mStyle.mLineColor, lVis);
+        Color lDrawColor = RLCharts::fadeColor(rTrace.mStyle.mLineColor, lVis);
         DrawLineEx(lScreenPoints[i], lScreenPoints[i + 1],
                   rTrace.mStyle.mLineThickness, lDrawColor);
     }
@@ -674,7 +664,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
 
         for (size_t i = 0; i < lScreenPoints.size(); ++i) {
             float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            Color lDrawColor = fadeColor(lPointColor, lVis);
+            Color lDrawColor = RLCharts::fadeColor(lPointColor, lVis);
             DrawCircleV(lScreenPoints[i], rTrace.mStyle.mPointRadius, lDrawColor);
 
             // Outline for visibility

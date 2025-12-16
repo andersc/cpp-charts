@@ -228,10 +228,10 @@ void RLSankey::update(float aDt) {
 
         // Animate nodes
         for (auto& rNode : mNodes) {
-            rNode.mY = approach(rNode.mY, rNode.mYTarget, lValueSpeed);
-            rNode.mHeight = approach(rNode.mHeight, rNode.mHeightTarget, lValueSpeed);
-            rNode.mColor = lerpColor(rNode.mColor, rNode.mColorTarget, lValueSpeed);
-            rNode.mVisibility = approach(rNode.mVisibility, rNode.mVisibilityTarget, lFadeSpeed);
+            rNode.mY = RLCharts::approach(rNode.mY, rNode.mYTarget, lValueSpeed);
+            rNode.mHeight = RLCharts::approach(rNode.mHeight, rNode.mHeightTarget, lValueSpeed);
+            rNode.mColor = RLCharts::lerpColor(rNode.mColor, rNode.mColorTarget, lValueSpeed);
+            rNode.mVisibility = RLCharts::approach(rNode.mVisibility, rNode.mVisibilityTarget, lFadeSpeed);
         }
 
         // Animate links
@@ -239,13 +239,13 @@ void RLSankey::update(float aDt) {
             float lOldValue = rLink.mValue;
             float lOldSourceThickness = rLink.mSourceThickness;
             float lOldTargetThickness = rLink.mTargetThickness;
-            rLink.mValue = approach(rLink.mValue, rLink.mValueTarget, lValueSpeed);
-            rLink.mSourceThickness = approach(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed);
-            rLink.mTargetThickness = approach(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed);
-            rLink.mSourceY = approach(rLink.mSourceY, rLink.mSourceYTarget, lValueSpeed);
-            rLink.mTargetY = approach(rLink.mTargetY, rLink.mTargetYTarget, lValueSpeed);
-            rLink.mColor = lerpColor(rLink.mColor, rLink.mColorTarget, lValueSpeed);
-            rLink.mVisibility = approach(rLink.mVisibility, rLink.mVisibilityTarget, lFadeSpeed);
+            rLink.mValue = RLCharts::approach(rLink.mValue, rLink.mValueTarget, lValueSpeed);
+            rLink.mSourceThickness = RLCharts::approach(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed);
+            rLink.mTargetThickness = RLCharts::approach(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed);
+            rLink.mSourceY = RLCharts::approach(rLink.mSourceY, rLink.mSourceYTarget, lValueSpeed);
+            rLink.mTargetY = RLCharts::approach(rLink.mTargetY, rLink.mTargetYTarget, lValueSpeed);
+            rLink.mColor = RLCharts::lerpColor(rLink.mColor, rLink.mColorTarget, lValueSpeed);
+            rLink.mVisibility = RLCharts::approach(rLink.mVisibility, rLink.mVisibilityTarget, lFadeSpeed);
 
             if (rLink.mValue != lOldValue ||
                 rLink.mSourceThickness != lOldSourceThickness ||
@@ -818,8 +818,8 @@ void RLSankey::drawLink(const LinkDyn& rLink) const {
         float lT1 = (float)i / (float)(lSegCount - 1);
         float lT2 = (float)(i + 1) / (float)(lSegCount - 1);
 
-        Color lC1 = lerpColor(lColorStart, lColorEnd, lT1);
-        Color lC2 = lerpColor(lColorStart, lColorEnd, lT2);
+        Color lC1 = RLCharts::lerpColor(lColorStart, lColorEnd, lT1);
+        Color lC2 = RLCharts::lerpColor(lColorStart, lColorEnd, lT2);
 
         lC1.a = (unsigned char)(lC1.a * lAlpha);
         lC2.a = (unsigned char)(lC2.a * lAlpha);
@@ -954,25 +954,5 @@ void RLSankey::setHighlightedNode(int aNodeId) {
 
 void RLSankey::setHighlightedLink(int aLinkId) {
     mHighlightedLink = aLinkId;
-}
-
-// ============================================================================
-// Animation Helpers
-// ============================================================================
-
-float RLSankey::approach(float aFrom, float aTo, float aSpeedDt) {
-    float lDiff = aTo - aFrom;
-    if (lDiff * lDiff < 1e-8f) return aTo;
-    return aFrom + lDiff * clamp01(aSpeedDt);
-}
-
-Color RLSankey::lerpColor(Color aFrom, Color aTo, float aT) {
-    aT = clamp01(aT);
-    return {
-        (unsigned char)(aFrom.r + (int)(aTo.r - aFrom.r) * aT),
-        (unsigned char)(aFrom.g + (int)(aTo.g - aFrom.g) * aT),
-        (unsigned char)(aFrom.b + (int)(aTo.b - aFrom.b) * aT),
-        (unsigned char)(aFrom.a + (int)(aTo.a - aFrom.a) * aT)
-    };
 }
 

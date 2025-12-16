@@ -1,6 +1,7 @@
 // RLSankey.h
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -197,10 +198,6 @@ private:
     // Bezier curve helpers
     Vector2 cubicBezier(Vector2 aP0, Vector2 aP1, Vector2 aP2, Vector2 aP3, float aT) const;
 
-    // Animation helpers
-    static float clamp01(float aX) { return aX < 0.0f ? 0.0f : (aX > 1.0f ? 1.0f : aX); }
-    static float approach(float aFrom, float aTo, float aSpeedDt);
-    static Color lerpColor(Color aFrom, Color aTo, float aT);
 
     // Utility
     float getNodeX(int aColumn) const;

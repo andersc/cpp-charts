@@ -155,10 +155,10 @@ void RLPieChart::update(float aDt){
     float lColorK = mStyle.mSmoothAnimate ? (mStyle.mColorSpeed * aDt) : 1.0f;
 
     for (auto &lS : mSlices){
-        lS.mStart = approach(lS.mStart, lS.mStartTarget, lAngleK);
-        lS.mEnd = approach(lS.mEnd, lS.mEndTarget, lAngleK);
-        lS.mVis = approach(lS.mVis, lS.mVisTarget, lFadeK);
-        lS.mValue = approach(lS.mValue, lS.mTarget, lAngleK);
+        lS.mStart = RLCharts::approach(lS.mStart, lS.mStartTarget, lAngleK);
+        lS.mEnd = RLCharts::approach(lS.mEnd, lS.mEndTarget, lAngleK);
+        lS.mVis = RLCharts::approach(lS.mVis, lS.mVisTarget, lFadeK);
+        lS.mValue = RLCharts::approach(lS.mValue, lS.mTarget, lAngleK);
         lS.mColor = lerp(lS.mColor, lS.mColorTarget, RLCharts::clamp01(lColorK));
     }
 }

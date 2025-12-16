@@ -118,7 +118,7 @@ Vector2 RLScatterPlot::mapPoint(const Vector2 &rPt) const{
     float lNx = (rPt.x - mScaleMinX) / (mScaleMaxX - mScaleMinX);
     float lNy = (rPt.y - mScaleMinY) / (mScaleMaxY - mScaleMinY);
     // clamp to avoid going outside (optional)
-    lNx = clamp01(lNx); lNy = clamp01(lNy);
+    lNx = RLCharts::clamp01(lNx); lNy = RLCharts::clamp01(lNy);
     Vector2 lOut;
     lOut.x = lRect.x + lNx * lRect.width;
     // y goes top->down, so invert
@@ -230,7 +230,7 @@ void RLScatterPlot::draw() const{
                         float lV = RLCharts::minVal(lVa, lVb);
                         if (lV <= 0.001f) continue;
                         Color lC = lSS.mLineColor;
-                        lC.a = mulAlpha(lC.a, lV);
+                        lC.a = RLCharts::mulAlpha(lC.a, lV);
                         DrawLineEx(s.mCache[i], s.mCache[i+1], RLCharts::maxVal(1.0f, lSS.mLineThickness), lC);
                     }
                 }
@@ -242,7 +242,7 @@ void RLScatterPlot::draw() const{
                         float lV = RLCharts::minVal(lVa, lVb);
                         if (lV <= 0.001f) continue;
                         Color lC = lSS.mLineColor;
-                        lC.a = mulAlpha(lC.a, lV);
+                        lC.a = RLCharts::mulAlpha(lC.a, lV);
                         DrawLineEx(s.mSpline[i], s.mSpline[i+1], RLCharts::maxVal(1.0f, lSS.mLineThickness), lC);
                     }
                 }
@@ -259,7 +259,7 @@ void RLScatterPlot::draw() const{
         for (size_t i=0; i<s.mCache.size(); ++i){
             float lV = (i < s.mCacheVis.size()) ? s.mCacheVis[i] : 1.0f;
             if (lV <= 0.001f) continue;
-            Color lC = lPc; lC.a = mulAlpha(lC.a, lV);
+            Color lC = lPc; lC.a = RLCharts::mulAlpha(lC.a, lV);
             DrawCircleV(s.mCache[i], lRadius, lC);
         }
     }
@@ -320,8 +320,8 @@ void RLScatterPlot::setSingleSeriesTargetData(const std::vector<Vector2> &rData)
 
 void RLScatterPlot::update(float aDt){
     if (aDt <= 0.0f) return;
-    float lMoveT = clamp01(mStyle.mMoveSpeed * aDt);
-    float lFadeT = clamp01(mStyle.mFadeSpeed * aDt);
+    float lMoveT = RLCharts::clamp01(mStyle.mMoveSpeed * aDt);
+    float lFadeT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
     for (auto &s : mSeries){
         ensureDynInitialized(s);
         bool lAnyChange = false;

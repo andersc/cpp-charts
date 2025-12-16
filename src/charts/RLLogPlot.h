@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 #include <functional>
 #include <string>
@@ -190,10 +191,5 @@ private:
 
     Vector2 mapLogPoint(float aLogX, float aLogY, Rectangle aRect) const;
     void ensureTraceAnimation(RLLogPlotTrace& rTrace) const;
-
-    static float clamp01(float aX) { return aX < 0.0f ? 0.0f : (aX > 1.0f ? 1.0f : aX); }
-    static float approach(float a, float b, float aSpeedDt);
-    static float lerp(float a, float b, float t) { return a + (b - a) * t; }
-    static Color fadeColor(Color aC, float aAlpha);
 };
 

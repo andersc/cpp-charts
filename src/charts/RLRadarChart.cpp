@@ -181,7 +181,7 @@ void RLRadarChart::update(float aDt) {
             // Animate values
             for (size_t i = 0; i < rSeries.mValues.size(); ++i) {
                 float lOld = rSeries.mValues[i];
-                rSeries.mValues[i] = approach(rSeries.mValues[i], rSeries.mTargets[i], lValueSpeed);
+                rSeries.mValues[i] = RLCharts::approach(rSeries.mValues[i], rSeries.mTargets[i], lValueSpeed);
                 if (rSeries.mValues[i] != lOld) {
                     lChanged = true;
                 }
@@ -189,17 +189,17 @@ void RLRadarChart::update(float aDt) {
 
             // Animate visibility
             float lOldVis = rSeries.mVisibility;
-            rSeries.mVisibility = approach(rSeries.mVisibility, rSeries.mVisibilityTarget, lFadeSpeed);
+            rSeries.mVisibility = RLCharts::approach(rSeries.mVisibility, rSeries.mVisibilityTarget, lFadeSpeed);
             if (rSeries.mVisibility != lOldVis) {
                 lChanged = true;
             }
 
             // Animate colors
-            rSeries.mLineColor = lerpColor(rSeries.mLineColor, rSeries.mLineColorTarget, lValueSpeed);
-            rSeries.mFillColor = lerpColor(rSeries.mFillColor, rSeries.mFillColorTarget, lValueSpeed);
+            rSeries.mLineColor = RLCharts::lerpColor(rSeries.mLineColor, rSeries.mLineColorTarget, lValueSpeed);
+            rSeries.mFillColor = RLCharts::lerpColor(rSeries.mFillColor, rSeries.mFillColorTarget, lValueSpeed);
 
             // Animate line thickness
-            rSeries.mLineThickness = approach(rSeries.mLineThickness, rSeries.mLineThicknessTarget, lValueSpeed);
+            rSeries.mLineThickness = RLCharts::approach(rSeries.mLineThickness, rSeries.mLineThicknessTarget, lValueSpeed);
 
             if (lChanged) {
                 rSeries.mCacheDirty = true;
@@ -323,7 +323,7 @@ float RLRadarChart::normalizeValue(float aValue, size_t aAxisIndex) const {
     if (lRange < 0.0001f) return 0.5f;
 
     float lNorm = (aValue - lMin) / lRange;
-    return clamp01(lNorm);
+    return RLCharts::clamp01(lNorm);
 }
 
 Vector2 RLRadarChart::getPointOnAxis(size_t aAxisIndex, float aNormalizedValue) const {
@@ -556,25 +556,5 @@ void RLRadarChart::drawLegend() const {
 
         lY += lLineHeight;
     }
-}
-
-// ============================================================================
-// Animation Helpers
-// ============================================================================
-
-float RLRadarChart::approach(float aFrom, float aTo, float aSpeedDt) {
-    float lDiff = aTo - aFrom;
-    if (lDiff * lDiff < 1e-8f) return aTo;
-    return aFrom + lDiff * clamp01(aSpeedDt);
-}
-
-Color RLRadarChart::lerpColor(Color aFrom, Color aTo, float aT) {
-    aT = clamp01(aT);
-    return {
-        (unsigned char)(aFrom.r + (int)(aTo.r - aFrom.r) * aT),
-        (unsigned char)(aFrom.g + (int)(aTo.g - aFrom.g) * aT),
-        (unsigned char)(aFrom.b + (int)(aTo.b - aFrom.b) * aT),
-        (unsigned char)(aFrom.a + (int)(aTo.a - aFrom.a) * aT)
-    };
 }
 

@@ -90,6 +90,12 @@ inline unsigned char mulAlpha(unsigned char a, float f) {
     return (unsigned char)(lValue + 0.5f);
 }
 
+// Create a color with modified alpha (faded)
+inline Color fadeColor(Color aC, float aAlpha) {
+    aC.a = (unsigned char)(aC.a * clamp01(aAlpha));
+    return aC;
+}
+
 // Vector2 linear interpolation
 inline Vector2 lerpVector2(const Vector2& a, const Vector2& b, float t) {
     return Vector2{ lerpF(a.x, b.x, t), lerpF(a.y, b.y, t) };

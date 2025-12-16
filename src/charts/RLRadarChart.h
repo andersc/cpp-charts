@@ -1,6 +1,7 @@
 // RLRadarChart.h
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 #include <string>
 
@@ -140,10 +141,6 @@ private:
     void drawSeries(const SeriesDyn& rSeries) const;
     void drawLegend() const;
 
-    // Animation helpers
-    static float clamp01(float aX) { return aX < 0.0f ? 0.0f : (aX > 1.0f ? 1.0f : aX); }
-    static float approach(float aFrom, float aTo, float aSpeedDt);
-    static Color lerpColor(Color aFrom, Color aTo, float aT);
 
     // Member data
     Rectangle mBounds{};

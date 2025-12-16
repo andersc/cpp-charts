@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "RLCommon.h"
 #include <vector>
 
 // High-performance Scatter Plot for raylib.
@@ -123,13 +124,10 @@ private:
     [[nodiscard]] Rectangle plotRect() const;
     void ensureScale() const;
     [[nodiscard]] Vector2 mapPoint(const Vector2 &rPt) const;
-    static inline float clamp01(float aX){ return aX < 0 ? 0 : (aX > 1 ? 1 : aX); }
-    static inline unsigned char mulAlpha(unsigned char a, float f){ float v = (float)a * f; if (v < 0.0f) v = 0.0f; if (v>255.0f) v=255.0f; return (unsigned char)(v + 0.5f); }
 
     static Vector2 catmullRom(const Vector2 &rP0, const Vector2 &rP1, const Vector2 &rP2, const Vector2 &rP3, float aT);
     static float dist(const Vector2 &a, const Vector2 &b);
     void buildCaches() const;
 
     void ensureDynInitialized(const RLScatterSeries &rSeries) const;
-    static inline float approach(float a, float b, float speedDt){ float d = b - a; return a + d * (d * d < 1e-8f ? 1.0f : clamp01(speedDt)); }
 };
