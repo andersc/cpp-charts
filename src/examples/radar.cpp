@@ -342,7 +342,7 @@ int main() {
         // Draw title
         const char* lTitle = "RLRadarChart Demo - Radar/Spider Charts";
         int lTitleWidth = MeasureText(lTitle, 24);
-        DrawText(lTitle, (SCREEN_WIDTH - lTitleWidth) / 2, 18, 24, Color{200, 210, 230, 255});
+        DrawTextEx(lFont, lTitle, Vector2{(float)((SCREEN_WIDTH - lTitleWidth) / 2), 18}, 24, 1.0f, Color{200, 210, 230, 255});
 
         // Draw chart titles
         DrawTextEx(lFont, "Single Series - Character Profile",
@@ -362,8 +362,8 @@ int main() {
             "Controls:  [SPACE] Cycle profiles  |  [F] Toggle fill  |  [M] Toggle markers  |  "
             "[A] Add series  |  [R] Remove series";
         int lInstrWidth = MeasureText(lInstructions, 12);
-        DrawText(lInstructions, (SCREEN_WIDTH - lInstrWidth) / 2,
-                 SCREEN_HEIGHT - 25, 12, Color{120, 130, 150, 255});
+        DrawTextEx(lFont, lInstructions, Vector2{(float)((SCREEN_WIDTH - lInstrWidth) / 2), (float)(SCREEN_HEIGHT - 25)},
+                 12, 1.0f, Color{120, 130, 150, 255});
 
         // Draw current profile name for Chart 1
         char lProfileText[64];

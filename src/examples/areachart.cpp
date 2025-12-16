@@ -181,25 +181,25 @@ int main() {
         // Title
         const char* lTitle = "RLAreaChart - Three Visualization Modes";
         int lTitleWidth = MeasureText(lTitle, 24);
-        DrawText(lTitle, (SCREEN_WIDTH - lTitleWidth) / 2, 12, 24, Color{220, 225, 235, 255});
+        DrawTextEx(lFont, lTitle, Vector2{(float)((SCREEN_WIDTH - lTitleWidth) / 2), 12}, 24, 1.0f, Color{220, 225, 235, 255});
 
         // Mode labels
         Color lLabelColor = Color{150, 160, 180, 255};
 
         const char* lLabel1 = "OVERLAPPED (Transparent)";
         int lLabel1Width = MeasureText(lLabel1, 16);
-        DrawText(lLabel1, (int)(lBounds1.x + (lBounds1.width - (float)lLabel1Width) / 2.0f),
-                 (int)(lBounds1.y - 22.0f), 16, lLabelColor);
+        DrawTextEx(lFont, lLabel1, Vector2{lBounds1.x + (lBounds1.width - (float)lLabel1Width) / 2.0f, lBounds1.y - 22.0f},
+                 16, 1.0f, lLabelColor);
 
         const char* lLabel2 = "STACKED (Normal)";
         int lLabel2Width = MeasureText(lLabel2, 16);
-        DrawText(lLabel2, (int)(lBounds2.x + (lBounds2.width - (float)lLabel2Width) / 2.0f),
-                 (int)(lBounds2.y - 22.0f), 16, lLabelColor);
+        DrawTextEx(lFont, lLabel2, Vector2{lBounds2.x + (lBounds2.width - (float)lLabel2Width) / 2.0f, lBounds2.y - 22.0f},
+                 16, 1.0f, lLabelColor);
 
         const char* lLabel3 = "PERCENT (100% Stacked)";
         int lLabel3Width = MeasureText(lLabel3, 16);
-        DrawText(lLabel3, (int)(lBounds3.x + (lBounds3.width - (float)lLabel3Width) / 2.0f),
-                 (int)(lBounds3.y - 22.0f), 16, lLabelColor);
+        DrawTextEx(lFont, lLabel3, Vector2{lBounds3.x + (lBounds3.width - (float)lLabel3Width) / 2.0f, lBounds3.y - 22.0f},
+                 16, 1.0f, lLabelColor);
 
         // Draw charts
         lChartOverlapped.draw();
@@ -207,8 +207,8 @@ int main() {
         lChartPercent.draw();
 
         // Instructions
-        DrawText("Data transitions smoothly every 2 seconds | ESC to exit",
-                 10, SCREEN_HEIGHT - 25, 14, Color{100, 110, 130, 255});
+        DrawTextEx(lFont, "Data transitions smoothly every 2 seconds | ESC to exit",
+                 Vector2{10, (float)(SCREEN_HEIGHT - 25)}, 14, 1.0f, Color{100, 110, 130, 255});
 
         DrawFPS(SCREEN_WIDTH - 90, 10);
 

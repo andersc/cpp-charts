@@ -53,7 +53,7 @@ int main(){
         speed.draw();
         temp.draw();
 
-        DrawText("RLGauge demo", 20, screenH-40, 20, GRAY);
+        DrawTextEx(lBaseFont, "RLGauge demo", Vector2{20, (float)(screenH-40)}, 20, 1.0f, GRAY);
         DrawFPS(20, 20);
         EndDrawing();
     }

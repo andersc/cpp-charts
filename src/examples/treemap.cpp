@@ -376,8 +376,8 @@ int main() {
         ClearBackground(Color{10, 12, 18, 255});
 
         // Title
-        DrawText("TreeMap Visualization", 50, 20, 30, Color{220, 220, 230, 255});
-        DrawText("D3-Style Squarified Layout", 50, 55, 18, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "TreeMap Visualization", Vector2{50, 20}, 30, 1.0f, Color{220, 220, 230, 255});
+        DrawTextEx(lBaseFont, "D3-Style Squarified Layout", Vector2{50, 55}, 18, 1.0f, Color{140, 140, 150, 255});
 
         // Draw treemap
         lTreeMap.draw();
@@ -390,24 +390,24 @@ int main() {
         int lInfoX = (int)lInfoBounds.x + 20;
         int lLineH = 26;
 
-        DrawText("TREEMAP INFO", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lBaseFont, "TREEMAP INFO", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         char lBuf[128];
         snprintf(lBuf, sizeof(lBuf), "Dataset: %s", lDatasetNames[lCurrentDataset]);
-        DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH;
 
         snprintf(lBuf, sizeof(lBuf), "Layout: %s", lLayoutNames[lLayoutIndex]);
-        DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH;
 
         snprintf(lBuf, sizeof(lBuf), "Node Count: %zu", lTreeMap.getNodeCount());
-        DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
         lInfoY += lLineH + 15;
 
         // Hovered node info
-        DrawText("HOVERED NODE", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lBaseFont, "HOVERED NODE", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         if (lHoveredNode >= 0) {
@@ -416,73 +416,73 @@ int main() {
                 const RLTreeRect& lHovered = lRects[(size_t)lHoveredNode];
 
                 snprintf(lBuf, sizeof(lBuf), "Label: %s", lHovered.mLabel.c_str());
-                DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+                DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
                 lInfoY += lLineH;
 
                 snprintf(lBuf, sizeof(lBuf), "Value: %.1f", (double)lHovered.mValue);
-                DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+                DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
                 lInfoY += lLineH;
 
                 snprintf(lBuf, sizeof(lBuf), "Depth: %d", lHovered.mDepth);
-                DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+                DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
                 lInfoY += lLineH;
 
                 snprintf(lBuf, sizeof(lBuf), "Type: %s", lHovered.mIsLeaf ? "Leaf" : "Internal");
-                DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+                DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
                 lInfoY += lLineH;
 
                 snprintf(lBuf, sizeof(lBuf), "Size: %.0f x %.0f", (double)lHovered.mRect.width, (double)lHovered.mRect.height);
-                DrawText(lBuf, lInfoX, lInfoY, 16, Color{180, 180, 190, 255});
+                DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, Color{180, 180, 190, 255});
                 lInfoY += lLineH;
             }
         } else {
-            DrawText("(hover over a node)", lInfoX, lInfoY, 14, Color{120, 120, 130, 255});
+            DrawTextEx(lBaseFont, "(hover over a node)", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{120, 120, 130, 255});
             lInfoY += lLineH;
         }
 
         lInfoY += 20;
 
         // Controls
-        DrawText("CONTROLS", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lBaseFont, "CONTROLS", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
-        DrawText("[1/2/3]  Switch dataset", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[1/2/3]  Switch dataset", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[L]      Cycle layout algorithm", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[L]      Cycle layout algorithm", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[I]      Toggle internal nodes", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[I]      Toggle internal nodes", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[T]      Toggle leaf labels", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[T]      Toggle leaf labels", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[A]      Toggle value animation", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[A]      Toggle value animation", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 22;
-        DrawText("[Mouse]  Hover to highlight", lInfoX, lInfoY, 14, Color{140, 140, 150, 255});
+        DrawTextEx(lBaseFont, "[Mouse]  Hover to highlight", Vector2{(float)lInfoX, (float)lInfoY}, 14, 1.0f, Color{140, 140, 150, 255});
         lInfoY += 30;
 
         // Status
-        DrawText("STATUS", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lBaseFont, "STATUS", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         const char* lInternalStatus = lShowInternalNodes ? "Visible" : "Hidden";
         Color lInternalColor = lShowInternalNodes ? Color{80, 220, 120, 255} : Color{180, 180, 190, 255};
         snprintf(lBuf, sizeof(lBuf), "Internal Nodes: %s", lInternalStatus);
-        DrawText(lBuf, lInfoX, lInfoY, 16, lInternalColor);
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, lInternalColor);
         lInfoY += lLineH;
 
         const char* lLabelStatus = lShowLabels ? "Visible" : "Hidden";
         Color lLabelColor = lShowLabels ? Color{80, 220, 120, 255} : Color{180, 180, 190, 255};
         snprintf(lBuf, sizeof(lBuf), "Leaf Labels: %s", lLabelStatus);
-        DrawText(lBuf, lInfoX, lInfoY, 16, lLabelColor);
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, lLabelColor);
         lInfoY += lLineH;
 
         const char* lAnimStatus = lAnimateValues ? "ACTIVE" : "Off";
         Color lAnimColor = lAnimateValues ? Color{255, 180, 80, 255} : Color{180, 180, 190, 255};
         snprintf(lBuf, sizeof(lBuf), "Value Animation: %s", lAnimStatus);
-        DrawText(lBuf, lInfoX, lInfoY, 16, lAnimColor);
-        lInfoY += lLineH + 30;
+        DrawTextEx(lBaseFont, lBuf, Vector2{(float)lInfoX, (float)lInfoY}, 16, 1.0f, lAnimColor);
+        lInfoY += lLineH + 5;
 
         // Algorithm info
-        DrawText("LAYOUT ALGORITHM", lInfoX, lInfoY, 20, Color{200, 200, 210, 255});
+        DrawTextEx(lBaseFont, "LAYOUT ALGORITHM", Vector2{(float)lInfoX, (float)lInfoY}, 20, 1.0f, Color{200, 200, 210, 255});
         lInfoY += lLineH + 10;
 
         const char* lAlgoDesc[] = {
@@ -492,7 +492,7 @@ int main() {
             "Slice-Dice: Alternates\nby tree depth"
         };
 
-        DrawText(lAlgoDesc[lLayoutIndex], lInfoX, lInfoY, 13, Color{130, 130, 140, 255});
+        DrawTextEx(lBaseFont, lAlgoDesc[lLayoutIndex], Vector2{(float)lInfoX, (float)lInfoY}, 13, 1.0f, Color{130, 130, 140, 255});
 
         // FPS
         DrawFPS(SCREEN_WIDTH - 100, 10);

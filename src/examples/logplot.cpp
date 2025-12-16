@@ -143,14 +143,14 @@ struct DemoState {
     bool showStats{ true };
 };
 
-static void drawUI(const DemoState& rState, const RLLogPlot& rPlot, size_t aSampleCount) {
+static void drawUI(const DemoState& rState, const RLLogPlot& rPlot, size_t aSampleCount, Font aFont) {
     int lY = 10;
     int lFontSize = 16;
-    Color lTextColor = Color{200, 210, 220, 255};
-    Color lHighlight = Color{100, 200, 255, 255};
+    auto lTextColor = Color{200, 210, 220, 255};
+    auto lHighlight = Color{100, 200, 255, 255};
 
     // Title
-    DrawText("Real-Time Allan Variance Analysis", 10, lY, 24, lHighlight);
+    DrawTextEx(aFont, "Real-Time Allan Variance Analysis", Vector2{10, (float)lY}, 24, 1.0f, lHighlight);
     lY += 35;
 
     // Stats
@@ -159,39 +159,39 @@ static void drawUI(const DemoState& rState, const RLLogPlot& rPlot, size_t aSamp
 
         snprintf(lBuf, sizeof(lBuf), "Samples: %zu / %d",
                 aSampleCount, rState.windowSize);
-        DrawText(lBuf, 10, lY, lFontSize, lTextColor);
+        DrawTextEx(aFont, lBuf, Vector2{10, (float)lY}, (float)lFontSize, 1.0f, lTextColor);
         lY += 22;
 
         snprintf(lBuf, sizeof(lBuf), "Noise Level: %.3f", rState.noiseLevel);
-        DrawText(lBuf, 10, lY, lFontSize, lTextColor);
+        DrawTextEx(aFont, lBuf, Vector2{10, (float)lY}, (float)lFontSize, 1.0f, lTextColor);
         lY += 22;
 
         snprintf(lBuf, sizeof(lBuf), "Drift Rate: %.4f", rState.driftRate);
-        DrawText(lBuf, 10, lY, lFontSize, lTextColor);
+        DrawTextEx(aFont, lBuf, Vector2{10, (float)lY}, (float)lFontSize, 1.0f, lTextColor);
         lY += 22;
 
         snprintf(lBuf, sizeof(lBuf), "Traces: %zu active", rPlot.getTraceCount());
-        DrawText(lBuf, 10, lY, lFontSize, lTextColor);
+        DrawTextEx(aFont, lBuf, Vector2{10, (float)lY}, (float)lFontSize, 1.0f, lTextColor);
         lY += 22;
     }
 
     // Controls
     lY += 10;
-    DrawText("Controls:", 10, lY, lFontSize, lHighlight);
+    DrawTextEx(aFont, "Controls:", Vector2{10, (float)lY}, (float)lFontSize, 1.0f, lHighlight);
     lY += 22;
-    DrawText("[SPACE]  Pause/Resume", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[SPACE]  Pause/Resume", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[C]      Toggle Confidence", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[C]      Toggle Confidence", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[S]      Toggle Stats", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[S]      Toggle Stats", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[R]      Reset Data", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[R]      Reset Data", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[UP/DN]  Noise Level", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[UP/DN]  Noise Level", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[L/R]    Window Size", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[L/R]    Window Size", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
     lY += 20;
-    DrawText("[1-3]    Toggle Traces", 10, lY, lFontSize - 2, lTextColor);
+    DrawTextEx(aFont, "[1-3]    Toggle Traces", Vector2{10, (float)lY}, (float)(lFontSize - 2), 1.0f, lTextColor);
 }
 
 // ============================================================================
@@ -402,7 +402,7 @@ int main() {
         lPlot.draw();
 
         // Draw UI overlay
-        drawUI(lState, lPlot, lSampleBuffer.size());
+        drawUI(lState, lPlot, lSampleBuffer.size(), lBaseFont);
 
         // Visual pulse indicator when active
         if (lState.autoUpdate) {
@@ -414,9 +414,9 @@ int main() {
                 (unsigned char)(100 + 155 * lPulse)
             };
             DrawCircle(280, 70, 8.0f + 4.0f * lPulse, lPulseColor);
-            DrawText("LIVE", 230, 62, 16, lPulseColor);
+            DrawTextEx(lBaseFont, "LIVE", Vector2{230, 62}, 16, 1.0f, lPulseColor);
         } else {
-            DrawText("PAUSED", 205, 62, 16, Color{150, 150, 150, 200});
+            DrawTextEx(lBaseFont, "PAUSED", Vector2{205, 62}, 16, 1.0f, Color{150, 150, 150, 200});
             DrawCircle(280, 70, 8.0f, Color{150, 150, 150, 200});
         }
 
@@ -425,11 +425,11 @@ int main() {
         Color lFPSColor = lFPS >= 60 ? Color{100, 255, 100, 200} : Color{255, 200, 100, 200};
         char lFPSBuf[32];
         snprintf(lFPSBuf, sizeof(lFPSBuf), "FPS: %d", lFPS);
-        DrawText(lFPSBuf, lScreenW - 100, 10, 16, lFPSColor);
+        DrawTextEx(lBaseFont, lFPSBuf, Vector2{(float)(lScreenW - 100), 10}, 16, 1.0f, lFPSColor);
 
         // Trace legend
         int lLegendY = lScreenH - 120;
-        DrawText("Active Traces:", 10, lLegendY, 14, Color{180, 190, 200, 255});
+        DrawTextEx(lBaseFont, "Active Traces:", Vector2{10, (float)lLegendY}, 14, 1.0f, Color{180, 190, 200, 255});
         lLegendY += 20;
         for (size_t i = 0; i < lState.traceConfigs.size(); ++i) {
             const auto& lConfig = lState.traceConfigs[i];
@@ -440,7 +440,7 @@ int main() {
             char lLabel[64];
             snprintf(lLabel, sizeof(lLabel), "[%d] Trace %zu (tau min=%d, conf=%.1f)",
                     (int)(i + 1), i + 1, lConfig.minTau, lConfig.confidenceScale);
-            DrawText(lLabel, 35, lLegendY, 12, lColor);
+            DrawTextEx(lBaseFont, lLabel, Vector2{35, (float)lLegendY}, 12, 1.0f, lColor);
             lLegendY += 18;
         }
 

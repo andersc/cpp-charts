@@ -129,11 +129,11 @@ int main(){
         lVerticalCompact.draw();
         lHorizontalFixed.draw();
 
-        DrawText("Vertical (labels, borders, autoscale) random 5 to 15 bars", (int)lTopLeft.x, (int)(lTopLeft.y-26), 20, GRAY);
-        DrawText("Horizontal (no labels, clean)", (int)lTopRight.x, (int)(lTopRight.y-26), 20, GRAY);
-        DrawText("Vertical compact", (int)lBottomLeft.x, (int)(lBottomLeft.y-26), 20, GRAY);
-        DrawText("Horizontal fixed scale 0..150 (borders)", (int)lBottomRight.x, (int)(lBottomRight.y-26), 20, GRAY);
-        DrawText("Space: pause/resume  |  R: randomize now", 40, lScreenH-36, 20, DARKGRAY);
+        DrawTextEx(lBaseFont, "Vertical (labels, borders, autoscale) random 5 to 15 bars", Vector2{(float)lTopLeft.x, (float)(lTopLeft.y-26)}, 20, 1.0f, GRAY);
+        DrawTextEx(lBaseFont, "Horizontal (no labels, clean)", Vector2{(float)lTopRight.x, (float)(lTopRight.y-26)}, 20, 1.0f, GRAY);
+        DrawTextEx(lBaseFont, "Vertical compact", Vector2{(float)lBottomLeft.x, (float)(lBottomLeft.y-26)}, 20, 1.0f, GRAY);
+        DrawTextEx(lBaseFont, "Horizontal fixed scale 0..150 (borders)", Vector2{(float)lBottomRight.x, (float)(lBottomRight.y-26)}, 20, 1.0f, GRAY);
+        DrawTextEx(lBaseFont, "Space: pause/resume  |  R: randomize now", Vector2{40, (float)(lScreenH-36)}, 20, 1.0f, DARKGRAY);
         DrawFPS(16,16);
         EndDrawing();
 
