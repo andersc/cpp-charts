@@ -47,11 +47,11 @@ void RLAreaChart::calculateMaxValue() {
                     lSum += rS.mValues[i];
                 }
             }
-            if (lSum > lMax) lMax = lSum;
+            lMax = std::max(lSum, lMax);
         } else {
             for (const auto& rS : mSeriesData) {
-                if (i < rS.mValues.size() && rS.mValues[i] > lMax) {
-                    lMax = rS.mValues[i];
+                if (i < rS.mValues.size()) {
+                    lMax = std::max(rS.mValues[i], lMax);
                 }
             }
         }
@@ -99,11 +99,8 @@ void RLAreaChart::setTargetData(const std::vector<RLAreaSeries>& rSeries) {
     for (size_t i = 0; i < rSeries.size(); ++i) {
         SeriesDyn& rS = mSeries[i];
 
-        // If this series doesn't have current values yet, initialize from 0
-        if (rS.mValues.empty()) {
-            rS.mValues.resize(rSeries[i].mValues.size(), 0.0f);
-        } else if (rS.mValues.size() != rSeries[i].mValues.size()) {
-            // Resize if needed, fill new values with 0
+        // Resize if needed (empty or size mismatch), fill new values with 0
+        if (rS.mValues.size() != rSeries[i].mValues.size()) {
             rS.mValues.resize(rSeries[i].mValues.size(), 0.0f);
         }
 
@@ -186,7 +183,9 @@ void RLAreaChart::draw() const {
 }
 
 void RLAreaChart::drawArea(size_t aSeriesIndex) const {
-    if (mSeries.empty() || mSeries[aSeriesIndex].mValues.empty() || mMaxValue <= 0.0f) return;
+    if (mSeries.empty() || mSeries[aSeriesIndex].mValues.empty() || mMaxValue <= 0.0f) {
+        return;
+    }
 
     const SeriesDyn& rS = mSeries[aSeriesIndex];
     float lChartWidth = mBounds.width - mStyle.mPadding * 2.0f;
@@ -194,7 +193,9 @@ void RLAreaChart::drawArea(size_t aSeriesIndex) const {
     float lBaseY = mBounds.y + mBounds.height - mStyle.mPadding;
 
     size_t lNumPoints = rS.mValues.size();
-    if (lNumPoints < 2) return;
+    if (lNumPoints < 2) {
+        return;
+    }
 
     float lPointSpacing = lChartWidth / (float)(lNumPoints - 1);
 

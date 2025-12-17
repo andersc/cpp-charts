@@ -1,11 +1,10 @@
 // RLTreeMap.cpp
 #include "RLTreeMap.h"
 #include <algorithm>
-#include <cmath>
-#include <limits>
+#include <utility>
 
 // Default color palette for depth-based coloring
-static const Color DEFAULT_DEPTH_PALETTE[] = {
+static constexpr Color DEFAULT_DEPTH_PALETTE[] = {
     Color{60, 70, 90, 255},         // Level 0 (root background)
     Color{0, 150, 199, 255},        // Level 1
     Color{80, 200, 120, 255},       // Level 2
@@ -15,11 +14,11 @@ static const Color DEFAULT_DEPTH_PALETTE[] = {
     Color{255, 200, 60, 255},       // Level 6
     Color{80, 200, 200, 255}        // Level 7+
 };
-static const int DEFAULT_PALETTE_SIZE = 8;
+static constexpr int DEFAULT_PALETTE_SIZE = 8;
 
-RLTreeMap::RLTreeMap(Rectangle aBounds, const RLTreeMapStyle& rStyle)
+RLTreeMap::RLTreeMap(Rectangle aBounds, RLTreeMapStyle  aStyle)
     : mBounds(aBounds)
-    , mStyle(rStyle)
+    , mStyle(std::move(aStyle))
 {
     ensureDefaultPalette();
 }
@@ -45,10 +44,10 @@ void RLTreeMap::setData(const RLTreeNode& rRoot) {
     computeLayout();
 
     // Set current state to target (no animation)
-    for (size_t i = 0; i < mRects.size(); ++i) {
-        mRects[i].mRect = mRects[i].mTargetRect;
-        mRects[i].mColor = mRects[i].mTargetColor;
-        mRects[i].mAlpha = mRects[i].mTargetAlpha;
+    for (auto& rRect : mRects) {
+        rRect.mRect = rRect.mTargetRect;
+        rRect.mColor = rRect.mTargetColor;
+        rRect.mAlpha = rRect.mTargetAlpha;
     }
 }
 
@@ -60,14 +59,14 @@ void RLTreeMap::setTargetData(const RLTreeNode& rRoot) {
     computeLayout();
 
     // Match old rects by label for smooth transitions
-    for (size_t i = 0; i < mRects.size(); ++i) {
+    for (auto& rRect : mRects) {
         // Try to find matching node in old data
         for (const auto& rOld : lOldRects) {
-            if (rOld.mLabel == mRects[i].mLabel && rOld.mDepth == mRects[i].mDepth) {
+            if (rOld.mLabel == rRect.mLabel && rOld.mDepth == rRect.mDepth) {
                 // Start from old position
-                mRects[i].mRect = rOld.mRect;
-                mRects[i].mColor = rOld.mColor;
-                mRects[i].mAlpha = rOld.mAlpha;
+                rRect.mRect = rOld.mRect;
+                rRect.mColor = rOld.mColor;
+                rRect.mAlpha = rOld.mAlpha;
                 break;
             }
         }
@@ -99,8 +98,8 @@ void RLTreeMap::recomputeLayout() {
 void RLTreeMap::ensureDefaultPalette() {
     if (mStyle.mDepthPalette.empty()) {
         mStyle.mDepthPalette.reserve(DEFAULT_PALETTE_SIZE);
-        for (int i = 0; i < DEFAULT_PALETTE_SIZE; ++i) {
-            mStyle.mDepthPalette.push_back(DEFAULT_DEPTH_PALETTE[i]);
+        for (const auto& rColor : DEFAULT_DEPTH_PALETTE) {
+            mStyle.mDepthPalette.push_back(rColor);
         }
     }
 }
@@ -261,7 +260,7 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
     size_t lIdx = 0;
 
     while (lIdx < rChildIndices.size()) {
-        // Determine layout direction based on remaining area
+        // Determine a layout direction based on the remaining area
         bool lVertical = lRemaining.width >= lRemaining.height;
         float lSide = lVertical ? lRemaining.height : lRemaining.width;
 
@@ -273,7 +272,7 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
             lRemainingValue += mRects[rChildIndices[i]].mValue;
         }
 
-        // Try adding nodes to current row
+        // Try adding nodes to the current row
         lRow.clear();
         lRowValue = 0.0f;
         float lBestAspect = std::numeric_limits<float>::max();
@@ -287,8 +286,8 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
             // Calculate worst aspect ratio if we add this node
             float lWorstAspect = 0.0f;
 
-            for (size_t i = 0; i < lRow.size(); ++i) {
-                float lFrac = mRects[lRow[i]].mValue / lTestRowValue;
+            for (size_t lRowItem : lRow) {
+                float lFrac = mRects[lRowItem].mValue / lTestRowValue;
                 float lNodeSize = lSide * lFrac;
                 float lAspect = (lRowSize > lNodeSize) ? (lRowSize / lNodeSize) : (lNodeSize / lRowSize);
                 if (lAspect > lWorstAspect) lWorstAspect = lAspect;
@@ -351,9 +350,6 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
                 lRemaining.y += lRowSize;
                 lRemaining.height -= lRowSize;
             }
-
-            // Recalculate remaining value
-            lRemainingValue -= lRowValue;
         }
     }
 }
@@ -493,12 +489,8 @@ void RLTreeMap::draw() const {
         }
 
         // Label
-        bool lShowLabel = false;
-        if (rRect.mIsLeaf && mStyle.mShowLeafLabels) {
-            lShowLabel = true;
-        } else if (!rRect.mIsLeaf && mStyle.mShowInternalLabels) {
-            lShowLabel = true;
-        }
+        bool lShowLabel = (rRect.mIsLeaf && mStyle.mShowLeafLabels) ||
+                          (!rRect.mIsLeaf && mStyle.mShowInternalLabels);
 
         if (lShowLabel && !rRect.mLabel.empty()) {
             int lFontSize = mStyle.mLabelFontSize;
@@ -558,24 +550,24 @@ void RLTreeMap::setHighlightedNode(int aIndex) {
     mHighlightedIndex = aIndex;
 }
 
-float RLTreeMap::approach(float a, float b, float aSpeedDt) const {
+float RLTreeMap::approach(float a, float b, float aSpeedDt) {
     float lDiff = b - a;
     if (lDiff * lDiff < 1e-8f) return b;
     return a + lDiff * (aSpeedDt > 1.0f ? 1.0f : aSpeedDt);
 }
 
-Color RLTreeMap::lerpColor(const Color& a, const Color& b, float t) const {
+Color RLTreeMap::lerpColor(const Color& a, const Color& b, float t) {
     if (t >= 1.0f) return b;
     if (t <= 0.0f) return a;
     Color lResult;
-    lResult.r = (unsigned char)(a.r + (int)((b.r - a.r) * t));
-    lResult.g = (unsigned char)(a.g + (int)((b.g - a.g) * t));
-    lResult.b = (unsigned char)(a.b + (int)((b.b - a.b) * t));
-    lResult.a = (unsigned char)(a.a + (int)((b.a - a.a) * t));
+    lResult.r = (unsigned char)((float)a.r + ((float)b.r - (float)a.r) * t);
+    lResult.g = (unsigned char)((float)a.g + ((float)b.g - (float)a.g) * t);
+    lResult.b = (unsigned char)((float)a.b + ((float)b.b - (float)a.b) * t);
+    lResult.a = (unsigned char)((float)a.a + ((float)b.a - (float)a.a) * t);
     return lResult;
 }
 
-Rectangle RLTreeMap::lerpRect(const Rectangle& a, const Rectangle& b, float t) const {
+Rectangle RLTreeMap::lerpRect(const Rectangle& a, const Rectangle& b, float t) {
     if (t >= 1.0f) return b;
     if (t <= 0.0f) return a;
     Rectangle lResult;

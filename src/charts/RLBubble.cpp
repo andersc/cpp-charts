@@ -16,7 +16,7 @@ void RLBubble::SpatialGrid::setup(Rectangle aBounds, float aMaxDiameter) {
     mCols = (int)(aBounds.width / mCellSize) + 2;
     mRows = (int)(aBounds.height / mCellSize) + 2;
 
-    size_t lTotal = (size_t)(mCols * mRows);
+    auto lTotal = (mCols * mRows);
     if (mCells.size() < lTotal) mCells.resize(lTotal);
 
     // Fast clear

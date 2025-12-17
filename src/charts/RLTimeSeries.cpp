@@ -52,7 +52,7 @@ void RLTimeSeries::setWindowSize(size_t aWindowSize) {
             }
 
             lTrace.mSamples = std::move(lNewBuffer);
-            lTrace.mHead = lCopyCount % mWindowSize;
+            lTrace.mHead = mWindowSize > 0 ? lCopyCount % mWindowSize : 0;
             lTrace.mCount = lCopyCount;
             lTrace.mDirty = true;
         }

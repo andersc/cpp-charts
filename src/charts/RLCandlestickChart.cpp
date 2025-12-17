@@ -13,32 +13,34 @@ RLCandlestickChart::RLCandlestickChart(Rectangle aBounds, int aValuesPerCandle, 
     mScaleTargetMax = mScaleMax;
 }
 
-void RLCandlestickChart::setBounds(Rectangle aBounds){ mBounds = aBounds; }
-void RLCandlestickChart::setValuesPerCandle(int aValuesPerCandle){ mValuesPerCandle = (aValuesPerCandle<=0)?1:aValuesPerCandle; }
-void RLCandlestickChart::setVisibleCandles(int aVisibleCandles){ mVisibleCandles = (aVisibleCandles<=1)?1:aVisibleCandles; ensureWindow(); }
-void RLCandlestickChart::setStyle(const RLCandleStyle &rStyle){ mStyle = rStyle; }
-void RLCandlestickChart::setExplicitScale(float aMinPrice, float aMaxPrice){
+void RLCandlestickChart::setBounds(Rectangle aBounds) { mBounds = aBounds; }
+void RLCandlestickChart::setValuesPerCandle(int aValuesPerCandle) { mValuesPerCandle = (aValuesPerCandle <= 0) ? 1 : aValuesPerCandle; }
+void RLCandlestickChart::setVisibleCandles(int aVisibleCandles) { mVisibleCandles = (aVisibleCandles <= 1) ? 1 : aVisibleCandles; ensureWindow(); }
+void RLCandlestickChart::setStyle(const RLCandleStyle &rStyle) { mStyle = rStyle; }
+void RLCandlestickChart::setExplicitScale(float aMinPrice, float aMaxPrice) {
     mStyle.mAutoScale = false;
     mScaleMin = aMinPrice;
     mScaleMax = aMaxPrice > aMinPrice ? aMaxPrice : (aMinPrice + 1.0f);
     mScaleTargetMax = mScaleMax;
 }
 
-std::string RLCandlestickChart::dayKeyFromDate(const std::string &aDate){
+std::string RLCandlestickChart::dayKeyFromDate(const std::string &aDate) {
     // Expect formats like YYYY-MM-DD HH:MM:SS or YYYY-MM-DD
     size_t lPos = aDate.find(' ');
-    if (lPos == std::string::npos) return aDate;
+    if (lPos == std::string::npos) {
+        return aDate;
+    }
     return aDate.substr(0, lPos);
 }
 
-void RLCandlestickChart::addSample(const CandleInput &rSample){
+void RLCandlestickChart::addSample(const CandleInput &rSample) {
     std::string lIncomingDay = dayKeyFromDate(rSample.aDate);
-    if (mHasWorking && lIncomingDay != mWorking.mDayKey){
+    if (mHasWorking && lIncomingDay != mWorking.mDayKey) {
         // Day changed: finalize current candle early to align separator exactly at boundary
         finalizeWorkingCandle();
     }
 
-    if (!mHasWorking){
+    if (!mHasWorking) {
         // Starting a new candle
         // For single-value candles (mValuesPerCandle==1), use the last close as open
         if (mValuesPerCandle == 1 && mHasLastClose) {
@@ -57,24 +59,28 @@ void RLCandlestickChart::addSample(const CandleInput &rSample){
         mHasWorking = true;
     } else {
         // aggregate
-        if (rSample.aHigh > mWorking.mHigh) mWorking.mHigh = rSample.aHigh;
-        if (rSample.aLow < mWorking.mLow) mWorking.mLow = rSample.aLow;
+        if (rSample.aHigh > mWorking.mHigh) {
+            mWorking.mHigh = rSample.aHigh;
+        }
+        if (rSample.aLow < mWorking.mLow) {
+            mWorking.mLow = rSample.aLow;
+        }
         mWorking.mClose = rSample.aClose;
         mWorking.mVolume += rSample.aVolume;
         mWorking.mDate = rSample.aDate; // keep last timestamp
         mWorkingCount += 1;
     }
 
-    if (mWorkingCount >= mValuesPerCandle){
+    if (mWorkingCount >= mValuesPerCandle) {
         finalizeWorkingCandle();
     }
 }
 
-void RLCandlestickChart::finalizeWorkingCandle(){
+void RLCandlestickChart::finalizeWorkingCandle() {
     // Determine if day changed compared to last finalized candle
     bool lNewDay = false;
     std::string lKey = mWorking.mDayKey;
-    if (mCandles.empty()){
+    if (mCandles.empty()) {
         lNewDay = true;
     } else {
         const CandleDyn &lLast = mCandles.back();
@@ -100,12 +106,12 @@ void RLCandlestickChart::finalizeWorkingCandle(){
     ensureWindow();
 }
 
-void RLCandlestickChart::ensureWindow(){
+void RLCandlestickChart::ensureWindow() {
     // Keep at most mVisibleCandles in deque.
-    while ((int)mCandles.size() > mVisibleCandles){
+    while ((int)mCandles.size() > mVisibleCandles) {
         // If sliding, pop when slide finishes in update.
         // If not sliding (e.g., init), just drop oldest.
-        if (!mIsSliding){
+        if (!mIsSliding) {
             mCandles.pop_front();
         } else {
             break;
@@ -113,71 +119,87 @@ void RLCandlestickChart::ensureWindow(){
     }
 }
 
-Rectangle RLCandlestickChart::priceArea() const{
+Rectangle RLCandlestickChart::priceArea() const {
     float lPad = mStyle.mPadding;
     float lVolumeH = mBounds.height * mStyle.mVolumeAreaRatio;
-    Rectangle lR{ mBounds.x + lPad, mBounds.y + lPad, mBounds.width - 2.0f*lPad, mBounds.height - 2.0f*lPad - lVolumeH };
+    Rectangle lR{ mBounds.x + lPad, mBounds.y + lPad, mBounds.width - 2.0f * lPad, mBounds.height - 2.0f * lPad - lVolumeH };
     return lR;
 }
 
-Rectangle RLCandlestickChart::volumeArea() const{
+Rectangle RLCandlestickChart::volumeArea() const {
     float lPad = mStyle.mPadding;
     float lVolumeH = mBounds.height * mStyle.mVolumeAreaRatio;
-    Rectangle lR{ mBounds.x + lPad, mBounds.y + mBounds.height - lPad - lVolumeH, mBounds.width - 2.0f*lPad, lVolumeH };
+    Rectangle lR{ mBounds.x + lPad, mBounds.y + mBounds.height - lPad - lVolumeH, mBounds.width - 2.0f * lPad, lVolumeH };
     return lR;
 }
 
-float RLCandlestickChart::extractPriceMax() const{
+float RLCandlestickChart::extractPriceMax() const {
     float lMax = mStyle.mAutoScale ? 0.0f : mStyle.lMaxPrice;
-    for (const auto & lC : mCandles){
-        float lVal = mStyle.mIncludeWicksInScale ? lC.mHigh : (lC.mOpen>lC.mClose?lC.mOpen:lC.mClose);
-        if (lVal > lMax) lMax = lVal;
+    for (const auto &lC : mCandles) {
+        float lVal = mStyle.mIncludeWicksInScale ? lC.mHigh : (lC.mOpen > lC.mClose ? lC.mOpen : lC.mClose);
+        if (lVal > lMax) {
+            lMax = lVal;
+        }
     }
-    if (mHasWorking){
-        float lVal = mStyle.mIncludeWicksInScale ? mWorking.mHigh : (mWorking.mOpen>mWorking.mClose?mWorking.mOpen:mWorking.mClose);
-        if (lVal > lMax) lMax = lVal;
+    if (mHasWorking) {
+        float lVal = mStyle.mIncludeWicksInScale ? mWorking.mHigh : (mWorking.mOpen > mWorking.mClose ? mWorking.mOpen : mWorking.mClose);
+        if (lVal > lMax) {
+            lMax = lVal;
+        }
     }
-    if (lMax <= 0.0f) lMax = 1.0f;
+    if (lMax <= 0.0f) {
+        lMax = 1.0f;
+    }
     return lMax;
 }
 
-void RLCandlestickChart::update(float aDt){
+void RLCandlestickChart::update(float aDt) {
     // Update scaling
-    if (mStyle.mAutoScale){
+    if (mStyle.mAutoScale) {
         float lTarget = extractPriceMax();
         mScaleTargetMax = lTarget;
         const float lT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
         mScaleMax = RLCharts::lerpF(mScaleMax, mScaleTargetMax, lT);
         // Compute min as min visible low for better framing
         float lMin = 1e30f;
-        for (auto & mCandle : mCandles) {
-            if (mCandle.mLow < lMin) lMin = mCandle.mLow;
+        for (const auto &lCandle : mCandles) {
+            if (lCandle.mLow < lMin) {
+                lMin = lCandle.mLow;
+            }
         }
-        if (mHasWorking && mWorking.mLow < lMin) lMin = mWorking.mLow;
-        if (lMin == 1e30f) lMin = 0.0f;
+        if (mHasWorking && mWorking.mLow < lMin) {
+            lMin = mWorking.mLow;
+        }
+        if (lMin == 1e30f) {
+            lMin = 0.0f;
+        }
         mScaleMin = lMin;
-        if (mScaleMax <= mScaleMin) mScaleMax = mScaleMin + 1.0f;
+        if (mScaleMax <= mScaleMin) {
+            mScaleMax = mScaleMin + 1.0f;
+        }
     }
 
     // Update slide progress
-    if (mIsSliding){
+    if (mIsSliding) {
         float lStep = mStyle.mSlideSpeed * aDt; // measured in widths
         mSlideProgress += lStep;
-        if (mSlideProgress >= 1.0f){
+        if (mSlideProgress >= 1.0f) {
             mSlideProgress = 1.0f;
             mIsSliding = false;
             // Append the incoming candle now that slide finished
-            if (mHasIncoming){
+            if (mHasIncoming) {
                 mCandles.push_back(mIncoming);
                 mHasIncoming = false;
             }
             // Remove oldest if window exceeded
-            while ((int)mCandles.size() > mVisibleCandles) mCandles.pop_front();
+            while ((int)mCandles.size() > mVisibleCandles) {
+                mCandles.pop_front();
+            }
         }
     }
 }
 
-void RLCandlestickChart::draw() const{
+void RLCandlestickChart::draw() const {
     // Background
     DrawRectangleRec(mBounds, mStyle.mBackground);
 
@@ -185,8 +207,8 @@ void RLCandlestickChart::draw() const{
     Rectangle lVolR = volumeArea();
 
     // Grid (horizontal)
-    if (mStyle.mGridLines > 0){
-        for (int i=0;i<=mStyle.mGridLines;++i){
+    if (mStyle.mGridLines > 0) {
+        for (int i = 0; i <= mStyle.mGridLines; ++i) {
             float lY = lPriceR.y + (lPriceR.height * (float)i / (float)(mStyle.mGridLines));
             DrawLine((int)lPriceR.x, (int)lY, (int)(lPriceR.x + lPriceR.width), (int)lY, mStyle.mGridColor);
         }
@@ -194,14 +216,18 @@ void RLCandlestickChart::draw() const{
 
     int lVisible = mVisibleCandles;
     float lSpacing = mStyle.mCandleSpacing;
-    float lBodyWidth = (lPriceR.width - lSpacing * (lVisible - 1)) / (float)lVisible;
-    if (lBodyWidth < mStyle.mBodyMinWidth) lBodyWidth = mStyle.mBodyMinWidth;
+    float lBodyWidth = (lPriceR.width - lSpacing * (float)(lVisible - 1)) / (float)lVisible;
+    if (lBodyWidth < mStyle.mBodyMinWidth) {
+        lBodyWidth = mStyle.mBodyMinWidth;
+    }
     float lUnit = (lBodyWidth + lSpacing);
 
     // Helpers
     float lPriceRange = (mScaleMax - mScaleMin);
-    if (lPriceRange <= 0.0001f) lPriceRange = 1.0f;
-    auto priceToY = [&](float aPrice){
+    if (lPriceRange <= 0.0001f) {
+        lPriceRange = 1.0f;
+    }
+    auto priceToY = [&](float aPrice) {
         float lNorm = (aPrice - mScaleMin) / lPriceRange; // 0 bottom .. 1 top
         lNorm = 1.0f - RLCharts::clamp01(lNorm);
         return lPriceR.y + lNorm * lPriceR.height;
@@ -209,14 +235,26 @@ void RLCandlestickChart::draw() const{
 
     // Calculate Max Volume for scaling
     float lMaxVol = 1.0f;
-    for (const auto& c : mCandles) { if (c.mVolume > lMaxVol) lMaxVol = c.mVolume; }
-    if (mHasWorking && mWorking.mVolume > lMaxVol) lMaxVol = mWorking.mVolume;
-    if (mHasIncoming && mIncoming.mVolume > lMaxVol) lMaxVol = mIncoming.mVolume;
+    for (const auto& lC : mCandles) {
+        if (lC.mVolume > lMaxVol) {
+            lMaxVol = lC.mVolume;
+        }
+    }
+    if (mHasWorking && mWorking.mVolume > lMaxVol) {
+        lMaxVol = mWorking.mVolume;
+    }
+    if (mHasIncoming && mIncoming.mVolume > lMaxVol) {
+        lMaxVol = mIncoming.mVolume;
+    }
 
     // Helper to draw a single candle at absolute X
     auto drawSingleCandle = [&](const CandleDyn& aC, float aX) {
-        if (aX + lBodyWidth < lPriceR.x - 2.0f) return;
-        if (aX > lPriceR.x + lPriceR.width + 2.0f) return;
+        if (aX + lBodyWidth < lPriceR.x - 2.0f) {
+            return;
+        }
+        if (aX > lPriceR.x + lPriceR.width + 2.0f) {
+            return;
+        }
 
         bool lUp = aC.mClose >= aC.mOpen;
         Color lBodyColor = lUp ? mStyle.mUpBody : mStyle.mDownBody;
@@ -225,7 +263,8 @@ void RLCandlestickChart::draw() const{
         // Apply full opacity for all candles (working and finalized)
         unsigned char lA = 255;
 
-        lBodyColor.a = lA; lWickColor.a = lA;
+        lBodyColor.a = lA;
+        lWickColor.a = lA;
 
         // Wick
         float lYH = priceToY(aC.mHigh);
@@ -237,13 +276,17 @@ void RLCandlestickChart::draw() const{
         float lYC = priceToY(aC.mClose);
         float lYTop = lYO < lYC ? lYO : lYC;
         float lH = std::fabs(lYC - lYO);
-        if (lH < 1.0f) { lH = 1.0f; lYTop -= 0.5f; }
+        if (lH < 1.0f) {
+            lH = 1.0f;
+            lYTop -= 0.5f;
+        }
         Rectangle lBody{ aX, lYTop, lBodyWidth, lH };
         DrawRectangleRec(lBody, lBodyColor);
 
         // Day separator
-        if (aC.mDaySeparator){
-            Color lSep = mStyle.mSeparator; lSep.a = lA;
+        if (aC.mDaySeparator) {
+            Color lSep = mStyle.mSeparator;
+            lSep.a = lA;
             DrawLineV({ aX - lSpacing*0.5f, lPriceR.y }, { aX - lSpacing*0.5f, lPriceR.y + lPriceR.height }, lSep);
         }
 
@@ -311,7 +354,7 @@ void RLCandlestickChart::draw() const{
     for (int i = lCount - 1; i >= 0; --i) {
         // Calculate offset from the newest history candle
         int lDist = (lCount - 1) - i; // 0 for newest
-        float lX = lHistoryStartX - (lDist * lUnit);
+        float lX = lHistoryStartX - ((float)lDist * lUnit);
 
         drawSingleCandle(mCandles[i], lX);
     }

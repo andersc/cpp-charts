@@ -1,8 +1,8 @@
 // RLBarChart.cpp
 #include "RLBarChart.h"
 #include "RLCommon.h"
+#include <algorithm>
 #include <cmath>
-#include <cstdlib>
 
 
 RLBarChart::RLBarChart(Rectangle aBounds, RLBarOrientation aOrientation, const RLBarChartStyle &rStyle)
@@ -21,7 +21,9 @@ void RLBarChart::setStyle(const RLBarChartStyle &rStyle){ mStyle = rStyle; }
 
 void RLBarChart::ensureSize(size_t aCount){
     // Only ever grow immediately. Shrinking is animated and trimmed later in Update().
-    if (aCount > mBars.size()) mBars.resize(aCount);
+    if (aCount > mBars.size()) {
+        mBars.resize(aCount);
+    }
 }
 
 void RLBarChart::setData(const std::vector<RLBarData> &rData){
@@ -45,7 +47,9 @@ void RLBarChart::setData(const std::vector<RLBarData> &rData){
     if (mStyle.mAutoScale){
         mScaleMin = 0.0f;
         float lMax = 1.0f;
-        for (size_t i=0;i<rData.size();++i) if (rData[i].value > lMax) lMax = rData[i].value;
+        for (const auto &rD : rData) {
+            lMax = std::max(rD.value, lMax);
+        }
         mScaleMax = fmaxf(lMax, 1.0f);
         mScaleMaxTarget = mScaleMax;
     } else {
@@ -55,23 +59,29 @@ void RLBarChart::setData(const std::vector<RLBarData> &rData){
     }
 }
 
-void RLBarChart::recomputeScaleTargetsFromData(const std::vector<RLBarData> &data){
-    if (!mStyle.mAutoScale) return;
+void RLBarChart::recomputeScaleTargetsFromData(const std::vector<RLBarData> &rData){
+    if (!mStyle.mAutoScale) {
+        return;
+    }
     float lMax = computeAutoMaxFromTargets();
     // also include new incoming data
-    for (size_t i=0;i<data.size();++i) if (data[i].value > lMax) lMax = data[i].value;
+    for (const auto &rD : rData) {
+        lMax = std::max(rD.value, lMax);
+    }
     mScaleMin = 0.0f;
     mScaleMaxTarget = fmaxf(lMax, 1.0f);
 }
 
 float RLBarChart::computeAutoMaxFromTargets() const{
     float lMax = 1.0f;
-    for (const auto &b : mBars){ if (b.mTarget > lMax) lMax = b.mTarget; }
+    for (const auto &b : mBars) {
+        lMax = std::max(b.mTarget, lMax);
+    }
     return lMax;
 }
 
 void RLBarChart::setTargetData(const std::vector<RLBarData> &rData){
-    size_t lOldSize = mBars.size();
+    const size_t lOldSize = mBars.size();
     mTargetCount = rData.size();
     ensureSize(mTargetCount);
     for (size_t i=0;i<mTargetCount;++i){
@@ -113,14 +123,20 @@ void RLBarChart::setScale(float aMinValue, float aMaxValue){
 
 void RLBarChart::update(float aDt){
     if (!mStyle.mSmoothAnimate){
-        for (auto &lB : mBars){ lB.mValue = lB.mTarget; lB.mColor = lB.mColorTarget; lB.mVisAlpha = lB.mVisTarget; }
+        for (auto &lB : mBars){
+            lB.mValue = lB.mTarget;
+            lB.mColor = lB.mColorTarget;
+            lB.mVisAlpha = lB.mVisTarget;
+        }
         mScaleMax = mScaleMaxTarget;
         // On hard set, trim any fully hidden bars
-        if (mBars.size() > mTargetCount) mBars.resize(mTargetCount);
+        if (mBars.size() > mTargetCount) {
+            mBars.resize(mTargetCount);
+        }
         return;
     }
-    float lLambda = mStyle.mAnimateSpeed; // how fast it converges
-    float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
+    const float lLambda = mStyle.mAnimateSpeed; // how fast it converges
+    const float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
     for (auto &rB : mBars){
         rB.mValue = RLCharts::lerpF(rB.mValue, rB.mTarget, lAlpha);
         rB.mColor = RLCharts::lerpColor(rB.mColor, rB.mColorTarget, lAlpha);
@@ -169,7 +185,9 @@ void RLBarChart::draw() const{
     }
 
     int lCountAll = (int)mBars.size();
-    if (lCountAll <= 0) return;
+    if (lCountAll <= 0) {
+        return;
+    }
 
     const float lCorner = mStyle.mCornerRadius;
     const float lSpacing = mStyle.mSpacing;
@@ -181,82 +199,109 @@ void RLBarChart::draw() const{
     if (mOrientation == RLBarOrientation::VERTICAL){
         // Compute dynamic weights based on visibility to redistribute space
         float lSumW = 0.0f;
-        for (int i=0;i<lCountAll;i++){ lSumW += RLCharts::clamp01(mBars[i].mVisAlpha); }
-        if (lSumW <= 0.0001f) return;
-        float totalSpacing = lSpacing * fmaxf(0.0f, lSumW - 1.0f);
-        float unit = (lInner.width - totalSpacing) / lSumW;
+        for (int i=0;i<lCountAll;i++){
+            lSumW += RLCharts::clamp01(mBars[i].mVisAlpha);
+        }
+        if (lSumW <= 0.0001f) {
+            return;
+        }
+        const float lTotalSpacing = lSpacing * fmaxf(0.0f, lSumW - 1.0f);
+        const float lUnit = (lInner.width - lTotalSpacing) / lSumW;
         float x = lInner.x;
         for (int i=0;i<lCountAll;i++){
-            const BarDyn &b = mBars[i];
-            float s = RLCharts::clamp01(b.mVisAlpha);
-            if (s <= 0.0001f) continue;
-            float barW = unit * s;
-            float t = (b.mValue - lMin) / (lMax - lMin);
+            const BarDyn &lBar = mBars[i];
+            const float lScale = RLCharts::clamp01(lBar.mVisAlpha);
+            if (lScale <= 0.0001f) {
+                continue;
+            }
+            const float lBarW = lUnit * lScale;
+            float t = (lBar.mValue - lMin) / (lMax - lMin);
             t = RLCharts::clamp01(t);
-            float h = lInner.height * (t * s);
-            Rectangle r{ x, lInner.y + (lInner.height - h), barW, h };
+            const float lHeight = lInner.height * (t * lScale);
+            const Rectangle lRect{ x, lInner.y + (lInner.height - lHeight), lBarW, lHeight };
 
             // bar fill
-            if (r.height > 0.5f){
-                Color c = b.mColor; c.a = (unsigned char)((int)c.a * s);
-                float corner = (r.height < lCorner*2.0f)? (r.height*0.5f/barW) : (lCorner/barW);
-                DrawRectangleRounded(r, corner, 6, c);
+            if (lRect.height > 0.5f){
+                Color lCol = lBar.mColor; lCol.a = (unsigned char)(int)((int)lCol.a * lScale);
+                const float lCornerRatio = (lRect.height < lCorner*2.0f)? (lRect.height*0.5f/lBarW) : (lCorner/lBarW);
+                DrawRectangleRounded(lRect, lCornerRatio, 6, lCol);
             }
             // border
-            if (b.mShowBorder && r.height > 1.0f){
+            if (lBar.mShowBorder && lRect.height > 1.0f){
                 // raylib 5.5 DrawRectangleRoundedLines has no thickness parameter; approximate single-pixel outline
-                Color bc = b.mBorderColor; bc.a = (unsigned char)((int)bc.a * s);
-                DrawRectangleRoundedLines(r, lCorner/barW, 6, bc);
+                Color lBorderCol = lBar.mBorderColor; lBorderCol.a = (unsigned char)(int)((int)lBorderCol.a * lScale);
+                DrawRectangleRoundedLines(lRect, lCorner/lBarW, 6, lBorderCol);
             }
             // label
-            if (mStyle.mShowLabels && !b.mLabel.empty() && r.height > 2.0f){
-                Vector2 ts = MeasureTextEx(lFont, b.mLabel.c_str(), lFontSize, 0);
-                if (ts.y + 6.0f <= r.height && ts.x + 6.0f <= r.width){
-                    Color txt = mStyle.mAutoLabelColor ? ((RLCharts::colorLuma(b.mColor) < 120.0f)? WHITE : BLACK) : mStyle.mLabelColor;
-                    txt.a = (unsigned char)((int)txt.a * s);
-                    Vector2 pos{ r.x + (r.width - ts.x)*0.5f, r.y + (r.height - ts.y)*0.5f };
-                    DrawTextEx(lFont, b.mLabel.c_str(), pos, lFontSize, 0, txt);
+            if (mStyle.mShowLabels && !lBar.mLabel.empty() && lRect.height > 2.0f){
+                Vector2 lTextSize = MeasureTextEx(lFont, lBar.mLabel.c_str(), lFontSize, 0);
+                if (lTextSize.y + 6.0f <= lRect.height && lTextSize.x + 6.0f <= lRect.width){
+                    Color lTextCol;
+                    if (mStyle.mAutoLabelColor) {
+                        lTextCol = (RLCharts::colorLuma(lBar.mColor) < 120.0f) ? WHITE : BLACK;
+                    } else {
+                        lTextCol = mStyle.mLabelColor;
+                    }
+                    lTextCol.a = (unsigned char)(int)((int)lTextCol.a * lScale);
+                    Vector2 lPos{ lRect.x + ((lRect.width - lTextSize.x) * 0.5f), lRect.y + ((lRect.height - lTextSize.y) * 0.5f) };
+                    DrawTextEx(lFont, lBar.mLabel.c_str(), lPos, lFontSize, 0, lTextCol);
                 }
             }
             // Add spacing only if there are remaining visible bars
-            x += barW;
+            x += lBarW;
             // Peek ahead to see if a next visible bar exists
-            for (int j=i+1;j<lCountAll;j++){ if (mBars[j].mVisAlpha > 0.0001f){ x += lSpacing; break; } }
+            for (int j=i+1;j<lCountAll;j++){
+                if (mBars[j].mVisAlpha > 0.0001f){
+                    x += lSpacing;
+                    break;
+                }
+            }
         }
     } else { // Horizontal
         float lSumW = 0.0f;
-        for (int i=0;i<lCountAll;i++){ lSumW += RLCharts::clamp01(mBars[i].mVisAlpha); }
-        if (lSumW <= 0.0001f) return;
-        float totalSpacing = lSpacing * fmaxf(0.0f, lSumW - 1.0f);
-        float unit = (lInner.height - totalSpacing) / lSumW;
+        for (int i=0;i<lCountAll;i++){
+            lSumW += RLCharts::clamp01(mBars[i].mVisAlpha);
+        }
+        if (lSumW <= 0.0001f) {
+            return;
+        }
+        const float lTotalSpacing = lSpacing * fmaxf(0.0f, lSumW - 1.0f);
+        const float lUnit = (lInner.height - lTotalSpacing) / lSumW;
         float y = lInner.y;
         for (int i=0;i<lCountAll;i++){
-            const BarDyn &b = mBars[i];
-            float s = RLCharts::clamp01(b.mVisAlpha);
-            if (s <= 0.0001f) continue;
-            float lBarH = unit * s;
-            float t = (b.mValue - lMin) / (lMax - lMin);
+            const BarDyn &lBar = mBars[i];
+            const float lScale = RLCharts::clamp01(lBar.mVisAlpha);
+            if (lScale <= 0.0001f) {
+                continue;
+            }
+            const float lBarH = lUnit * lScale;
+            float t = (lBar.mValue - lMin) / (lMax - lMin);
             t = RLCharts::clamp01(t);
-            float w = lInner.width * (t * s);
-            Rectangle r{ lInner.x, y, w, lBarH };
+            const float lWidth = lInner.width * (t * lScale);
+            const Rectangle lRect{ lInner.x, y, lWidth, lBarH };
 
-            if (r.width > 0.5f){
-                Color c = b.mColor; c.a = (unsigned char)((int)c.a * s);
-                float corner = (r.width < lCorner*2.0f)? (r.width*0.5f/lBarH) : (lCorner/lBarH);
-                DrawRectangleRounded(r, corner, 6, c);
+            if (lRect.width > 0.5f){
+                Color lCol = lBar.mColor; lCol.a = (unsigned char)(int)((int)lCol.a * lScale);
+                const float lCornerRatio = (lRect.width < lCorner*2.0f)? (lRect.width*0.5f/lBarH) : (lCorner/lBarH);
+                DrawRectangleRounded(lRect, lCornerRatio, 6, lCol);
             }
-            if (b.mShowBorder && r.width > 1.0f){
-                Color bc = b.mBorderColor; bc.a = (unsigned char)((int)bc.a * s);
-                float corner = (r.width < lCorner*2.0f)? (r.width*0.5f/lBarH) : (lCorner/lBarH);
-                DrawRectangleRoundedLines(r, corner, 6, bc);
+            if (lBar.mShowBorder && lRect.width > 1.0f){
+                Color lBorderCol = lBar.mBorderColor; lBorderCol.a = (unsigned char)(int)((int)lBorderCol.a * lScale);
+                const float lCornerRatio = (lRect.width < lCorner*2.0f)? (lRect.width*0.5f/lBarH) : (lCorner/lBarH);
+                DrawRectangleRoundedLines(lRect, lCornerRatio, 6, lBorderCol);
             }
-            if (mStyle.mShowLabels && !b.mLabel.empty() && r.width > 2.0f){
-                Vector2 ts = MeasureTextEx(lFont, b.mLabel.c_str(), lFontSize, 0);
-                if (ts.x + 6.0f <= r.width && ts.y + 6.0f <= r.height){
-                    Color txt = mStyle.mAutoLabelColor ? ((RLCharts::colorLuma(b.mColor) < 120.0f)? WHITE : BLACK) : mStyle.mLabelColor;
-                    txt.a = (unsigned char)((int)txt.a * s);
-                    Vector2 pos{ r.x + (r.width - ts.x)*0.5f, r.y + (r.height - ts.y)*0.5f };
-                    DrawTextEx(lFont, b.mLabel.c_str(), pos, lFontSize, 0, txt);
+            if (mStyle.mShowLabels && !lBar.mLabel.empty() && lRect.width > 2.0f){
+                Vector2 lTextSize = MeasureTextEx(lFont, lBar.mLabel.c_str(), lFontSize, 0);
+                if (lTextSize.x + 6.0f <= lRect.width && lTextSize.y + 6.0f <= lRect.height){
+                    Color lTextCol;
+                    if (mStyle.mAutoLabelColor) {
+                        lTextCol = (RLCharts::colorLuma(lBar.mColor) < 120.0f) ? WHITE : BLACK;
+                    } else {
+                        lTextCol = mStyle.mLabelColor;
+                    }
+                    lTextCol.a = (unsigned char)(int)((int)lTextCol.a * lScale);
+                    Vector2 lPos{ lRect.x + ((lRect.width - lTextSize.x) * 0.5f), lRect.y + ((lRect.height - lTextSize.y) * 0.5f) };
+                    DrawTextEx(lFont, lBar.mLabel.c_str(), lPos, lFontSize, 0, lTextCol);
                 }
             }
             y += lBarH;

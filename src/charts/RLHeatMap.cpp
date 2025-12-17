@@ -2,7 +2,6 @@
 #include "RLCommon.h"
 #include <cmath>
 #include <algorithm>
-#include <cstring>
 
 
 RLHeatMap::RLHeatMap(Rectangle aBounds, int aCellsX, int aCellsY)
@@ -52,7 +51,7 @@ void RLHeatMap::clear(){
 }
 
 void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
-    if (!pPoints || aCount == 0) return;
+    if (pPoints == nullptr || aCount == 0) return;
 
     if (mMode == RLHeatMapUpdateMode::Replace){
         // Replace mode: clear first, then add.
@@ -65,19 +64,19 @@ void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
     // Optimization: Pre-calculate scaling factors to avoid (p + 1) * 0.5 inside loop
     // Original: (x + 1) * 0.5 * Width
     // Optimized: x * (0.5 * Width) + (0.5 * Width)
-    const float halfW = mCellsX * 0.5f;
-    const float halfH = mCellsY * 0.5f;
-    const int stride = mCellsX;
+    const float lHalfW = (float)mCellsX * 0.5f;
+    const float lHalfH = (float)mCellsY * 0.5f;
+    const int lStride = mCellsX;
 
-    float currentMax = mMaxValue;
+    float lCurrentMax = mMaxValue;
 
     // Note: We cannot easily OpenMP this loop because of race conditions on mCounts[idx]++
     // unless we use atomic adds, which might be slower than serial for dense clusters.
     for (size_t i = 0; i < aCount; ++i){
-        const Vector2& p = pPoints[i];
+        const Vector2& rP = pPoints[i];
 
         // Bounds check (assuming input is normalized -1 to 1)
-        if (p.x < -1.0f || p.x > 1.0f || p.y < -1.0f || p.y > 1.0f) continue;
+        if (rP.x < -1.0f || rP.x > 1.0f || rP.y < -1.0f || rP.y > 1.0f) continue;
 
         // Coordinate math optimized
         // Y is flipped: input +1 (top) maps to index 0.
@@ -85,42 +84,42 @@ void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
         // y_idx = y_flip * Height = (1.0 - (0.5*p.y + 0.5)) * H = (0.5 - 0.5*p.y) * H
         // = 0.5*H - p.y*0.5*H
 
-        int ix = (int)(p.x * halfW + halfW);
-        int iy = (int)(halfH - p.y * halfH);
+        int lIx = (int)(rP.x * lHalfW + lHalfW);
+        int lIy = (int)(lHalfH - rP.y * lHalfH);
 
         // Fast clamp to ensure we stay in grid memory
-        ix = RLCharts::clampIdx(ix, mCellsX);
-        iy = RLCharts::clampIdx(iy, mCellsY);
+        lIx = RLCharts::clampIdx(lIx, mCellsX);
+        lIy = RLCharts::clampIdx(lIy, mCellsY);
 
-        size_t idx = (size_t)iy * stride + ix;
+        size_t lIdx = (size_t)lIy * lStride + lIx;
 
-        float val = mCounts[idx] + 1.0f;
-        mCounts[idx] = val;
+        float lVal = mCounts[lIdx] + 1.0f;
+        mCounts[lIdx] = lVal;
 
         // Track max value locally to minimize memory writes
-        if (val > currentMax) currentMax = val;
+        if (lVal > lCurrentMax) lCurrentMax = lVal;
     }
 
-    mMaxValue = currentMax;
+    mMaxValue = lCurrentMax;
     mCountsDirty = true;
 }
 
 void RLHeatMap::update(float aDt){
     // 1. Handle Decay
     if (mMode == RLHeatMapUpdateMode::Decay && mDecayHalfLife > 0.0f){
-        float lFactor = powf(0.5f, aDt / mDecayHalfLife);
+        float lDecayFactor = powf(0.5f, aDt / mDecayHalfLife);
         float lNewMax = 0.0f;
-        const size_t count = mCounts.size();
+        const size_t lCount = mCounts.size();
 
         #ifdef _OPENMP
         #pragma omp parallel for reduction(max:lNewMax)
         #endif
-        for (size_t i = 0; i < count; ++i){
-            float v = mCounts[i] * lFactor;
+        for (size_t i = 0; i < lCount; ++i){
+            float lV = mCounts[i] * lDecayFactor;
             // Threshold to zero
-            if (v < 1e-4f) v = 0.0f;
-            mCounts[i] = v;
-            if (v > lNewMax) lNewMax = v;
+            if (lV < 1e-4f) lV = 0.0f;
+            mCounts[i] = lV;
+            if (lV > lNewMax) lNewMax = lV;
         }
         mMaxValue = std::max(lNewMax, 1.0f);
         mCountsDirty = true;
@@ -142,10 +141,10 @@ void RLHeatMap::draw() const{
     }
 
     if (mTextureValid && mTexture.id != 0){
-        Rectangle src = {0, 0, (float)mCellsX, (float)mCellsY};
-        Rectangle dst = mBounds;
-        Vector2 origin = {0,0};
-        DrawTexturePro(mTexture, src, dst, origin, 0.0f, WHITE);
+        Rectangle lSrc = {0, 0, (float)mCellsX, (float)mCellsY};
+        Rectangle lDst = mBounds;
+        Vector2 lOrigin = {0, 0};
+        DrawTexturePro(mTexture, lSrc, lDst, lOrigin, 0.0f, WHITE);
     }
 
     if (mStyle.mShowBorder){
@@ -162,11 +161,11 @@ void RLHeatMap::ensureGrid(int aCellsX, int aCellsY){
     mCellsX = aCellsX;
     mCellsY = aCellsY;
 
-    size_t total = (size_t)mCellsX * (size_t)mCellsY;
-    mCounts.assign(total, 0.0f);
+    size_t lTotal = (size_t)mCellsX * (size_t)mCellsY;
+    mCounts.assign(lTotal, 0.0f);
 
     // Pixel buffer size (4 bytes per pixel)
-    mPixels.assign(total * 4, 0);
+    mPixels.assign(lTotal * 4, 0);
 
     mMaxValue = 1.0f;
     mCountsDirty = true;
@@ -180,25 +179,25 @@ void RLHeatMap::ensureGrid(int aCellsX, int aCellsY){
 }
 
 void RLHeatMap::rebuildLUT(){
-    int lN = (int)mStops.size();
+    size_t lN = mStops.size();
     if (lN < 2) return; // Should not happen due to check in ensure/setColor
 
     for (int i = 0; i < 256; ++i){
-        float t = i / 255.0f;
-        float segF = t * (float)(lN - 1);
-        int seg = (int)segF;
-        if (seg >= lN - 1) seg = lN - 2;
+        float lT = (float)i / 255.0f;
+        float lSegF = lT * (float)(lN - 1);
+        auto lSeg = (size_t)lSegF;
+        if (lSeg >= lN - 1) lSeg = lN - 2;
 
-        float lt = segF - (float)seg;
+        float lLerp = lSegF - (float)lSeg;
 
-        const Color& a = mStops[seg];
-        const Color& b = mStops[seg + 1];
+        const Color& rA = mStops[lSeg];
+        const Color& rB = mStops[lSeg + 1];
 
-        // Fast integer lerp
-        mLut[i].r = (unsigned char)(a.r + (int)((b.r - a.r) * lt));
-        mLut[i].g = (unsigned char)(a.g + (int)((b.g - a.g) * lt));
-        mLut[i].b = (unsigned char)(a.b + (int)((b.b - a.b) * lt));
-        mLut[i].a = (unsigned char)(a.a + (int)((b.a - a.a) * lt));
+        // Fast lerp: compute as float, then cast to unsigned char
+        mLut[i].r = (unsigned char)((float)rA.r + ((float)rB.r - (float)rA.r) * lLerp);
+        mLut[i].g = (unsigned char)((float)rA.g + ((float)rB.g - (float)rA.g) * lLerp);
+        mLut[i].b = (unsigned char)((float)rA.b + ((float)rB.b - (float)rA.b) * lLerp);
+        mLut[i].a = (unsigned char)((float)rA.a + ((float)rB.a - (float)rA.a) * lLerp);
     }
     mLutDirty = false;
 }
@@ -206,14 +205,14 @@ void RLHeatMap::rebuildLUT(){
 void RLHeatMap::rebuildTextureIfNeeded(){
     if (mTextureValid && mTexture.id != 0) return;
 
-    Image img = {};
-    img.data = mPixels.data();
-    img.width = mCellsX;
-    img.height = mCellsY;
-    img.mipmaps = 1;
-    img.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    Image lImg = {};
+    lImg.data = mPixels.data();
+    lImg.width = mCellsX;
+    lImg.height = mCellsY;
+    lImg.mipmaps = 1;
+    lImg.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 
-    mTexture = LoadTextureFromImage(img);
+    mTexture = LoadTextureFromImage(lImg);
 
     // CRITICAL FIX: Set texture wrap to clamp.
     // Default is usually Repeat, which causes edge pixels to blend
@@ -224,7 +223,7 @@ void RLHeatMap::rebuildTextureIfNeeded(){
 }
 
 void RLHeatMap::updateTexturePixels(){
-    const size_t totalPixels = (size_t)mCellsX * (size_t)mCellsY;
+    const size_t lTotalPixels = (size_t)mCellsX * (size_t)mCellsY;
 
     // Use raw pointers for speed
     const float* pCounts = mCounts.data();
@@ -234,32 +233,32 @@ void RLHeatMap::updateTexturePixels(){
     // WARNING: This assumes Little Endian for exact byte order if constructing integer manually,
     // but here we just copy from Color struct which is safe if we copy the struct.
     // However, writing to uint32_t* is the standard optimization for pixel buffers.
-    uint32_t* pPixels32 = (uint32_t*)mPixels.data();
+    auto pPixels32 = (uint32_t*)mPixels.data();
 
     // Avoid division in the loop
-    const float invMax = (mMaxValue > 1e-6f) ? (1.0f / mMaxValue) : 1.0f;
-    const float scale255 = 255.0f;
+    const float lInvMax = (mMaxValue > 1e-6f) ? (1.0f / mMaxValue) : 1.0f;
+    const float SCALE_255 = 255.0f;
 
     // Use OpenMP if available for massive speedup on large grids
     #ifdef _OPENMP
     #pragma omp parallel for
     #endif
-    for (size_t i = 0; i < totalPixels; ++i){
-        float v = pCounts[i];
+    for (size_t i = 0; i < lTotalPixels; ++i){
+        float lV = pCounts[i];
 
         // Fast index calculation without branching 'clampi' or 'clamp01f' overhead
         // v * invMax is roughly 0..1.
-        int idx = (int)(v * invMax * scale255);
+        int lIdx = (int)(lV * lInvMax * SCALE_255);
 
         // Branchless clamping to 0..255
-        if (idx > 255) idx = 255;
-        // if (idx < 0) idx = 0; // v is always >= 0, so this is unnecessary
+        if (lIdx > 255) lIdx = 255;
+        // if (lIdx < 0) lIdx = 0; // v is always >= 0, so this is unnecessary
 
-        Color c = mLut[idx];
+        Color lC = mLut[lIdx];
 
         // Reinterpret cast hack to write 4 bytes at once
         // (Color struct is 4 bytes: r,g,b,a)
-        pPixels32[i] = *(uint32_t*)&c;
+        pPixels32[i] = *(uint32_t*)&lC;
     }
 
     if (mTextureValid && mTexture.id != 0){

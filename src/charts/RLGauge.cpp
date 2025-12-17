@@ -1,8 +1,16 @@
 // RLGauge.cpp
 #include "RLGauge.h"
 #include "RLCommon.h"
+#include <array>
 #include <cmath>
 #include <cstdio>
+
+// Constants for RLGauge
+constexpr float CENTER_DOT_SCALE = 1.2f;
+constexpr float FONT_SIZE_SCALE = 0.20f;
+constexpr float TEXT_Y_OFFSET = 0.4f;
+constexpr float HALF = 0.5f;
+constexpr int VALUE_BUFFER_SIZE = 32;
 
 
 RLGauge::RLGauge(Rectangle bounds, float minValue, float maxValue, const RLGaugeStyle &style)
@@ -13,9 +21,9 @@ RLGauge::RLGauge(Rectangle bounds, float minValue, float maxValue, const RLGauge
 
 void RLGauge::setBounds(Rectangle bounds){
     mBounds = bounds;
-    mCenter = { mBounds.x + mBounds.width*0.5f, mBounds.y + mBounds.height*0.5f };
-    float r = fminf(mBounds.width, mBounds.height)*0.5f;
-    mRadius = fmaxf(4.0f, r - 4.0f);
+    mCenter = { mBounds.x + (mBounds.width * HALF), mBounds.y + (mBounds.height * HALF) };
+    float lRadius = fminf(mBounds.width, mBounds.height) * HALF;
+    mRadius = fmaxf(4.0f, lRadius - 4.0f);
     recomputeGeometry();
 }
 
@@ -40,12 +48,12 @@ void RLGauge::setTargetValue(float value){
     mTargetValue = fminf(mMaxValue, fmaxf(mMinValue, value));
 }
 
-float RLGauge::clamp(float t) const { return t < 0 ? 0 : (t>1?1:t); }
+float RLGauge::clamp(float aVal) { return aVal < 0 ? 0 : (aVal > 1 ? 1 : aVal); }
 
-float RLGauge::valueToAngle(float v) const{
-    float t = (v - mMinValue) / (mMaxValue - mMinValue);
-    t = clamp(t);
-    return mStyle.mStartAngle + t * (mStyle.mEndAngle - mStyle.mStartAngle);
+float RLGauge::valueToAngle(float aValue) const{
+    float lNorm = (aValue - mMinValue) / (mMaxValue - mMinValue);
+    lNorm = clamp(lNorm);
+    return mStyle.mStartAngle + (lNorm * (mStyle.mEndAngle - mStyle.mStartAngle));
 }
 
 void RLGauge::recomputeGeometry(){
@@ -53,30 +61,31 @@ void RLGauge::recomputeGeometry(){
     if (mStyle.mTickCount <= 0) return;
     mTicks.reserve((size_t)mStyle.mTickCount + 1);
 
-    float innerR = mRadius - mStyle.mThickness;
-    float a0 = mStyle.mStartAngle;
-    float a1 = mStyle.mEndAngle;
-    float step = (a1 - a0) / (float)mStyle.mTickCount;
-    for (int i=0;i<=mStyle.mTickCount;i++){
-        float ad = a0 + step * (float)i;
-        bool major = (i % mStyle.mMajorEvery) == 0;
-        float len = major ? mStyle.mMajorTickLen : mStyle.mTickLen;
-        float r0 = innerR - len;
-        float r1 = innerR - 2.0f; // small gap from ring
-        float ar = RLCharts::degToRad(ad);
-        float cs = cosf(ar), sn = sinf(ar);
-        Vector2 p0{ mCenter.x + cs*r0, mCenter.y + sn*r0 };
-        Vector2 p1{ mCenter.x + cs*r1, mCenter.y + sn*r1 };
-        mTicks.push_back({ad, p0, p1, major});
+    const float lInnerR = mRadius - mStyle.mThickness;
+    const float lStartAngle = mStyle.mStartAngle;
+    const float lEndAngle = mStyle.mEndAngle;
+    const float lStep = (lEndAngle - lStartAngle) / (float)mStyle.mTickCount;
+    for (int lIdx = 0; lIdx <= mStyle.mTickCount; lIdx++){
+        const float lAngleDeg = lStartAngle + (lStep * (float)lIdx);
+        const bool lMajor = (lIdx % mStyle.mMajorEvery) == 0;
+        const float lLen = lMajor ? mStyle.mMajorTickLen : mStyle.mTickLen;
+        const float lRadiusStart = lInnerR - lLen;
+        const float lRadiusEnd = lInnerR - 2.0f; // small gap from ring
+        const float lAngleRad = RLCharts::degToRad(lAngleDeg);
+        const float lCos = cosf(lAngleRad);
+        const float lSin = sinf(lAngleRad);
+        Vector2 lP0{ mCenter.x + (lCos * lRadiusStart), mCenter.y + (lSin * lRadiusStart) };
+        Vector2 lP1{ mCenter.x + (lCos * lRadiusEnd), mCenter.y + (lSin * lRadiusEnd) };
+        mTicks.push_back({lAngleDeg, lP0, lP1, lMajor});
     }
 }
 
-void RLGauge::update(float dt){
+void RLGauge::update(float aDeltaTime){
     if (!mStyle.mSmoothAnimate){ mValue = mTargetValue; return; }
     // critically damped like smoothing; simple exponential approach
-    float lambda = 10.0f; // speed factor
-    float alpha = 1.0f - expf(-lambda * fmaxf(0.0f, dt));
-    mValue = mValue + (mTargetValue - mValue)*alpha;
+    constexpr float LAMBDA = 10.0f; // speed factor
+    const float lAlpha = 1.0f - expf(-LAMBDA * fmaxf(0.0f, aDeltaTime));
+    mValue = mValue + ((mTargetValue - mValue) * lAlpha);
 }
 
 void RLGauge::draw() const{
@@ -85,49 +94,49 @@ void RLGauge::draw() const{
         DrawRectangleRounded(mBounds, 0.15f, 8, mStyle.mBackgroundColor);
     }
 
-    float innerR = mRadius - mStyle.mThickness;
-    float outerR = mRadius;
+    const float lInnerR = mRadius - mStyle.mThickness;
+    const float lOuterR = mRadius;
 
     // base arc
-    DrawRing(mCenter, innerR, outerR, mStyle.mStartAngle, mStyle.mEndAngle, 64, mStyle.mBaseArcColor);
+    DrawRing(mCenter, lInnerR, lOuterR, mStyle.mStartAngle, mStyle.mEndAngle, 64, mStyle.mBaseArcColor);
 
     // value arc
-    float angV = valueToAngle(mValue);
-    DrawRing(mCenter, innerR, outerR, mStyle.mStartAngle, angV, 64, mStyle.mValueArcColor);
+    const float lAngValue = valueToAngle(mValue);
+    DrawRing(mCenter, lInnerR, lOuterR, mStyle.mStartAngle, lAngValue, 64, mStyle.mValueArcColor);
 
     // ticks
     if (mStyle.mShowTicks){
-        for (const auto &t : mTicks){
-            Color c = t.mMajor ? mStyle.mMajorTickColor : mStyle.mTickColor;
-            float th = t.mMajor ? mStyle.mMajorTickThickness : mStyle.mTickThickness;
-            DrawLineEx(t.mP0, t.mP1, th, c);
+        for (const auto &lTick : mTicks){
+            const Color lColor = lTick.mMajor ? mStyle.mMajorTickColor : mStyle.mTickColor;
+            const float lThickness = lTick.mMajor ? mStyle.mMajorTickThickness : mStyle.mTickThickness;
+            DrawLineEx(lTick.mP0, lTick.mP1, lThickness, lColor);
         }
     }
 
     // needle
     if (mStyle.mShowNeedle){
-        float ang = valueToAngle(mValue);
-        float ar = RLCharts::degToRad(ang);
-        float r = mRadius * mStyle.mNeedleRadiusScale;
-        Vector2 tip{ mCenter.x + cosf(ar)*r, mCenter.y + sinf(ar)*r };
-        DrawLineEx(mCenter, tip, mStyle.mNeedleWidth, mStyle.mNeedleColor);
-        DrawCircleV(mCenter, mStyle.mNeedleWidth*1.2f, mStyle.mCenterColor);
+        float lAng = valueToAngle(mValue);
+        float lAngRad = RLCharts::degToRad(lAng);
+        float lNeedleRadius = mRadius * mStyle.mNeedleRadiusScale;
+        Vector2 lTip{ mCenter.x + (cosf(lAngRad) * lNeedleRadius), mCenter.y + (sinf(lAngRad) * lNeedleRadius) };
+        DrawLineEx(mCenter, lTip, mStyle.mNeedleWidth, mStyle.mNeedleColor);
+        DrawCircleV(mCenter, mStyle.mNeedleWidth * CENTER_DOT_SCALE, mStyle.mCenterColor);
     }
 
     // value text
     if (mStyle.mShowValueText){
-        char buf[32];
-        float t = (mValue - mMinValue)/(mMaxValue - mMinValue);
+        std::array<char, VALUE_BUFFER_SIZE> lBuf{};
+        const float lNormValue = (mValue - mMinValue)/(mMaxValue - mMinValue);
         // map to 0-100 for common gauge feel
-        snprintf(buf, sizeof(buf), "%.0f", t*100.0f);
-        const Font &font = (mStyle.mLabelFont.baseSize>0)? mStyle.mLabelFont : GetFontDefault();
-        float fontSize = (fminf(mBounds.width, mBounds.height) * 0.20f);
-        Vector2 ts = MeasureTextEx(font, buf, fontSize, 0);
+        snprintf(lBuf.data(), lBuf.size(), "%.0f", lNormValue * 100.0f);
+        const Font &lFont = (mStyle.mLabelFont.baseSize>0)? mStyle.mLabelFont : GetFontDefault();
+        float lFontSize = (fminf(mBounds.width, mBounds.height) * FONT_SIZE_SCALE);
+        const Vector2 lTextSize = MeasureTextEx(lFont, lBuf.data(), lFontSize, 0);
         // Position text at bottom center of gauge (below center, inside the arc)
-        float lInnerR = mRadius - mStyle.mThickness;
-        float lTextY = mCenter.y + lInnerR * 0.4f;  // Position below center
+        const float lTextInnerR = mRadius - mStyle.mThickness;
+        const float lTextY = mCenter.y + (lTextInnerR * TEXT_Y_OFFSET);  // Position below center
         // Center text horizontally and vertically
-        Vector2 pos{ mCenter.x - ts.x * 0.5f, lTextY - ts.y * 0.5f };
-        DrawTextEx(font, buf, pos, fontSize, 0, mStyle.mLabelColor);
+        const Vector2 lPos{ mCenter.x - (lTextSize.x * HALF), lTextY - (lTextSize.y * HALF) };
+        DrawTextEx(lFont, lBuf.data(), lPos, lFontSize, 0, mStyle.mLabelColor);
     }
 }

@@ -82,7 +82,7 @@ struct RLTreeRect {
 
 class RLTreeMap {
 public:
-    explicit RLTreeMap(Rectangle aBounds, const RLTreeMapStyle& rStyle = {});
+    explicit RLTreeMap(Rectangle aBounds, RLTreeMapStyle  rStyle = {});
 
     // Configuration
     void setBounds(Rectangle aBounds);
@@ -152,9 +152,9 @@ private:
     [[nodiscard]] Color computeNodeColor(const RLTreeNode& rNode, int aDepth) const;
 
     // Animation helpers
-    [[nodiscard]] float approach(float a, float b, float aSpeedDt) const;
-    [[nodiscard]] Color lerpColor(const Color& a, const Color& b, float t) const;
-    [[nodiscard]] Rectangle lerpRect(const Rectangle& a, const Rectangle& b, float t) const;
+    [[nodiscard]] static float approach(float a, float b, float aSpeedDt);
+    [[nodiscard]] static Color lerpColor(const Color& a, const Color& b, float t);
+    [[nodiscard]] static Rectangle lerpRect(const Rectangle& a, const Rectangle& b, float t);
 
     // Default palette
     void ensureDefaultPalette();

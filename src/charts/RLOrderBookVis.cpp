@@ -217,7 +217,7 @@ size_t RLOrderBookVis::gridIndex(size_t aTimeIdx, size_t aPriceIdx) const {
 
 size_t RLOrderBookVis::ringTimeIndex(size_t aOffset) const {
     // Convert display offset (0 = oldest visible) to ring buffer index
-    if (mSnapshotCount == 0) return 0;
+    if (mSnapshotCount == 0 || mHistoryLength == 0) return 0;
 
     size_t lVisibleCount = mSnapshotCount < mHistoryLength ? mSnapshotCount : mHistoryLength;
     if (aOffset >= lVisibleCount) aOffset = lVisibleCount - 1;
@@ -237,8 +237,8 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
     }
 
     // Determine price range based on mode
-    float lMinPrice = mCurrentMinPrice;
-    float lMaxPrice = mCurrentMaxPrice;
+    float lMinPrice = 0.0f;
+    float lMaxPrice = 0.0f;
 
     switch (mPriceMode) {
         case RLOrderBookPriceMode::FullDepth: {

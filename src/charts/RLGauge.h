@@ -75,6 +75,6 @@ private:
     std::vector<TickGeom> mTicks;
 
     void recomputeGeometry();
-    [[nodiscard]] float clamp(float t) const;
-    [[nodiscard]] float valueToAngle(float v) const; // returns degrees
+    [[nodiscard]] static float clamp(float aVal);
+    [[nodiscard]] float valueToAngle(float aValue) const; // returns degrees
 };

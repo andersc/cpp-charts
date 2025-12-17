@@ -452,9 +452,8 @@ void RLSankey::computeNodePositions() {
 
     // Position nodes in each column
     for (int col = 0; col < mColumnCount; ++col) {
-        float lY = mChartTop;
 
-        // Calculate total height for this column to center it
+        // Calculate the total height for this column to center it
         float lTotalHeight = 0.0f;
         for (size_t lNodeId : lColumnNodes[col]) {
             float lIn = computeTotalFlow(lNodeId, false);
@@ -466,7 +465,7 @@ void RLSankey::computeNodePositions() {
         lTotalHeight += mStyle.mNodePadding * (float)(lColumnNodes[col].size() > 0 ? lColumnNodes[col].size() - 1 : 0);
 
         // Center column vertically
-        lY = mChartTop + (mChartHeight - lTotalHeight) * 0.5f;
+        float lY = mChartTop + (mChartHeight - lTotalHeight) * 0.5f;
 
         for (size_t lNodeId : lColumnNodes[col]) {
             NodeDyn& rNode = mNodes[lNodeId];
