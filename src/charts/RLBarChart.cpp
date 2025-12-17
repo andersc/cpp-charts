@@ -249,7 +249,7 @@ void RLBarChart::draw() const{
             }
             // Add spacing only if there are remaining visible bars
             x += lBarW;
-            // Peek ahead to see if a next visible bar exists
+            // Peek ahead to see if the next visible bar exists
             for (int j=i+1;j<lCountAll;j++){
                 if (mBars[j].mVisAlpha > 0.0001f){
                     x += lSpacing;

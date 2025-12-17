@@ -82,7 +82,7 @@ void RLAreaChart::setData(const std::vector<RLAreaSeries>& rSeries) {
 
     calculateMaxValue();
 
-    // If first data, also animate max value from a lower starting point
+    // If first data, also animate the max value from a lower starting point
     if (lIsFirstData) {
         mMaxValue = mMaxValueTarget * 0.1f;
     }
@@ -232,10 +232,10 @@ void RLAreaChart::drawArea(size_t aSeriesIndex) const {
         lStripPoints.push_back({lX, lBottomY});
     }
 
-    // Draw filled area using triangle strip (much faster than individual triangles)
+    // Draw a filled area using a triangle strip (much faster than individual triangles)
     DrawTriangleStrip(lStripPoints.data(), (int)lStripPoints.size(), lFillColor);
 
-    // Draw top line
+    // Draw the top line
     for (size_t i = 0; i < lNumPoints - 1; ++i) {
         DrawLineEx(lTopPoints[i], lTopPoints[i + 1], mStyle.mLineThickness, rS.mColor);
     }

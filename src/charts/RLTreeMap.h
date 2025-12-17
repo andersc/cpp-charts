@@ -77,7 +77,7 @@ struct RLTreeRect {
     int mDepth{0};                      // Depth in hierarchy
     bool mIsLeaf{true};                 // Whether this is a leaf node
     float mValue{0.0f};                 // Node value
-    size_t mParentIndex{(size_t)-1};    // Index of parent in flat list
+    size_t mParentIndex{(size_t)-1};    // Index of parent in a flat list
 };
 
 class RLTreeMap {

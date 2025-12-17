@@ -132,10 +132,10 @@ void RLGauge::draw() const{
         const Font &lFont = (mStyle.mLabelFont.baseSize>0)? mStyle.mLabelFont : GetFontDefault();
         float lFontSize = (fminf(mBounds.width, mBounds.height) * FONT_SIZE_SCALE);
         const Vector2 lTextSize = MeasureTextEx(lFont, lBuf.data(), lFontSize, 0);
-        // Position text at bottom center of gauge (below center, inside the arc)
+        // Position text at the bottom center of the gauge (below center, inside the arc)
         const float lTextInnerR = mRadius - mStyle.mThickness;
         const float lTextY = mCenter.y + (lTextInnerR * TEXT_Y_OFFSET);  // Position below center
-        // Center text horizontally and vertically
+        // center text horizontally and vertically
         const Vector2 lPos{ mCenter.x - (lTextSize.x * HALF), lTextY - (lTextSize.y * HALF) };
         DrawTextEx(lFont, lBuf.data(), lPos, lFontSize, 0, mStyle.mLabelColor);
     }

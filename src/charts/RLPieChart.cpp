@@ -1,5 +1,6 @@
 #include "RLPieChart.h"
 #include "RLCommon.h"
+#include <algorithm>
 #include <cmath>
 
 
@@ -17,13 +18,12 @@ void RLPieChart::setStyle(const RLPieChartStyle &rStyle){
 }
 
 void RLPieChart::setHollowFactor(float aFactor){
-    if (aFactor < 0.0f) aFactor = 0.0f; if (aFactor > 1.0f) aFactor = 1.0f;
-    mHollowFactor = aFactor;
+    mHollowFactor = std::clamp(aFactor, 0.0f, 1.0f);
 }
 
 void RLPieChart::ensureSize(size_t aCount){
     if (mSlices.size() < aCount){
-        size_t lOld = mSlices.size();
+        const size_t lOld = mSlices.size();
         mSlices.resize(aCount);
         for (size_t i=lOld;i<aCount;i++){
             mSlices[i].mValue = 0.0f;
@@ -39,7 +39,7 @@ void RLPieChart::ensureSize(size_t aCount){
 void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &rData){
     // Determine target count and ensure vector size to keep existing for fade out
     mTargetCount = rData.size();
-    size_t lNewCount = mTargetCount > mSlices.size() ? mTargetCount : mSlices.size();
+    const size_t lNewCount = mTargetCount > mSlices.size() ? mTargetCount : mSlices.size();
     ensureSize(lNewCount);
 
     // Assign targets and color targets
@@ -65,13 +65,19 @@ void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &rDa
 
     // Compute angle targets from target values (only slices with target or fading out get angles)
     float lSum = 0.0f;
-    for (size_t i=0;i<lNewCount;i++) lSum += (mSlices[i].mTarget > 0.0f ? mSlices[i].mTarget : 0.0f);
+    for (size_t i=0;i<lNewCount;i++) {
+        lSum += (mSlices[i].mTarget > 0.0f ? mSlices[i].mTarget : 0.0f);
+    }
     // If sum is zero, distribute evenly among currently visible ones to avoid NaNs
     float lAngle = -90.0f; // start from top (12 o'clock)
     if (lSum <= 1e-6f){
         size_t lVisible = 0;
-        for (size_t i=0;i<lNewCount;i++) if (mSlices[i].mVisTarget > 0.0f || mSlices[i].mVis > 0.0f) lVisible++;
-        float lStep = lVisible > 0 ? 360.0f / (float)lVisible : 0.0f;
+        for (size_t i=0;i<lNewCount;i++) {
+            if (mSlices[i].mVisTarget > 0.0f || mSlices[i].mVis > 0.0f) {
+                lVisible++;
+            }
+        }
+        const float lStep = lVisible > 0 ? 360.0f / (float)lVisible : 0.0f;
         for (size_t i=0;i<lNewCount;i++){
             SliceDyn &lS = mSlices[i];
             if (lS.mVisTarget > 0.0f || lS.mVis > 0.0f){
@@ -87,8 +93,8 @@ void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &rDa
 
     for (size_t i=0;i<lNewCount;i++){
         SliceDyn &lS = mSlices[i];
-        float lFrac = (lS.mTarget > 0.0f ? (lS.mTarget / lSum) : 0.0f);
-        float lSpan = 360.0f * lFrac;
+        const float lFrac = (lS.mTarget > 0.0f ? (lS.mTarget / lSum) : 0.0f);
+        const float lSpan = 360.0f * lFrac;
         lS.mStartTarget = lAngle;
         lS.mEndTarget = lAngle + lSpan;
         lAngle += lSpan;
@@ -97,7 +103,7 @@ void RLPieChart::recomputeTargetsFromData(const std::vector<RLPieSliceData> &rDa
     // Initialize new slices to zero span at their target start for smooth grow
     for (size_t i=0;i<lNewCount;i++){
         SliceDyn &lS = mSlices[i];
-        bool lWasInvisible = (lS.mVis <= 0.0f) && (lS.mValue <= 0.0f);
+        const bool lWasInvisible = (lS.mVis <= 0.0f) && (lS.mValue <= 0.0f);
         if (i < mTargetCount && lWasInvisible && lS.mVisTarget > 0.0f){
             lS.mStart = lS.mStartTarget;
             lS.mEnd = lS.mStartTarget;
@@ -129,21 +135,24 @@ void RLPieChart::setTargetData(const std::vector<RLPieSliceData> &rData){
 
 
 void RLPieChart::ensureGeometry() const{
-    if (!mGeomDirty) return;
-    float lPad = mStyle.mPadding;
+    if (!mGeomDirty) {
+        return;
+    }
+    const float lPad = mStyle.mPadding;
     float lW = mBounds.width - 2.0f * lPad;
     float lH = mBounds.height - 2.0f * lPad;
-    if (lW < 1.0f) lW = 1.0f; if (lH < 1.0f) lH = 1.0f;
-    float lR = (lW < lH ? lW : lH) * 0.5f;
+    lW = std::max(lW, 1.0f);
+    lH = std::max(lH, 1.0f);
+    const float lR = std::min(lW, lH) * 0.5f;
     mOuterRadius = lR;
     mCenter = Vector2{ mBounds.x + lPad + lW * 0.5f, mBounds.y + lPad + lH * 0.5f };
     mGeomDirty = false;
 }
 
 void RLPieChart::update(float aDt){
-    float lAngleK = mStyle.mSmoothAnimate ? (mStyle.mAngleSpeed * aDt) : 1.0f;
-    float lFadeK = mStyle.mSmoothAnimate ? (mStyle.mFadeSpeed * aDt) : 1.0f;
-    float lColorK = mStyle.mSmoothAnimate ? (mStyle.mColorSpeed * aDt) : 1.0f;
+    const float lAngleK = mStyle.mSmoothAnimate ? (mStyle.mAngleSpeed * aDt) : 1.0f;
+    const float lFadeK = mStyle.mSmoothAnimate ? (mStyle.mFadeSpeed * aDt) : 1.0f;
+    const float lColorK = mStyle.mSmoothAnimate ? (mStyle.mColorSpeed * aDt) : 1.0f;
 
     for (auto &lS : mSlices){
         lS.mStart = RLCharts::approach(lS.mStart, lS.mStartTarget, lAngleK);
@@ -160,19 +169,23 @@ void RLPieChart::draw() const{
         DrawRectangleV(Vector2{mBounds.x, mBounds.y}, Vector2{mBounds.width, mBounds.height}, mStyle.mBackground);
     }
 
-    float lInner = mOuterRadius * RLCharts::clamp01(mHollowFactor);
-    int lSegments = 72; // sufficient for smooth circle
+    const float lInner = mOuterRadius * RLCharts::clamp01(mHollowFactor);
 
     for (const auto &lS : mSlices){
-        if (lS.mVis <= 0.001f) continue;
-        float lStart = lS.mStart;
-        float lEnd = lS.mEnd;
-        if (lEnd <= lStart) continue;
-        Color lC = lS.mColor;
+        constexpr int lSegments = 72;
+        if (lS.mVis <= 0.001f) {
+            continue;
+        }
+        const float lStart = lS.mStart;
+        const float lEnd = lS.mEnd;
+        if (lEnd <= lStart) {
+            continue;
+        }
+        const Color lC = lS.mColor;
         // apply visibility to alpha
-        float lAlpha = RLCharts::clamp01(lS.mVis);
-        unsigned char lA = (unsigned char)(lC.a * lAlpha + 0.5f);
-        Color lCol{ lC.r, lC.g, lC.b, lA };
+        const float lAlpha = RLCharts::clamp01(lS.mVis);
+        const auto lA = static_cast<unsigned char>(std::lround(static_cast<float>(lC.a) * lAlpha));
+        const Color lCol{ lC.r, lC.g, lC.b, lA };
 
         if (lInner <= 0.5f){
             // Solid sector

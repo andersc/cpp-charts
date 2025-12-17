@@ -111,7 +111,7 @@ struct RLTimeSeriesStyle {
 // Main class: dual-view plot system with time series + log-log analysis
 class RLLogPlot {
 public:
-    // Constructor: specify bounds for entire plot area
+    // Constructor: specify bounds for the entire plot area
     explicit RLLogPlot(Rectangle aBounds);
 
     // Configuration

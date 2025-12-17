@@ -58,18 +58,24 @@ size_t RLSankey::addNode(const RLSankeyNode& rNode) {
 }
 
 void RLSankey::setNodeColor(size_t aNodeId, Color aColor) {
-    if (aNodeId >= mNodes.size()) return;
+    if (aNodeId >= mNodes.size()) {
+        return;
+    }
     mNodes[aNodeId].mColorTarget = aColor;
 }
 
 void RLSankey::setNodeColumn(size_t aNodeId, int aColumn) {
-    if (aNodeId >= mNodes.size()) return;
+    if (aNodeId >= mNodes.size()) {
+        return;
+    }
     mNodes[aNodeId].mColumn = aColumn;
     mLayoutDirty = true;
 }
 
 void RLSankey::removeNode(size_t aNodeId) {
-    if (aNodeId >= mNodes.size()) return;
+    if (aNodeId >= mNodes.size()) {
+        return;
+    }
 
     // Mark node for removal
     mNodes[aNodeId].mVisibilityTarget = 0.0f;
@@ -119,19 +125,25 @@ size_t RLSankey::addLink(const RLSankeyLink& rLink) {
 }
 
 void RLSankey::setLinkValue(size_t aLinkId, float aValue) {
-    if (aLinkId >= mLinks.size()) return;
+    if (aLinkId >= mLinks.size()) {
+        return;
+    }
     mLinks[aLinkId].mValueTarget = aValue;
     mLinks[aLinkId].mCacheDirty = true;
     mLayoutDirty = true;
 }
 
 void RLSankey::setLinkColor(size_t aLinkId, Color aColor) {
-    if (aLinkId >= mLinks.size()) return;
+    if (aLinkId >= mLinks.size()) {
+        return;
+    }
     mLinks[aLinkId].mColorTarget = aColor;
 }
 
 void RLSankey::removeLink(size_t aLinkId) {
-    if (aLinkId >= mLinks.size()) return;
+    if (aLinkId >= mLinks.size()) {
+        return;
+    }
 
     mLinks[aLinkId].mVisibilityTarget = 0.0f;
     mLinks[aLinkId].mPendingRemoval = true;
@@ -155,7 +167,7 @@ bool RLSankey::setData(const std::vector<RLSankeyNode>& rNodes, const std::vecto
         addLink(rLink);
     }
 
-    // Validate flow conservation if strict mode is enabled
+    // Validate flow conservation if the strict mode is enabled
     if (mStyle.mStrictFlowConservation) {
         return validateFlowConservation();
     }
@@ -223,8 +235,8 @@ void RLSankey::update(float aDt) {
             rLink.mCacheDirty = true;
         }
     } else {
-        float lValueSpeed = mStyle.mAnimateSpeed * aDt;
-        float lFadeSpeed = mStyle.mFadeSpeed * aDt;
+        const float lValueSpeed = mStyle.mAnimateSpeed * aDt;
+        const float lFadeSpeed = mStyle.mFadeSpeed * aDt;
 
         // Animate nodes
         for (auto& rNode : mNodes) {
@@ -236,9 +248,9 @@ void RLSankey::update(float aDt) {
 
         // Animate links
         for (auto& rLink : mLinks) {
-            float lOldValue = rLink.mValue;
-            float lOldSourceThickness = rLink.mSourceThickness;
-            float lOldTargetThickness = rLink.mTargetThickness;
+            const float lOldValue = rLink.mValue;
+            const float lOldSourceThickness = rLink.mSourceThickness;
+            const float lOldTargetThickness = rLink.mTargetThickness;
             rLink.mValue = RLCharts::approach(rLink.mValue, rLink.mValueTarget, lValueSpeed);
             rLink.mSourceThickness = RLCharts::approach(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed);
             rLink.mTargetThickness = RLCharts::approach(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed);
@@ -290,7 +302,9 @@ void RLSankey::draw() const {
 // ============================================================================
 
 void RLSankey::computeLayout() {
-    if (mNodes.empty()) return;
+    if (mNodes.empty()) {
+        return;
+    }
 
     // Compute chart area
     mChartLeft = mBounds.x + mStyle.mPadding;
@@ -314,7 +328,9 @@ void RLSankey::assignColumns() {
     int lMaxColumn = 0;
 
     for (const auto& rNode : mNodes) {
-        if (rNode.mPendingRemoval) continue;
+        if (rNode.mPendingRemoval) {
+            continue;
+        }
         if (rNode.mColumn < 0) {
             lAllExplicit = false;
         } else {
@@ -331,13 +347,15 @@ void RLSankey::assignColumns() {
     // Nodes with no incoming links go to column 0
     // Each node goes to max(source columns) + 1
 
-    size_t lNodeCount = mNodes.size();
+    const size_t lNodeCount = mNodes.size();
     std::vector<int> lComputedColumn(lNodeCount, -1);
     std::vector<std::set<size_t>> lIncoming(lNodeCount);
 
     // Build incoming link sets
     for (const auto& rLink : mLinks) {
-        if (rLink.mPendingRemoval) continue;
+        if (rLink.mPendingRemoval) {
+            continue;
+        }
         if (rLink.mSourceId < lNodeCount && rLink.mTargetId < lNodeCount) {
             lIncoming[rLink.mTargetId].insert(rLink.mSourceId);
         }
@@ -346,14 +364,16 @@ void RLSankey::assignColumns() {
     // Process nodes iteratively
     bool lChanged = true;
     int lIterations = 0;
-    int lMaxIter = (int)lNodeCount + 10;
+    const int lMaxIter = (int)lNodeCount + 10;
 
     while (lChanged && lIterations < lMaxIter) {
         lChanged = false;
         lIterations++;
 
         for (size_t i = 0; i < lNodeCount; ++i) {
-            if (mNodes[i].mPendingRemoval) continue;
+            if (mNodes[i].mPendingRemoval) {
+                continue;
+            }
 
             // If node has explicit column, use it
             if (mNodes[i].mColumn >= 0) {
@@ -377,7 +397,7 @@ void RLSankey::assignColumns() {
             int lMaxSrcCol = -1;
             bool lAllSourcesAssigned = true;
 
-            for (size_t lSrcId : lIncoming[i]) {
+            for (const size_t lSrcId : lIncoming[i]) {
                 if (lComputedColumn[lSrcId] < 0) {
                     lAllSourcesAssigned = false;
                     break;
@@ -386,7 +406,7 @@ void RLSankey::assignColumns() {
             }
 
             if (lAllSourcesAssigned) {
-                int lNewCol = lMaxSrcCol + 1;
+                const int lNewCol = lMaxSrcCol + 1;
                 if (lComputedColumn[i] != lNewCol) {
                     lComputedColumn[i] = lNewCol;
                     lChanged = true;
@@ -398,26 +418,30 @@ void RLSankey::assignColumns() {
     // Apply computed columns and find max
     mColumnCount = 1;
     for (size_t i = 0; i < lNodeCount; ++i) {
-        if (mNodes[i].mPendingRemoval) continue;
+        if (mNodes[i].mPendingRemoval) {
+            continue;
+        }
 
         int lCol = lComputedColumn[i];
-        if (lCol < 0) lCol = 0; // Fallback for unassigned
+        lCol = std::max(lCol, 0); // Fallback for unassigned
 
         mNodes[i].mColumn = lCol;
-        if (lCol + 1 > mColumnCount) {
-            mColumnCount = lCol + 1;
-        }
+        mColumnCount = std::max(lCol + 1, mColumnCount);
     }
 }
 
 void RLSankey::computeNodePositions() {
-    if (mColumnCount == 0) return;
+    if (mColumnCount == 0) {
+        return;
+    }
 
     // Group nodes by column
     std::vector<std::vector<size_t>> lColumnNodes(mColumnCount);
     for (size_t i = 0; i < mNodes.size(); ++i) {
-        if (mNodes[i].mPendingRemoval) continue;
-        int lCol = mNodes[i].mColumn;
+        if (mNodes[i].mPendingRemoval) {
+            continue;
+        }
+        const int lCol = mNodes[i].mColumn;
         if (lCol >= 0 && lCol < mColumnCount) {
             lColumnNodes[lCol].push_back(i);
         }
@@ -427,20 +451,20 @@ void RLSankey::computeNodePositions() {
     float lMaxColumnFlow = 0.0f;
     for (int col = 0; col < mColumnCount; ++col) {
         float lColumnFlow = 0.0f;
-        for (size_t lNodeId : lColumnNodes[col]) {
-            float lIn = computeTotalFlow(lNodeId, false);
-            float lOut = computeTotalFlow(lNodeId, true);
+        for (const size_t lNodeId : lColumnNodes[col]) {
+            const float lIn = computeTotalFlow(lNodeId, false);
+            const float lOut = computeTotalFlow(lNodeId, true);
             float lNodeFlow = (lIn > lOut) ? lIn : lOut;
-            if (lNodeFlow < 0.001f) lNodeFlow = 1.0f; // Minimum for isolated nodes
+            if (lNodeFlow < 0.001f) {
+                lNodeFlow = 1.0f; // Minimum for isolated nodes
+            }
             lColumnFlow += lNodeFlow;
         }
         // Add padding between nodes
-        float lPaddingTotal = mStyle.mNodePadding * (float)(lColumnNodes[col].size() > 0 ? lColumnNodes[col].size() - 1 : 0);
+        const float lPaddingTotal = mStyle.mNodePadding * (float)(lColumnNodes[col].size() > 0 ? lColumnNodes[col].size() - 1 : 0);
         lColumnFlow += lPaddingTotal;
 
-        if (lColumnFlow > lMaxColumnFlow) {
-            lMaxColumnFlow = lColumnFlow;
-        }
+        lMaxColumnFlow = std::max(lColumnFlow, lMaxColumnFlow);
     }
 
     // Compute scale factor
@@ -455,11 +479,13 @@ void RLSankey::computeNodePositions() {
 
         // Calculate the total height for this column to center it
         float lTotalHeight = 0.0f;
-        for (size_t lNodeId : lColumnNodes[col]) {
-            float lIn = computeTotalFlow(lNodeId, false);
-            float lOut = computeTotalFlow(lNodeId, true);
+        for (const size_t lNodeId : lColumnNodes[col]) {
+            const float lIn = computeTotalFlow(lNodeId, false);
+            const float lOut = computeTotalFlow(lNodeId, true);
             float lNodeFlow = (lIn > lOut) ? lIn : lOut;
-            if (lNodeFlow < 0.001f) lNodeFlow = 1.0f;
+            if (lNodeFlow < 0.001f) {
+                lNodeFlow = 1.0f;
+            }
             lTotalHeight += lNodeFlow * mValueToPixelScale;
         }
         lTotalHeight += mStyle.mNodePadding * (float)(lColumnNodes[col].size() > 0 ? lColumnNodes[col].size() - 1 : 0);
@@ -467,15 +493,17 @@ void RLSankey::computeNodePositions() {
         // Center column vertically
         float lY = mChartTop + (mChartHeight - lTotalHeight) * 0.5f;
 
-        for (size_t lNodeId : lColumnNodes[col]) {
+        for (const size_t lNodeId : lColumnNodes[col]) {
             NodeDyn& rNode = mNodes[lNodeId];
 
-            float lIn = computeTotalFlow(lNodeId, false);
-            float lOut = computeTotalFlow(lNodeId, true);
+            const float lIn = computeTotalFlow(lNodeId, false);
+            const float lOut = computeTotalFlow(lNodeId, true);
             float lNodeFlow = (lIn > lOut) ? lIn : lOut;
-            if (lNodeFlow < 0.001f) lNodeFlow = 1.0f;
+            if (lNodeFlow < 0.001f) {
+                lNodeFlow = 1.0f;
+            }
 
-            float lHeight = lNodeFlow * mValueToPixelScale;
+            const float lHeight = lNodeFlow * mValueToPixelScale;
 
             rNode.mYTarget = lY;
             rNode.mHeightTarget = lHeight;
@@ -504,11 +532,13 @@ void RLSankey::computeLinkPositions() {
 
     if (mStyle.mFlowMode == RLSankeyFlowMode::NORMALIZED) {
         for (size_t i = 0; i < mNodes.size(); ++i) {
-            if (mNodes[i].mPendingRemoval) continue;
+            if (mNodes[i].mPendingRemoval) {
+                continue;
+            }
 
-            float lInflow = computeTotalFlow(i, false);
-            float lOutflow = computeTotalFlow(i, true);
-            float lNodeHeight = mNodes[i].mHeightTarget;
+            const float lInflow = computeTotalFlow(i, false);
+            const float lOutflow = computeTotalFlow(i, true);
+            const float lNodeHeight = mNodes[i].mHeightTarget;
 
             // Scale factors to make bands fill the node height
             if (lOutflow > 0.001f) {
@@ -523,18 +553,20 @@ void RLSankey::computeLinkPositions() {
     // Compute link positions
     for (size_t i = 0; i < mLinks.size(); ++i) {
         LinkDyn& rLink = mLinks[i];
-        if (rLink.mPendingRemoval && rLink.mVisibility < 0.01f) continue;
+        if (rLink.mPendingRemoval && rLink.mVisibility < 0.01f) {
+            continue;
+        }
 
-        if (rLink.mSourceId >= mNodes.size() || rLink.mTargetId >= mNodes.size()) continue;
+        if (rLink.mSourceId >= mNodes.size() || rLink.mTargetId >= mNodes.size()) {
+            continue;
+        }
 
         NodeDyn& rSource = mNodes[rLink.mSourceId];
         NodeDyn& rTarget = mNodes[rLink.mTargetId];
 
         // Base link thickness from value
         float lBaseThickness = rLink.mValueTarget * mValueToPixelScale;
-        if (lBaseThickness < mStyle.mMinLinkThickness) {
-            lBaseThickness = mStyle.mMinLinkThickness;
-        }
+        lBaseThickness = std::max(lBaseThickness, mStyle.mMinLinkThickness);
 
         // Compute source and target thicknesses based on flow mode
         float lSourceThickness = lBaseThickness;
@@ -572,11 +604,12 @@ float RLSankey::computeTotalFlow(size_t aNodeId, bool aOutgoing) const {
     float lTotal = 0.0f;
 
     for (const auto& rLink : mLinks) {
-        if (rLink.mPendingRemoval) continue;
+        if (rLink.mPendingRemoval) {
+            continue;
+        }
 
-        if (aOutgoing && rLink.mSourceId == aNodeId) {
-            lTotal += rLink.mValueTarget;
-        } else if (!aOutgoing && rLink.mTargetId == aNodeId) {
+        const bool lMatches = aOutgoing ? (rLink.mSourceId == aNodeId) : (rLink.mTargetId == aNodeId);
+        if (lMatches) {
             lTotal += rLink.mValueTarget;
         }
     }
@@ -585,14 +618,20 @@ float RLSankey::computeTotalFlow(size_t aNodeId, bool aOutgoing) const {
 }
 
 bool RLSankey::isIntermediateNode(size_t aNodeId) const {
-    if (aNodeId >= mNodes.size()) return false;
-    if (mNodes[aNodeId].mPendingRemoval) return false;
+    if (aNodeId >= mNodes.size()) {
+        return false;
+    }
+    if (mNodes[aNodeId].mPendingRemoval) {
+        return false;
+    }
 
     bool lHasIncoming = false;
     bool lHasOutgoing = false;
 
     for (const auto& rLink : mLinks) {
-        if (rLink.mPendingRemoval) continue;
+        if (rLink.mPendingRemoval) {
+            continue;
+        }
 
         if (rLink.mSourceId == aNodeId) {
             lHasOutgoing = true;
@@ -613,11 +652,13 @@ bool RLSankey::validateFlowConservation() const {
     bool lValid = true;
 
     for (size_t i = 0; i < mNodes.size(); ++i) {
-        if (!isIntermediateNode(i)) continue;
+        if (!isIntermediateNode(i)) {
+            continue;
+        }
 
-        float lInflow = computeTotalFlow(i, false);
-        float lOutflow = computeTotalFlow(i, true);
-        float lDifference = (lInflow > lOutflow) ? (lInflow - lOutflow) : (lOutflow - lInflow);
+        const float lInflow = computeTotalFlow(i, false);
+        const float lOutflow = computeTotalFlow(i, true);
+        const float lDifference = (lInflow > lOutflow) ? (lInflow - lOutflow) : (lOutflow - lInflow);
 
         if (lDifference > mStyle.mFlowTolerance) {
             TraceLog(LOG_WARNING, "RLSankey: Flow conservation violated at node '%s' (id=%zu): inflow=%.3f, outflow=%.3f, diff=%.3f",
@@ -634,7 +675,9 @@ bool RLSankey::validateFlowConservation() const {
 // ============================================================================
 
 void RLSankey::drawBackground() const {
-    if (!mStyle.mShowBackground) return;
+    if (!mStyle.mShowBackground) {
+        return;
+    }
     DrawRectangleRec(mBounds, mStyle.mBackground);
 }
 
@@ -655,20 +698,26 @@ void RLSankey::drawNodes() const {
 }
 
 void RLSankey::drawLabels() const {
-    if (!mStyle.mShowLabels) return;
+    if (!mStyle.mShowLabels) {
+        return;
+    }
 
-    Font lFont = mStyle.mLabelFont;
-    int lFontSize = mStyle.mLabelFontSize;
-    Color lColor = mStyle.mLabelColor;
-    bool lUseDefaultFont = (lFont.texture.id == 0);
+    const Font lFont = mStyle.mLabelFont;
+    const int lFontSize = mStyle.mLabelFontSize;
+    const Color lColor = mStyle.mLabelColor;
+    const bool lUseDefaultFont = (lFont.texture.id == 0);
 
     for (size_t i = 0; i < mNodes.size(); ++i) {
         const NodeDyn& rNode = mNodes[i];
-        if (rNode.mVisibility < 0.01f) continue;
-        if (rNode.mLabel.empty()) continue;
+        if (rNode.mVisibility < 0.01f) {
+            continue;
+        }
+        if (rNode.mLabel.empty()) {
+            continue;
+        }
 
-        float lX = getNodeX(rNode.mColumn);
-        float lNodeCenterY = rNode.mY + rNode.mHeight * 0.5f;
+        const float lX = getNodeX(rNode.mColumn);
+        const float lNodeCenterY = rNode.mY + rNode.mHeight * 0.5f;
 
         // Measure text
         Vector2 lTextSize;
@@ -684,24 +733,21 @@ void RLSankey::drawLabels() const {
         if (rNode.mColumn == 0) {
             // Left side label
             lPos.x = lX - mStyle.mLabelPadding - lTextSize.x;
-        } else if (rNode.mColumn == mColumnCount - 1) {
-            // Right side label
-            lPos.x = lX + mStyle.mNodeWidth + mStyle.mLabelPadding;
         } else {
-            // Middle columns: right side
+            // Right side label (for both middle columns and last column)
             lPos.x = lX + mStyle.mNodeWidth + mStyle.mLabelPadding;
         }
         lPos.y = lNodeCenterY - lTextSize.y * 0.5f;
 
         // Apply visibility alpha
         Color lDrawColor = lColor;
-        lDrawColor.a = (unsigned char)(lDrawColor.a * rNode.mVisibility);
+        lDrawColor.a = static_cast<unsigned char>(static_cast<float>(lDrawColor.a) * rNode.mVisibility);
 
         // Highlight effect
         if ((int)i == mHighlightedNode) {
-            lDrawColor.r = (unsigned char)fminf(255.0f, lDrawColor.r * 1.3f);
-            lDrawColor.g = (unsigned char)fminf(255.0f, lDrawColor.g * 1.3f);
-            lDrawColor.b = (unsigned char)fminf(255.0f, lDrawColor.b * 1.3f);
+            lDrawColor.r = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lDrawColor.r) * 1.3f));
+            lDrawColor.g = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lDrawColor.g) * 1.3f));
+            lDrawColor.b = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lDrawColor.b) * 1.3f));
         }
 
         if (lUseDefaultFont) {
@@ -713,26 +759,28 @@ void RLSankey::drawLabels() const {
 }
 
 void RLSankey::drawNode(const NodeDyn& rNode, size_t aNodeId) const {
-    float lX = getNodeX(rNode.mColumn);
-    float lY = rNode.mY;
-    float lWidth = mStyle.mNodeWidth;
-    float lHeight = rNode.mHeight;
+    const float lX = getNodeX(rNode.mColumn);
+    const float lY = rNode.mY;
+    const float lWidth = mStyle.mNodeWidth;
+    const float lHeight = rNode.mHeight;
 
-    if (lHeight < 1.0f) return;
+    if (lHeight < 1.0f) {
+        return;
+    }
 
     // Apply visibility alpha
     Color lColor = rNode.mColor;
-    lColor.a = (unsigned char)(lColor.a * rNode.mVisibility);
+    lColor.a = static_cast<unsigned char>(static_cast<float>(lColor.a) * rNode.mVisibility);
 
     // Highlight effect
-    bool lHighlighted = ((int)aNodeId == mHighlightedNode);
+    const bool lHighlighted = ((int)aNodeId == mHighlightedNode);
     if (lHighlighted) {
-        lColor.r = (unsigned char)fminf(255.0f, lColor.r * 1.2f);
-        lColor.g = (unsigned char)fminf(255.0f, lColor.g * 1.2f);
-        lColor.b = (unsigned char)fminf(255.0f, lColor.b * 1.2f);
+        lColor.r = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lColor.r) * 1.2f));
+        lColor.g = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lColor.g) * 1.2f));
+        lColor.b = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lColor.b) * 1.2f));
     }
 
-    Rectangle lRect = {lX, lY, lWidth, lHeight};
+    const Rectangle lRect = {lX, lY, lWidth, lHeight};
 
     // Draw node rectangle (with optional rounded corners)
     if (mStyle.mNodeCornerRadius > 0.0f) {
@@ -744,9 +792,9 @@ void RLSankey::drawNode(const NodeDyn& rNode, size_t aNodeId) const {
     // Draw border
     if (mStyle.mShowNodeBorder) {
         Color lBorderColor = mStyle.mNodeBorderColor;
-        lBorderColor.a = (unsigned char)(lBorderColor.a * rNode.mVisibility);
+        lBorderColor.a = static_cast<unsigned char>(static_cast<float>(lBorderColor.a) * rNode.mVisibility);
         if (lHighlighted) {
-            lBorderColor.a = (unsigned char)fminf(255.0f, lBorderColor.a * 1.5f);
+            lBorderColor.a = static_cast<unsigned char>(fminf(255.0f, static_cast<float>(lBorderColor.a) * 1.5f));
         }
 
         if (mStyle.mNodeCornerRadius > 0.0f) {
@@ -758,20 +806,26 @@ void RLSankey::drawNode(const NodeDyn& rNode, size_t aNodeId) const {
 }
 
 void RLSankey::drawLink(const LinkDyn& rLink) const {
-    if (rLink.mSourceId >= mNodes.size() || rLink.mTargetId >= mNodes.size()) return;
+    if (rLink.mSourceId >= mNodes.size() || rLink.mTargetId >= mNodes.size()) {
+        return;
+    }
 
     const NodeDyn& rSource = mNodes[rLink.mSourceId];
     const NodeDyn& rTarget = mNodes[rLink.mTargetId];
 
     // Check if link has sufficient thickness to draw
-    float lMaxThickness = (rLink.mSourceThickness > rLink.mTargetThickness)
+    const float lMaxThickness = (rLink.mSourceThickness > rLink.mTargetThickness)
                           ? rLink.mSourceThickness : rLink.mTargetThickness;
-    if (lMaxThickness < 0.5f) return;
+    if (lMaxThickness < 0.5f) {
+        return;
+    }
 
-    // Compute curve if dirty
+    // Compute a curve if dirty
     computeLinkCurve(rLink);
 
-    if (rLink.mCachedTopCurve.size() < 2) return;
+    if (rLink.mCachedTopCurve.size() < 2) {
+        return;
+    }
 
     // Determine colors based on mode
     Color lColorStart, lColorEnd;
@@ -811,24 +865,24 @@ void RLSankey::drawLink(const LinkDyn& rLink) const {
     }
 
     // Draw ribbon as triangle strip with gradient
-    size_t lSegCount = rLink.mCachedTopCurve.size();
+    const size_t lSegCount = rLink.mCachedTopCurve.size();
 
     for (size_t i = 0; i < lSegCount - 1; ++i) {
-        float lT1 = (float)i / (float)(lSegCount - 1);
-        float lT2 = (float)(i + 1) / (float)(lSegCount - 1);
+        const float lT1 = (float)i / (float)(lSegCount - 1);
+        const float lT2 = (float)(i + 1) / (float)(lSegCount - 1);
 
         Color lC1 = RLCharts::lerpColor(lColorStart, lColorEnd, lT1);
         Color lC2 = RLCharts::lerpColor(lColorStart, lColorEnd, lT2);
 
-        lC1.a = (unsigned char)(lC1.a * lAlpha);
-        lC2.a = (unsigned char)(lC2.a * lAlpha);
+        lC1.a = static_cast<unsigned char>(static_cast<float>(lC1.a) * lAlpha);
+        lC2.a = static_cast<unsigned char>(static_cast<float>(lC2.a) * lAlpha);
 
-        Vector2 lTop1 = rLink.mCachedTopCurve[i];
-        Vector2 lTop2 = rLink.mCachedTopCurve[i + 1];
-        Vector2 lBot1 = rLink.mCachedBottomCurve[i];
-        Vector2 lBot2 = rLink.mCachedBottomCurve[i + 1];
+        const Vector2 lTop1 = rLink.mCachedTopCurve[i];
+        const Vector2 lTop2 = rLink.mCachedTopCurve[i + 1];
+        const Vector2 lBot1 = rLink.mCachedBottomCurve[i];
+        const Vector2 lBot2 = rLink.mCachedBottomCurve[i + 1];
 
-        // Draw two triangles to form a quad
+        // Draw two triangles to form quad
         // Triangle 1: top1, bot1, top2
         DrawTriangle(lTop1, lBot1, lTop2, lC1);
         // Triangle 2: top2, bot1, bot2
@@ -837,43 +891,45 @@ void RLSankey::drawLink(const LinkDyn& rLink) const {
 }
 
 void RLSankey::computeLinkCurve(const LinkDyn& rLink) const {
-    if (!rLink.mCacheDirty) return;
+    if (!rLink.mCacheDirty) {
+        return;
+    }
 
     const NodeDyn& rSource = mNodes[rLink.mSourceId];
     const NodeDyn& rTarget = mNodes[rLink.mTargetId];
 
-    float lSourceX = getNodeX(rSource.mColumn) + mStyle.mNodeWidth;
-    float lTargetX = getNodeX(rTarget.mColumn);
+    const float lSourceX = getNodeX(rSource.mColumn) + mStyle.mNodeWidth;
+    const float lTargetX = getNodeX(rTarget.mColumn);
 
     // Source and target Y positions (top edge of link within node)
-    float lSourceYTop = rSource.mY + rLink.mSourceY;
-    float lTargetYTop = rTarget.mY + rLink.mTargetY;
+    const float lSourceYTop = rSource.mY + rLink.mSourceY;
+    const float lTargetYTop = rTarget.mY + rLink.mTargetY;
 
     // Control points for cubic Bezier (S-curve) - centerline
-    float lMidX = (lSourceX + lTargetX) * 0.5f;
+    const float lMidX = (lSourceX + lTargetX) * 0.5f;
 
     // Centerline control points (we'll offset by interpolated half-thickness)
-    Vector2 lP0 = {lSourceX, lSourceYTop + rLink.mSourceThickness * 0.5f};
-    Vector2 lP1 = {lMidX, lSourceYTop + rLink.mSourceThickness * 0.5f};
-    Vector2 lP2 = {lMidX, lTargetYTop + rLink.mTargetThickness * 0.5f};
-    Vector2 lP3 = {lTargetX, lTargetYTop + rLink.mTargetThickness * 0.5f};
+    const Vector2 lP0 = {lSourceX, lSourceYTop + rLink.mSourceThickness * 0.5f};
+    const Vector2 lP1 = {lMidX, lSourceYTop + rLink.mSourceThickness * 0.5f};
+    const Vector2 lP2 = {lMidX, lTargetYTop + rLink.mTargetThickness * 0.5f};
+    const Vector2 lP3 = {lTargetX, lTargetYTop + rLink.mTargetThickness * 0.5f};
 
     // Generate curve points with interpolated thickness
-    int lSegments = mStyle.mLinkSegments;
+    const int lSegments = mStyle.mLinkSegments;
     rLink.mCachedTopCurve.resize(lSegments + 1);
     rLink.mCachedBottomCurve.resize(lSegments + 1);
 
     for (int i = 0; i <= lSegments; ++i) {
-        float lT = (float)i / (float)lSegments;
+        const float lT = (float)i / (float)lSegments;
 
         // Get centerline point
-        Vector2 lCenter = cubicBezier(lP0, lP1, lP2, lP3, lT);
+        const Vector2 lCenter = cubicBezier(lP0, lP1, lP2, lP3, lT);
 
         // Interpolate thickness along the curve
-        float lThickness = rLink.mSourceThickness + (rLink.mTargetThickness - rLink.mSourceThickness) * lT;
-        float lHalfThickness = lThickness * 0.5f;
+        const float lThickness = rLink.mSourceThickness + (rLink.mTargetThickness - rLink.mSourceThickness) * lT;
+        const float lHalfThickness = lThickness * 0.5f;
 
-        // Offset top and bottom from centerline
+        // Offset top and bottom from the centerline
         rLink.mCachedTopCurve[i] = {lCenter.x, lCenter.y - lHalfThickness};
         rLink.mCachedBottomCurve[i] = {lCenter.x, lCenter.y + lHalfThickness};
     }
@@ -882,11 +938,11 @@ void RLSankey::computeLinkCurve(const LinkDyn& rLink) const {
 }
 
 Vector2 RLSankey::cubicBezier(Vector2 aP0, Vector2 aP1, Vector2 aP2, Vector2 aP3, float aT) const {
-    float lU = 1.0f - aT;
-    float lU2 = lU * lU;
-    float lU3 = lU2 * lU;
-    float lT2 = aT * aT;
-    float lT3 = lT2 * aT;
+    const float lU = 1.0f - aT;
+    const float lU2 = lU * lU;
+    const float lU3 = lU2 * lU;
+    const float lT2 = aT * aT;
+    const float lT3 = lT2 * aT;
 
     Vector2 lResult;
     lResult.x = lU3 * aP0.x + 3.0f * lU2 * aT * aP1.x + 3.0f * lU * lT2 * aP2.x + lT3 * aP3.x;
@@ -899,7 +955,7 @@ float RLSankey::getNodeX(int aColumn) const {
         return mChartLeft + mChartWidth * 0.5f - mStyle.mNodeWidth * 0.5f;
     }
 
-    float lSpacing = (mChartWidth - mStyle.mNodeWidth) / (float)(mColumnCount - 1);
+    const float lSpacing = (mChartWidth - mStyle.mNodeWidth) / (float)(mColumnCount - 1);
     return mChartLeft + lSpacing * (float)aColumn;
 }
 
@@ -910,10 +966,12 @@ float RLSankey::getNodeX(int aColumn) const {
 int RLSankey::getHoveredNode(Vector2 aMousePos) const {
     for (size_t i = 0; i < mNodes.size(); ++i) {
         const NodeDyn& rNode = mNodes[i];
-        if (rNode.mPendingRemoval || rNode.mVisibility < 0.1f) continue;
+        if (rNode.mPendingRemoval || rNode.mVisibility < 0.1f) {
+            continue;
+        }
 
-        float lX = getNodeX(rNode.mColumn);
-        Rectangle lRect = {lX, rNode.mY, mStyle.mNodeWidth, rNode.mHeight};
+        const float lX = getNodeX(rNode.mColumn);
+        const Rectangle lRect = {lX, rNode.mY, mStyle.mNodeWidth, rNode.mHeight};
 
         if (CheckCollisionPointRec(aMousePos, lRect)) {
             return (int)i;
@@ -926,18 +984,22 @@ int RLSankey::getHoveredLink(Vector2 aMousePos) const {
     // Simple proximity check to link centerline
     for (size_t i = 0; i < mLinks.size(); ++i) {
         const LinkDyn& rLink = mLinks[i];
-        if (rLink.mPendingRemoval || rLink.mVisibility < 0.1f) continue;
-        if (rLink.mCachedTopCurve.empty()) continue;
+        if (rLink.mPendingRemoval || rLink.mVisibility < 0.1f) {
+            continue;
+        }
+        if (rLink.mCachedTopCurve.empty()) {
+            continue;
+        }
 
         // Check if point is near the link ribbon
         for (size_t j = 0; j < rLink.mCachedTopCurve.size(); ++j) {
-            Vector2 lTop = rLink.mCachedTopCurve[j];
-            Vector2 lBot = rLink.mCachedBottomCurve[j];
-            float lCenterY = (lTop.y + lBot.y) * 0.5f;
-            float lHalfThick = (lBot.y - lTop.y) * 0.5f + 5.0f; // Add some tolerance
+            const Vector2 lTop = rLink.mCachedTopCurve[j];
+            const Vector2 lBot = rLink.mCachedBottomCurve[j];
+            const float lCenterY = (lTop.y + lBot.y) * 0.5f;
+            const float lHalfThick = (lBot.y - lTop.y) * 0.5f + 5.0f; // Add some tolerance
 
-            float lDx = aMousePos.x - lTop.x;
-            float lDy = aMousePos.y - lCenterY;
+            const float lDx = aMousePos.x - lTop.x;
+            const float lDy = aMousePos.y - lCenterY;
 
             if (lDx * lDx < 100.0f && lDy * lDy < lHalfThick * lHalfThick) {
                 return (int)i;

@@ -231,7 +231,7 @@ void RLHeatMap::updateTexturePixels(){
     // Cast to uint32_t to write 4 bytes (RGBA) in one instruction
     // Raylib Color is r,g,b,a in memory (struct), usually packed.
     // WARNING: This assumes Little Endian for exact byte order if constructing integer manually,
-    // but here we just copy from Color struct which is safe if we copy the struct.
+    // but here we just copy from Color struct, which is safe if we copy the struct.
     // However, writing to uint32_t* is the standard optimization for pixel buffers.
     auto pPixels32 = (uint32_t*)mPixels.data();
 

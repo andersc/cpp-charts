@@ -32,10 +32,14 @@ void RLTimeSeries::setStyle(const RLTimeSeriesChartStyle& rStyle) {
 }
 
 void RLTimeSeries::setWindowSize(size_t aWindowSize) {
-    if (aWindowSize == 0) aWindowSize = 1;
-    if (aWindowSize == mWindowSize) return;
+    if (aWindowSize == 0) {
+        aWindowSize = 1;
+    }
+    if (aWindowSize == mWindowSize) {
+        return;
+    }
 
-    size_t lOldWindowSize = mWindowSize;
+    const size_t lOldWindowSize = mWindowSize;
     mWindowSize = aWindowSize;
 
     // Resize all trace buffers
@@ -43,11 +47,11 @@ void RLTimeSeries::setWindowSize(size_t aWindowSize) {
         if (lTrace.mSamples.size() != mWindowSize) {
             // Need to reorganize ring buffer
             std::vector<float> lNewBuffer(mWindowSize, 0.0f);
-            size_t lCopyCount = lTrace.mCount < mWindowSize ? lTrace.mCount : mWindowSize;
+            const size_t lCopyCount = lTrace.mCount < mWindowSize ? lTrace.mCount : mWindowSize;
 
             // Copy most recent samples
             for (size_t i = 0; i < lCopyCount; ++i) {
-                size_t lOldIdx = (lTrace.mHead + lTrace.mCount - lCopyCount + i) % lOldWindowSize;
+                const size_t lOldIdx = (lTrace.mHead + lTrace.mCount - lCopyCount + i) % lOldWindowSize;
                 lNewBuffer[i] = lTrace.mSamples[lOldIdx];
             }
 
@@ -76,18 +80,24 @@ size_t RLTimeSeries::addTrace(const RLTimeSeriesTraceStyle& aStyle) {
 }
 
 void RLTimeSeries::setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& rStyle) {
-    if (aIndex >= mTraces.size()) return;
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
     mTraces[aIndex].mStyle = rStyle;
     mTraces[aIndex].mDirty = true;
 }
 
 void RLTimeSeries::setTraceVisible(size_t aIndex, bool aVisible) {
-    if (aIndex >= mTraces.size()) return;
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
     mTraces[aIndex].mStyle.mVisible = aVisible;
 }
 
 void RLTimeSeries::clearTrace(size_t aIndex) {
-    if (aIndex >= mTraces.size()) return;
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
     mTraces[aIndex].mHead = 0;
     mTraces[aIndex].mCount = 0;
     mTraces[aIndex].mDirty = true;
@@ -102,7 +112,9 @@ void RLTimeSeries::clearAllTraces() {
 }
 
 size_t RLTimeSeries::getTraceSampleCount(size_t aIndex) const {
-    if (aIndex >= mTraces.size()) return 0;
+    if (aIndex >= mTraces.size()) {
+        return 0;
+    }
     return mTraces[aIndex].mCount;
 }
 
@@ -111,7 +123,9 @@ size_t RLTimeSeries::getTraceSampleCount(size_t aIndex) const {
 // ============================================================================
 
 void RLTimeSeries::pushSample(size_t aTraceIndex, float aValue) {
-    if (aTraceIndex >= mTraces.size()) return;
+    if (aTraceIndex >= mTraces.size()) {
+        return;
+    }
 
     RLTimeSeriesTrace& rTrace = mTraces[aTraceIndex];
     rTrace.mSamples[rTrace.mHead] = aValue;
@@ -123,7 +137,9 @@ void RLTimeSeries::pushSample(size_t aTraceIndex, float aValue) {
 }
 
 void RLTimeSeries::pushSamples(size_t aTraceIndex, const float* pValues, size_t aCount) {
-    if (aTraceIndex >= mTraces.size() || pValues == nullptr || aCount == 0) return;
+    if (aTraceIndex >= mTraces.size() || pValues == nullptr || aCount == 0) {
+        return;
+    }
 
     RLTimeSeriesTrace& rTrace = mTraces[aTraceIndex];
     for (size_t i = 0; i < aCount; ++i) {
@@ -137,7 +153,9 @@ void RLTimeSeries::pushSamples(size_t aTraceIndex, const float* pValues, size_t 
 }
 
 void RLTimeSeries::pushSamples(size_t aTraceIndex, const std::vector<float>& rValues) {
-    if (rValues.empty()) return;
+    if (rValues.empty()) {
+        return;
+    }
     pushSamples(aTraceIndex, rValues.data(), rValues.size());
 }
 
@@ -160,24 +178,28 @@ void RLTimeSeries::updateScale(float aDt) {
         bool lHasData = false;
 
         for (const auto& lTrace : mTraces) {
-            if (!lTrace.mStyle.mVisible || lTrace.mCount == 0) continue;
+            if (!lTrace.mStyle.mVisible || lTrace.mCount == 0) {
+                continue;
+            }
 
             for (size_t i = 0; i < lTrace.mCount; ++i) {
-                float lVal = getSample(lTrace, i);
+                const float lVal = getSample(lTrace, i);
                 if (!lHasData) {
                     lDataMin = lDataMax = lVal;
                     lHasData = true;
                 } else {
-                    if (lVal < lDataMin) lDataMin = lVal;
-                    if (lVal > lDataMax) lDataMax = lVal;
+                    lDataMin = std::min(lVal, lDataMin);
+                    lDataMax = std::max(lVal, lDataMax);
                 }
             }
         }
 
         if (lHasData) {
             float lRange = lDataMax - lDataMin;
-            if (lRange < 0.001f) lRange = 1.0f; // Avoid zero range
-            float lMargin = lRange * mStyle.mAutoScaleMargin;
+            if (lRange < 0.001f) {
+                lRange = 1.0f; // Avoid zero range
+            }
+            const float lMargin = lRange * mStyle.mAutoScaleMargin;
             mTargetMinY = lDataMin - lMargin;
             mTargetMaxY = lDataMax + lMargin;
         }
@@ -185,7 +207,7 @@ void RLTimeSeries::updateScale(float aDt) {
 
     // Smooth transition
     if (mStyle.mSmoothScale) {
-        float lSpeed = mStyle.mScaleSpeed * aDt;
+        const float lSpeed = mStyle.mScaleSpeed * aDt;
         mCurrentMinY = RLCharts::approach(mCurrentMinY, mTargetMinY, lSpeed);
         mCurrentMaxY = RLCharts::approach(mCurrentMaxY, mTargetMaxY, lSpeed);
     } else {
@@ -194,7 +216,7 @@ void RLTimeSeries::updateScale(float aDt) {
     }
 
     // Mark traces dirty if scale changed significantly
-    float lEps = 0.0001f;
+    const float lEps = 0.0001f;
     if (fabsf(mCurrentMinY - mTargetMinY) > lEps || fabsf(mCurrentMaxY - mTargetMaxY) > lEps) {
         for (auto& lTrace : mTraces) {
             lTrace.mDirty = true;
@@ -207,7 +229,7 @@ void RLTimeSeries::updateScale(float aDt) {
 // ============================================================================
 
 void RLTimeSeries::draw() const {
-    Rectangle lPlotArea = getPlotArea();
+    const Rectangle lPlotArea = getPlotArea();
 
     // Background
     if (mStyle.mShowBackground) {
@@ -231,7 +253,9 @@ void RLTimeSeries::draw() const {
     // Draw all visible traces
     for (size_t i = 0; i < mTraces.size(); ++i) {
         const RLTimeSeriesTrace& rTrace = mTraces[i];
-        if (!rTrace.mStyle.mVisible || rTrace.mCount < 2) continue;
+        if (!rTrace.mStyle.mVisible || rTrace.mCount < 2) {
+            continue;
+        }
 
         if (rTrace.mDirty) {
             rebuildScreenPoints(i);
@@ -245,25 +269,25 @@ void RLTimeSeries::draw() const {
 }
 
 void RLTimeSeries::drawGrid() const {
-    Rectangle lPlotArea = getPlotArea();
+    const Rectangle lPlotArea = getPlotArea();
 
     // Vertical grid lines
     for (int i = 0; i <= mStyle.mGridLinesX; ++i) {
-        float lX = lPlotArea.x + (lPlotArea.width * (float)i / (float)mStyle.mGridLinesX);
+        const float lX = lPlotArea.x + (lPlotArea.width * (float)i / (float)mStyle.mGridLinesX);
         DrawLineEx({ lX, lPlotArea.y }, { lX, lPlotArea.y + lPlotArea.height },
                    1.0f, mStyle.mGridColor);
     }
 
     // Horizontal grid lines
     for (int i = 0; i <= mStyle.mGridLinesY; ++i) {
-        float lY = lPlotArea.y + (lPlotArea.height * (float)i / (float)mStyle.mGridLinesY);
+        const float lY = lPlotArea.y + (lPlotArea.height * (float)i / (float)mStyle.mGridLinesY);
         DrawLineEx({ lPlotArea.x, lY }, { lPlotArea.x + lPlotArea.width, lY },
                    1.0f, mStyle.mGridColor);
     }
 }
 
 void RLTimeSeries::drawAxes() const {
-    Rectangle lPlotArea = getPlotArea();
+    const Rectangle lPlotArea = getPlotArea();
 
     // Left axis
     DrawLineEx({ lPlotArea.x, lPlotArea.y },
@@ -306,7 +330,7 @@ void RLTimeSeries::drawTrace(const RLTimeSeriesTrace& rTrace) const {
 // ============================================================================
 
 Rectangle RLTimeSeries::getPlotArea() const {
-    float lPad = mStyle.mPadding;
+    const float lPad = mStyle.mPadding;
     return {
         mBounds.x + lPad,
         mBounds.y + lPad,
@@ -317,15 +341,19 @@ Rectangle RLTimeSeries::getPlotArea() const {
 
 float RLTimeSeries::getSample(const RLTimeSeriesTrace& rTrace, size_t aIndex) {
     // Get sample at logical index (0 = oldest, mCount-1 = newest)
-    if (aIndex >= rTrace.mCount) return 0.0f;
-    size_t lBufferSize = rTrace.mSamples.size();
-    size_t lStart = (rTrace.mHead + lBufferSize - rTrace.mCount) % lBufferSize;
-    size_t lActualIdx = (lStart + aIndex) % lBufferSize;
+    if (aIndex >= rTrace.mCount) {
+        return 0.0f;
+    }
+    const size_t lBufferSize = rTrace.mSamples.size();
+    const size_t lStart = (rTrace.mHead + lBufferSize - rTrace.mCount) % lBufferSize;
+    const size_t lActualIdx = (lStart + aIndex) % lBufferSize;
     return rTrace.mSamples[lActualIdx];
 }
 
 void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
-    if (aTraceIndex >= mTraces.size()) return;
+    if (aTraceIndex >= mTraces.size()) {
+        return;
+    }
 
     const RLTimeSeriesTrace& rTrace = mTraces[aTraceIndex];
     if (rTrace.mCount < 2) {
@@ -334,27 +362,29 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
         return;
     }
 
-    Rectangle lPlotArea = getPlotArea();
+    const Rectangle lPlotArea = getPlotArea();
     float lYRange = mCurrentMaxY - mCurrentMinY;
-    if (lYRange < 0.0001f) lYRange = 1.0f;
+    if (lYRange < 0.0001f) {
+        lYRange = 1.0f;
+    }
 
     // Build screen points
     rTrace.mScreenPoints.resize(rTrace.mCount);
 
     // Calculate X spacing based on window size (full width = full window)
     // During build-up phase, data fills from left toward right
-    float lXStep = lPlotArea.width / (float)(mWindowSize - 1);
+    const float lXStep = lPlotArea.width / (float)(mWindowSize - 1);
 
     for (size_t i = 0; i < rTrace.mCount; ++i) {
-        float lVal = getSample(rTrace, i);
+        const float lVal = getSample(rTrace, i);
 
         // X: position based on sample index within the window
         // Oldest sample at left, newest at right
-        float lX = lPlotArea.x + lXStep * (float)i;
+        const float lX = lPlotArea.x + lXStep * (float)i;
 
         // Y: map value to screen (inverted: higher values = lower Y)
-        float lNormY = (lVal - mCurrentMinY) / lYRange;
-        float lY = lPlotArea.y + lPlotArea.height * (1.0f - lNormY);
+        const float lNormY = (lVal - mCurrentMinY) / lYRange;
+        const float lY = lPlotArea.y + lPlotArea.height * (1.0f - lNormY);
 
         rTrace.mScreenPoints[i] = { lX, lY };
     }
@@ -368,31 +398,31 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
         }
 
         size_t lSplinePoints = (size_t)(lTotalDist / mStyle.mSplinePixels) + rTrace.mCount;
-        if (lSplinePoints < rTrace.mCount) lSplinePoints = rTrace.mCount;
-        if (lSplinePoints > 10000) lSplinePoints = 10000; // Reasonable limit
+        lSplinePoints = std::max(lSplinePoints, rTrace.mCount);
+        lSplinePoints = std::min(lSplinePoints, (size_t)10000); // Reasonable limit
 
         rTrace.mSplineCache.resize(lSplinePoints);
 
-        size_t lNumSegments = rTrace.mScreenPoints.size() - 1;
+        const size_t lNumSegments = rTrace.mScreenPoints.size() - 1;
         size_t lPointsPerSegment = lSplinePoints / lNumSegments;
-        if (lPointsPerSegment < 2) lPointsPerSegment = 2;
+        lPointsPerSegment = std::max(lPointsPerSegment, (size_t)2);
 
         size_t lOutIdx = 0;
         for (size_t seg = 0; seg < lNumSegments && lOutIdx < lSplinePoints; ++seg) {
             // Get control points for Catmull-Rom
-            size_t lI0 = (seg > 0) ? seg - 1 : 0;
-            size_t lI1 = seg;
-            size_t lI2 = seg + 1;
-            size_t lI3 = (seg + 2 < rTrace.mScreenPoints.size()) ? seg + 2 : rTrace.mScreenPoints.size() - 1;
+            const size_t lI0 = (seg > 0) ? seg - 1 : 0;
+            const size_t lI1 = seg;
+            const size_t lI2 = seg + 1;
+            const size_t lI3 = (seg + 2 < rTrace.mScreenPoints.size()) ? seg + 2 : rTrace.mScreenPoints.size() - 1;
 
-            Vector2 lP0 = rTrace.mScreenPoints[lI0];
-            Vector2 lP1 = rTrace.mScreenPoints[lI1];
-            Vector2 lP2 = rTrace.mScreenPoints[lI2];
-            Vector2 lP3 = rTrace.mScreenPoints[lI3];
+            const Vector2 lP0 = rTrace.mScreenPoints[lI0];
+            const Vector2 lP1 = rTrace.mScreenPoints[lI1];
+            const Vector2 lP2 = rTrace.mScreenPoints[lI2];
+            const Vector2 lP3 = rTrace.mScreenPoints[lI3];
 
-            size_t lSteps = (seg == lNumSegments - 1) ? (lSplinePoints - lOutIdx) : lPointsPerSegment;
+            const size_t lSteps = (seg == lNumSegments - 1) ? (lSplinePoints - lOutIdx) : lPointsPerSegment;
             for (size_t s = 0; s < lSteps && lOutIdx < lSplinePoints; ++s) {
-                float lT = (float)s / (float)lSteps;
+                const float lT = (float)s / (float)lSteps;
                 rTrace.mSplineCache[lOutIdx++] = RLCharts::catmullRom(lP0, lP1, lP2, lP3, lT);
             }
         }

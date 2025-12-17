@@ -64,7 +64,9 @@ void RLOrderBookVis::setBounds(Rectangle aBounds) {
 }
 
 void RLOrderBookVis::setHistoryLength(size_t aLength) {
-    if (aLength == mHistoryLength || aLength == 0) return;
+    if (aLength == mHistoryLength || aLength == 0) {
+        return;
+    }
     mHistoryLength = aLength;
     ensureBuffers();
     mTextureDirty = true;
@@ -72,7 +74,9 @@ void RLOrderBookVis::setHistoryLength(size_t aLength) {
 }
 
 void RLOrderBookVis::setPriceLevels(size_t aLevels) {
-    if (aLevels == mPriceLevels || aLevels == 0) return;
+    if (aLevels == mPriceLevels || aLevels == 0) {
+        return;
+    }
     mPriceLevels = aLevels;
     ensureBuffers();
     mTextureDirty = true;
@@ -113,7 +117,7 @@ void RLOrderBookVis::setAskColorStops(const std::vector<Color>& rStops) {
 }
 
 void RLOrderBookVis::ensureBuffers() {
-    size_t lTotal = mHistoryLength * mPriceLevels;
+    const size_t lTotal = mHistoryLength * mPriceLevels;
 
     mBidGrid.assign(lTotal, 0.0f);
     mAskGrid.assign(lTotal, 0.0f);
@@ -138,42 +142,46 @@ void RLOrderBookVis::ensureBuffers() {
 
 void RLOrderBookVis::rebuildLUT() {
     // Build bid LUT
-    int lBidN = (int)mBidStops.size();
+    const int lBidN = (int)mBidStops.size();
     if (lBidN >= 2) {
         for (int i = 0; i < 256; ++i) {
-            float lT = (float)i / 255.0f;
-            float lSegF = lT * (float)(lBidN - 1);
+            const float lT = (float)i / 255.0f;
+            const float lSegF = lT * (float)(lBidN - 1);
             int lSeg = (int)lSegF;
-            if (lSeg >= lBidN - 1) lSeg = lBidN - 2;
-            float lLocalT = lSegF - (float)lSeg;
+            if (lSeg >= lBidN - 1) {
+                lSeg = lBidN - 2;
+            }
+            const float lLocalT = lSegF - (float)lSeg;
 
             const Color& lA = mBidStops[(size_t)lSeg];
             const Color& lB = mBidStops[(size_t)lSeg + 1];
 
-            mBidLut[i].r = (unsigned char)(lA.r + (int)((lB.r - lA.r) * lLocalT));
-            mBidLut[i].g = (unsigned char)(lA.g + (int)((lB.g - lA.g) * lLocalT));
-            mBidLut[i].b = (unsigned char)(lA.b + (int)((lB.b - lA.b) * lLocalT));
-            mBidLut[i].a = (unsigned char)(lA.a + (int)((lB.a - lA.a) * lLocalT));
+            mBidLut[i].r = (unsigned char)((float)lA.r + ((float)lB.r - (float)lA.r) * lLocalT);
+            mBidLut[i].g = (unsigned char)((float)lA.g + ((float)lB.g - (float)lA.g) * lLocalT);
+            mBidLut[i].b = (unsigned char)((float)lA.b + ((float)lB.b - (float)lA.b) * lLocalT);
+            mBidLut[i].a = (unsigned char)((float)lA.a + ((float)lB.a - (float)lA.a) * lLocalT);
         }
     }
 
     // Build ask LUT
-    int lAskN = (int)mAskStops.size();
+    const int lAskN = (int)mAskStops.size();
     if (lAskN >= 2) {
         for (int i = 0; i < 256; ++i) {
-            float lT = (float)i / 255.0f;
-            float lSegF = lT * (float)(lAskN - 1);
+            const float lT = (float)i / 255.0f;
+            const float lSegF = lT * (float)(lAskN - 1);
             int lSeg = (int)lSegF;
-            if (lSeg >= lAskN - 1) lSeg = lAskN - 2;
-            float lLocalT = lSegF - (float)lSeg;
+            if (lSeg >= lAskN - 1) {
+                lSeg = lAskN - 2;
+            }
+            const float lLocalT = lSegF - (float)lSeg;
 
             const Color& lA = mAskStops[(size_t)lSeg];
             const Color& lB = mAskStops[(size_t)lSeg + 1];
 
-            mAskLut[i].r = (unsigned char)(lA.r + (int)((lB.r - lA.r) * lLocalT));
-            mAskLut[i].g = (unsigned char)(lA.g + (int)((lB.g - lA.g) * lLocalT));
-            mAskLut[i].b = (unsigned char)(lA.b + (int)((lB.b - lA.b) * lLocalT));
-            mAskLut[i].a = (unsigned char)(lA.a + (int)((lB.a - lA.a) * lLocalT));
+            mAskLut[i].r = (unsigned char)((float)lA.r + ((float)lB.r - (float)lA.r) * lLocalT);
+            mAskLut[i].g = (unsigned char)((float)lA.g + ((float)lB.g - (float)lA.g) * lLocalT);
+            mAskLut[i].b = (unsigned char)((float)lA.b + ((float)lB.b - (float)lA.b) * lLocalT);
+            mAskLut[i].a = (unsigned char)((float)lA.a + ((float)lB.a - (float)lA.a) * lLocalT);
         }
     }
 
@@ -196,7 +204,7 @@ void RLOrderBookVis::clear() {
 
 float RLOrderBookVis::priceToNormalized(float aPrice) const {
     float lRange = mCurrentMaxPrice - mCurrentMinPrice;
-    if (lRange < 0.0001f) lRange = 0.0001f;
+    lRange = std::max(lRange, 0.0001f);
     return (aPrice - mCurrentMinPrice) / lRange;
 }
 
@@ -205,9 +213,9 @@ float RLOrderBookVis::normalizedToPrice(float aNorm) const {
 }
 
 int RLOrderBookVis::priceToGridRow(float aPrice) const {
-    float lNorm = priceToNormalized(aPrice);
+    const float lNorm = priceToNormalized(aPrice);
     // Flip: high prices at top (row 0), low prices at bottom
-    int lRow = (int)((1.0f - lNorm) * (float)mPriceLevels);
+    const int lRow = (int)((1.0f - lNorm) * (float)mPriceLevels);
     return RLCharts::clampIdx(lRow, (int)mPriceLevels);
 }
 
@@ -217,13 +225,17 @@ size_t RLOrderBookVis::gridIndex(size_t aTimeIdx, size_t aPriceIdx) const {
 
 size_t RLOrderBookVis::ringTimeIndex(size_t aOffset) const {
     // Convert display offset (0 = oldest visible) to ring buffer index
-    if (mSnapshotCount == 0 || mHistoryLength == 0) return 0;
+    if (mSnapshotCount == 0 || mHistoryLength == 0) {
+        return 0;
+    }
 
-    size_t lVisibleCount = mSnapshotCount < mHistoryLength ? mSnapshotCount : mHistoryLength;
-    if (aOffset >= lVisibleCount) aOffset = lVisibleCount - 1;
+    const size_t lVisibleCount = mSnapshotCount < mHistoryLength ? mSnapshotCount : mHistoryLength;
+    if (aOffset >= lVisibleCount) {
+        aOffset = lVisibleCount - 1;
+    }
 
     // Oldest visible snapshot
-    size_t lOldest = (mHead + mHistoryLength - lVisibleCount) % mHistoryLength;
+    const size_t lOldest = (mHead + mHistoryLength - lVisibleCount) % mHistoryLength;
     return (lOldest + aOffset) % mHistoryLength;
 }
 
@@ -246,12 +258,12 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
             lMinPrice = 1e30f;
             lMaxPrice = -1e30f;
             for (const auto& lBid : rSnapshot.mBids) {
-                if (lBid.first < lMinPrice) lMinPrice = lBid.first;
-                if (lBid.first > lMaxPrice) lMaxPrice = lBid.first;
+                lMinPrice = std::min(lBid.first, lMinPrice);
+                lMaxPrice = std::max(lBid.first, lMaxPrice);
             }
             for (const auto& lAsk : rSnapshot.mAsks) {
-                if (lAsk.first < lMinPrice) lMinPrice = lAsk.first;
-                if (lAsk.first > lMaxPrice) lMaxPrice = lAsk.first;
+                lMinPrice = std::min(lAsk.first, lMinPrice);
+                lMaxPrice = std::max(lAsk.first, lMaxPrice);
             }
             if (lMinPrice > lMaxPrice) {
                 lMinPrice = mCurrentMidPrice - 1.0f;
@@ -260,9 +272,9 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
             break;
         }
         case RLOrderBookPriceMode::SpreadTicks: {
-            // Estimate tick size from spread or use small fraction
-            float lTickSize = mCurrentSpread > 0.0001f ? mCurrentSpread : 0.01f;
-            float lHalfRange = lTickSize * (float)mSpreadTicks;
+            // Estimate tick size from spread or use a small fraction
+            const float lTickSize = mCurrentSpread > 0.0001f ? mCurrentSpread : 0.01f;
+            const float lHalfRange = lTickSize * (float)mSpreadTicks;
             lMinPrice = mCurrentMidPrice - lHalfRange;
             lMaxPrice = mCurrentMidPrice + lHalfRange;
             break;
@@ -279,7 +291,7 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
     mTargetMaxPrice = lMaxPrice;
 
     // Clear the column we're about to write
-    size_t lColStart = mHead * mPriceLevels;
+    const size_t lColStart = mHead * mPriceLevels;
     for (size_t i = 0; i < mPriceLevels; ++i) {
         mBidGrid[lColStart + i] = 0.0f;
         mAskGrid[lColStart + i] = 0.0f;
@@ -291,33 +303,37 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
 
     // Write bids to grid
     for (const auto& lBid : rSnapshot.mBids) {
-        float lPrice = lBid.first;
-        float lSize = lBid.second;
-        if (lPrice < mCurrentMinPrice || lPrice > mCurrentMaxPrice) continue;
+        const float lPrice = lBid.first;
+        const float lSize = lBid.second;
+        if (lPrice < mCurrentMinPrice || lPrice > mCurrentMaxPrice) {
+            continue;
+        }
 
-        int lRow = priceToGridRow(lPrice);
-        size_t lIdx = gridIndex(mHead, (size_t)lRow);
+        const int lRow = priceToGridRow(lPrice);
+        const size_t lIdx = gridIndex(mHead, (size_t)lRow);
         mBidGrid[lIdx] += lSize;
 
-        if (mBidGrid[lIdx] > lLocalMaxBid) lLocalMaxBid = mBidGrid[lIdx];
+        lLocalMaxBid = std::max(mBidGrid[lIdx], lLocalMaxBid);
     }
 
     // Write asks to grid
     for (const auto& lAsk : rSnapshot.mAsks) {
-        float lPrice = lAsk.first;
-        float lSize = lAsk.second;
-        if (lPrice < mCurrentMinPrice || lPrice > mCurrentMaxPrice) continue;
+        const float lPrice = lAsk.first;
+        const float lSize = lAsk.second;
+        if (lPrice < mCurrentMinPrice || lPrice > mCurrentMaxPrice) {
+            continue;
+        }
 
-        int lRow = priceToGridRow(lPrice);
-        size_t lIdx = gridIndex(mHead, (size_t)lRow);
+        const int lRow = priceToGridRow(lPrice);
+        const size_t lIdx = gridIndex(mHead, (size_t)lRow);
         mAskGrid[lIdx] += lSize;
 
-        if (mAskGrid[lIdx] > lLocalMaxAsk) lLocalMaxAsk = mAskGrid[lIdx];
+        lLocalMaxAsk = std::max(mAskGrid[lIdx], lLocalMaxAsk);
     }
 
     // Update max sizes
-    if (lLocalMaxBid > mMaxBidSize) mMaxBidSize = lLocalMaxBid;
-    if (lLocalMaxAsk > mMaxAskSize) mMaxAskSize = lLocalMaxAsk;
+    mMaxBidSize = std::max(lLocalMaxBid, mMaxBidSize);
+    mMaxAskSize = std::max(lLocalMaxAsk, mMaxAskSize);
 
     // Advance ring buffer
     mHead = (mHead + 1) % mHistoryLength;
@@ -331,7 +347,7 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
 
 void RLOrderBookVis::update(float aDt) {
     // Smooth price range transitions
-    float lT = RLCharts::clamp01(mStyle.mScaleSpeed * aDt);
+    const float lT = RLCharts::clamp01(mStyle.mScaleSpeed * aDt);
     mCurrentMinPrice = RLCharts::lerpF(mCurrentMinPrice, mTargetMinPrice, lT);
     mCurrentMaxPrice = RLCharts::lerpF(mCurrentMaxPrice, mTargetMaxPrice, lT);
 
@@ -342,8 +358,8 @@ void RLOrderBookVis::update(float aDt) {
     // Decay max sizes slowly to adapt to changing conditions
     mMaxBidSize *= (1.0f - 0.1f * aDt);
     mMaxAskSize *= (1.0f - 0.1f * aDt);
-    if (mMaxBidSize < 1.0f) mMaxBidSize = 1.0f;
-    if (mMaxAskSize < 1.0f) mMaxAskSize = 1.0f;
+    mMaxBidSize = std::max(mMaxBidSize, 1.0f);
+    mMaxAskSize = std::max(mMaxAskSize, 1.0f);
 
     // Rebuild LUT if needed
     if (mLutDirty) {
@@ -366,9 +382,11 @@ void RLOrderBookVis::update(float aDt) {
 }
 
 void RLOrderBookVis::rebuildTexture() {
-    if (mTextureValid && mTexture.id != 0) return; // Already valid
+    if (mTextureValid && mTexture.id != 0) {
+        return; // Already valid
+    }
 
-    // Create texture from pixel buffer
+    // Create texture from a pixel buffer
     Image lImg = {};
     lImg.data = mPixels.data();
     lImg.width = (int)mHistoryLength;
@@ -384,60 +402,62 @@ void RLOrderBookVis::rebuildTexture() {
 }
 
 void RLOrderBookVis::updateTexturePixels() {
-    if (mSnapshotCount == 0) return;
+    if (mSnapshotCount == 0) {
+        return;
+    }
 
 
     // Inverse max for scaling
-    float lInvMaxBid = (mCurrentMaxBid > 0.001f) ? (1.0f / mCurrentMaxBid) : 1.0f;
-    float lInvMaxAsk = (mCurrentMaxAsk > 0.001f) ? (1.0f / mCurrentMaxAsk) : 1.0f;
-    float lIntensityMult = mStyle.mIntensityScale * 255.0f;
+    const float lInvMaxBid = (mCurrentMaxBid > 0.001f) ? (1.0f / mCurrentMaxBid) : 1.0f;
+    const float lInvMaxAsk = (mCurrentMaxAsk > 0.001f) ? (1.0f / mCurrentMaxAsk) : 1.0f;
+    const float lIntensityMult = mStyle.mIntensityScale * 255.0f;
 
     // Convert grid to pixels
     // Pixel layout: row 0 = highest price, row (priceLevels-1) = lowest price
     // Column 0 = oldest snapshot, column (visibleCount-1) = newest
 
-    uint32_t* pPixels = (uint32_t*)mPixels.data();
+    auto* pPixels = (uint32_t*)mPixels.data();
 
     for (size_t lTimeOffset = 0; lTimeOffset < mHistoryLength; ++lTimeOffset) {
-        size_t lRingIdx = ringTimeIndex(lTimeOffset);
+        const size_t lRingIdx = ringTimeIndex(lTimeOffset);
 
         for (size_t lPriceIdx = 0; lPriceIdx < mPriceLevels; ++lPriceIdx) {
-            size_t lGridIdx = gridIndex(lRingIdx, lPriceIdx);
-            size_t lPixelIdx = lPriceIdx * mHistoryLength + lTimeOffset;
+            const size_t lGridIdx = gridIndex(lRingIdx, lPriceIdx);
+            const size_t lPixelIdx = lPriceIdx * mHistoryLength + lTimeOffset;
 
-            float lBidVal = mBidGrid[lGridIdx];
-            float lAskVal = mAskGrid[lGridIdx];
+            const float lBidVal = mBidGrid[lGridIdx];
+            const float lAskVal = mAskGrid[lGridIdx];
 
             Color lColor;
 
             if (lBidVal > 0.0f && lAskVal > 0.0f) {
                 // Both bid and ask at this level - blend colors
-                float lBidIntensity = lBidVal * lInvMaxBid * lIntensityMult;
-                float lAskIntensity = lAskVal * lInvMaxAsk * lIntensityMult;
+                const float lBidIntensity = lBidVal * lInvMaxBid * lIntensityMult;
+                const float lAskIntensity = lAskVal * lInvMaxAsk * lIntensityMult;
 
-                int lBidIdx = RLCharts::clampIdx((int)lBidIntensity, 256);
-                int lAskIdx = RLCharts::clampIdx((int)lAskIntensity, 256);
+                const int lBidIdx = RLCharts::clampIdx((int)lBidIntensity, 256);
+                const int lAskIdx = RLCharts::clampIdx((int)lAskIntensity, 256);
 
-                Color lBidColor = mBidLut[lBidIdx];
-                Color lAskColor = mAskLut[lAskIdx];
+                const Color lBidColor = mBidLut[lBidIdx];
+                const Color lAskColor = mAskLut[lAskIdx];
 
                 // Blend based on relative intensity
-                float lTotal = lBidIntensity + lAskIntensity;
-                float lBidWeight = lBidIntensity / (lTotal + 0.001f);
+                const float lTotal = lBidIntensity + lAskIntensity;
+                const float lBidWeight = lBidIntensity / (lTotal + 0.001f);
 
-                lColor.r = (unsigned char)(lBidColor.r * lBidWeight + lAskColor.r * (1.0f - lBidWeight));
-                lColor.g = (unsigned char)(lBidColor.g * lBidWeight + lAskColor.g * (1.0f - lBidWeight));
-                lColor.b = (unsigned char)(lBidColor.b * lBidWeight + lAskColor.b * (1.0f - lBidWeight));
+                lColor.r = (unsigned char)((float)lBidColor.r * lBidWeight + (float)lAskColor.r * (1.0f - lBidWeight));
+                lColor.g = (unsigned char)((float)lBidColor.g * lBidWeight + (float)lAskColor.g * (1.0f - lBidWeight));
+                lColor.b = (unsigned char)((float)lBidColor.b * lBidWeight + (float)lAskColor.b * (1.0f - lBidWeight));
                 lColor.a = (unsigned char)RLCharts::clamp((lBidColor.a + lAskColor.a) / 2, 0, 255);
             }
             else if (lBidVal > 0.0f) {
-                float lIntensity = lBidVal * lInvMaxBid * lIntensityMult;
-                int lIdx = RLCharts::clampIdx((int)lIntensity, 256);
+                const float lIntensity = lBidVal * lInvMaxBid * lIntensityMult;
+                const int lIdx = RLCharts::clampIdx((int)lIntensity, 256);
                 lColor = mBidLut[lIdx];
             }
             else if (lAskVal > 0.0f) {
-                float lIntensity = lAskVal * lInvMaxAsk * lIntensityMult;
-                int lIdx = RLCharts::clampIdx((int)lIntensity, 256);
+                const float lIntensity = lAskVal * lInvMaxAsk * lIntensityMult;
+                const int lIdx = RLCharts::clampIdx((int)lIntensity, 256);
                 lColor = mAskLut[lIdx];
             }
             else {
@@ -462,25 +482,27 @@ void RLOrderBookVis::rebuildMesh() {
     // Each mesh is a grid of quads: (historyLength-1) x (priceLevels-1) quads
     // 6 vertices per quad (2 triangles)
 
-    int lQuadsX = (int)mHistoryLength - 1;
-    int lQuadsY = (int)mPriceLevels - 1;
-    if (lQuadsX < 1 || lQuadsY < 1) return;
+    const int lQuadsX = (int)mHistoryLength - 1;
+    const int lQuadsY = (int)mPriceLevels - 1;
+    if (lQuadsX < 1 || lQuadsY < 1) {
+        return;
+    }
 
-    int lVertexCount = lQuadsX * lQuadsY * 6;
+    const int lVertexCount = lQuadsX * lQuadsY * 6;
 
     // Allocate mesh data for bid mesh
     mBidMesh.vertexCount = lVertexCount;
     mBidMesh.triangleCount = lQuadsX * lQuadsY * 2;
-    mBidMesh.vertices = (float*)MemAlloc(lVertexCount * 3 * sizeof(float));
-    mBidMesh.colors = (unsigned char*)MemAlloc(lVertexCount * 4 * sizeof(unsigned char));
-    mBidMesh.normals = (float*)MemAlloc(lVertexCount * 3 * sizeof(float));
+    mBidMesh.vertices = (float*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 3 * sizeof(float));
+    mBidMesh.colors = (unsigned char*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 4 * sizeof(unsigned char));
+    mBidMesh.normals = (float*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 3 * sizeof(float));
 
     // Allocate mesh data for ask mesh
     mAskMesh.vertexCount = lVertexCount;
     mAskMesh.triangleCount = lQuadsX * lQuadsY * 2;
-    mAskMesh.vertices = (float*)MemAlloc(lVertexCount * 3 * sizeof(float));
-    mAskMesh.colors = (unsigned char*)MemAlloc(lVertexCount * 4 * sizeof(unsigned char));
-    mAskMesh.normals = (float*)MemAlloc(lVertexCount * 3 * sizeof(float));
+    mAskMesh.vertices = (float*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 3 * sizeof(float));
+    mAskMesh.colors = (unsigned char*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 4 * sizeof(unsigned char));
+    mAskMesh.normals = (float*)MemAlloc(static_cast<unsigned long>(lVertexCount) * 3 * sizeof(float));
 
     // Initialize normals to up vector
     for (int i = 0; i < lVertexCount; ++i) {
@@ -500,13 +522,17 @@ void RLOrderBookVis::rebuildMesh() {
 }
 
 void RLOrderBookVis::updateMeshData() {
-    if (!mMeshValid) return;
+    if (!mMeshValid) {
+        return;
+    }
 
-    int lQuadsX = (int)mHistoryLength - 1;
-    int lQuadsY = (int)mPriceLevels - 1;
-    if (lQuadsX < 1 || lQuadsY < 1) return;
+    const int lQuadsX = (int)mHistoryLength - 1;
+    const int lQuadsY = (int)mPriceLevels - 1;
+    if (lQuadsX < 1 || lQuadsY < 1) {
+        return;
+    }
 
-    float lCellSize = mStyle.m3DCellSize;
+    const float lCellSize = mStyle.m3DCellSize;
     float lHeightScale = mStyle.mHeightScale;
 
     float lInvMaxBid = (mCurrentMaxBid > 0.001f) ? (1.0f / mCurrentMaxBid) : 1.0f;
@@ -514,14 +540,14 @@ void RLOrderBookVis::updateMeshData() {
 
     // Helper to get height at a grid point
     auto getBidHeight = [&](size_t aTimeIdx, size_t aPriceIdx) -> float {
-        size_t lRingIdx = ringTimeIndex(aTimeIdx);
-        size_t lIdx = gridIndex(lRingIdx, aPriceIdx);
+        const size_t lRingIdx = ringTimeIndex(aTimeIdx);
+        const size_t lIdx = gridIndex(lRingIdx, aPriceIdx);
         return mBidGrid[lIdx] * lInvMaxBid * lHeightScale;
     };
 
     auto getAskHeight = [&](size_t aTimeIdx, size_t aPriceIdx) -> float {
-        size_t lRingIdx = ringTimeIndex(aTimeIdx);
-        size_t lIdx = gridIndex(lRingIdx, aPriceIdx);
+        const size_t lRingIdx = ringTimeIndex(aTimeIdx);
+        const size_t lIdx = gridIndex(lRingIdx, aPriceIdx);
         return mAskGrid[lIdx] * lInvMaxAsk * lHeightScale;
     };
 
@@ -530,36 +556,36 @@ void RLOrderBookVis::updateMeshData() {
     for (int lQy = 0; lQy < lQuadsY; ++lQy) {
         for (int lQx = 0; lQx < lQuadsX; ++lQx) {
             // Quad corners (time, price)
-            size_t lT0 = (size_t)lQx;
-            size_t lT1 = (size_t)(lQx + 1);
-            size_t lP0 = (size_t)lQy;
-            size_t lP1 = (size_t)(lQy + 1);
+            const auto lT0 = static_cast<size_t>(lQx);
+            const auto lT1 = static_cast<size_t>(lQx) + 1;
+            const auto lP0 = static_cast<size_t>(lQy);
+            const auto lP1 = static_cast<size_t>(lQy) + 1;
 
             // World positions
-            float lX0 = (float)lQx * lCellSize;
-            float lX1 = (float)(lQx + 1) * lCellSize;
-            float lZ0 = (float)lQy * lCellSize;
-            float lZ1 = (float)(lQy + 1) * lCellSize;
+            const float lX0 = (float)lQx * lCellSize;
+            const float lX1 = (float)(lQx + 1) * lCellSize;
+            const float lZ0 = (float)lQy * lCellSize;
+            const float lZ1 = (float)(lQy + 1) * lCellSize;
 
             // Bid heights
-            float lBh00 = getBidHeight(lT0, lP0);
-            float lBh10 = getBidHeight(lT1, lP0);
-            float lBh01 = getBidHeight(lT0, lP1);
-            float lBh11 = getBidHeight(lT1, lP1);
+            const float lBh00 = getBidHeight(lT0, lP0);
+            const float lBh10 = getBidHeight(lT1, lP0);
+            const float lBh01 = getBidHeight(lT0, lP1);
+            const float lBh11 = getBidHeight(lT1, lP1);
 
             // Ask heights
-            float lAh00 = getAskHeight(lT0, lP0);
-            float lAh10 = getAskHeight(lT1, lP0);
-            float lAh01 = getAskHeight(lT0, lP1);
-            float lAh11 = getAskHeight(lT1, lP1);
+            const float lAh00 = getAskHeight(lT0, lP0);
+            const float lAh10 = getAskHeight(lT1, lP0);
+            const float lAh01 = getAskHeight(lT0, lP1);
+            const float lAh11 = getAskHeight(lT1, lP1);
 
             // Colors based on height
             auto bidColor = [&](float aH) -> Color {
-                int lIdx = RLCharts::clampIdx((int)(aH / lHeightScale * 255.0f), 256);
+                const int lIdx = RLCharts::clampIdx((int)(aH / lHeightScale * 255.0f), 256);
                 return mBidLut[lIdx];
             };
             auto askColor = [&](float aH) -> Color {
-                int lIdx = RLCharts::clampIdx((int)(aH / lHeightScale * 255.0f), 256);
+                const int lIdx = RLCharts::clampIdx((int)(aH / lHeightScale * 255.0f), 256);
                 return mAskLut[lIdx];
             };
 
@@ -567,8 +593,8 @@ void RLOrderBookVis::updateMeshData() {
             // Triangle 2: (1,0), (1,1), (0,1)
 
             // Bid mesh vertices
-            float* pBidVerts = mBidMesh.vertices + lVertIdx * 3;
-            unsigned char* pBidColors = mBidMesh.colors + lVertIdx * 4;
+            float* pBidVerts = mBidMesh.vertices + static_cast<ptrdiff_t>(lVertIdx) * 3;
+            unsigned char* pBidColors = mBidMesh.colors + static_cast<ptrdiff_t>(lVertIdx) * 4;
 
             // Tri 1
             pBidVerts[0] = lX0; pBidVerts[1] = lBh00; pBidVerts[2] = lZ0;
@@ -579,10 +605,10 @@ void RLOrderBookVis::updateMeshData() {
             pBidVerts[12] = lX1; pBidVerts[13] = lBh11; pBidVerts[14] = lZ1;
             pBidVerts[15] = lX0; pBidVerts[16] = lBh01; pBidVerts[17] = lZ1;
 
-            Color lBc00 = bidColor(lBh00);
-            Color lBc10 = bidColor(lBh10);
-            Color lBc01 = bidColor(lBh01);
-            Color lBc11 = bidColor(lBh11);
+            const Color lBc00 = bidColor(lBh00);
+            const Color lBc10 = bidColor(lBh10);
+            const Color lBc01 = bidColor(lBh01);
+            const Color lBc11 = bidColor(lBh11);
 
             pBidColors[0] = lBc00.r; pBidColors[1] = lBc00.g; pBidColors[2] = lBc00.b; pBidColors[3] = lBc00.a;
             pBidColors[4] = lBc10.r; pBidColors[5] = lBc10.g; pBidColors[6] = lBc10.b; pBidColors[7] = lBc10.a;
@@ -592,8 +618,8 @@ void RLOrderBookVis::updateMeshData() {
             pBidColors[20] = lBc01.r; pBidColors[21] = lBc01.g; pBidColors[22] = lBc01.b; pBidColors[23] = lBc01.a;
 
             // Ask mesh vertices (offset in Z to separate from bids)
-            float* pAskVerts = mAskMesh.vertices + lVertIdx * 3;
-            unsigned char* pAskColors = mAskMesh.colors + lVertIdx * 4;
+            float* pAskVerts = mAskMesh.vertices + static_cast<ptrdiff_t>(lVertIdx) * 3;
+            unsigned char* pAskColors = mAskMesh.colors + static_cast<ptrdiff_t>(lVertIdx) * 4;
 
             pAskVerts[0] = lX0; pAskVerts[1] = lAh00; pAskVerts[2] = lZ0;
             pAskVerts[3] = lX1; pAskVerts[4] = lAh10; pAskVerts[5] = lZ0;
@@ -602,10 +628,10 @@ void RLOrderBookVis::updateMeshData() {
             pAskVerts[12] = lX1; pAskVerts[13] = lAh11; pAskVerts[14] = lZ1;
             pAskVerts[15] = lX0; pAskVerts[16] = lAh01; pAskVerts[17] = lZ1;
 
-            Color lAc00 = askColor(lAh00);
-            Color lAc10 = askColor(lAh10);
-            Color lAc01 = askColor(lAh01);
-            Color lAc11 = askColor(lAh11);
+            const Color lAc00 = askColor(lAh00);
+            const Color lAc10 = askColor(lAh10);
+            const Color lAc01 = askColor(lAh01);
+            const Color lAc11 = askColor(lAh11);
 
             pAskColors[0] = lAc00.r; pAskColors[1] = lAc00.g; pAskColors[2] = lAc00.b; pAskColors[3] = lAc00.a;
             pAskColors[4] = lAc10.r; pAskColors[5] = lAc10.g; pAskColors[6] = lAc10.b; pAskColors[7] = lAc10.a;
@@ -619,15 +645,15 @@ void RLOrderBookVis::updateMeshData() {
     }
 
     // Update GPU buffers
-    UpdateMeshBuffer(mBidMesh, 0, mBidMesh.vertices, mBidMesh.vertexCount * 3 * sizeof(float), 0);
-    UpdateMeshBuffer(mBidMesh, 3, mBidMesh.colors, mBidMesh.vertexCount * 4 * sizeof(unsigned char), 0);
+    UpdateMeshBuffer(mBidMesh, 0, mBidMesh.vertices, (int)(static_cast<unsigned long>(mBidMesh.vertexCount) * 3 * sizeof(float)), 0);
+    UpdateMeshBuffer(mBidMesh, 3, mBidMesh.colors, (int)(static_cast<unsigned long>(mBidMesh.vertexCount) * 4 * sizeof(unsigned char)), 0);
 
-    UpdateMeshBuffer(mAskMesh, 0, mAskMesh.vertices, mAskMesh.vertexCount * 3 * sizeof(float), 0);
-    UpdateMeshBuffer(mAskMesh, 3, mAskMesh.colors, mAskMesh.vertexCount * 4 * sizeof(unsigned char), 0);
+    UpdateMeshBuffer(mAskMesh, 0, mAskMesh.vertices, (int)(static_cast<unsigned long>(mAskMesh.vertexCount) * 3 * sizeof(float)), 0);
+    UpdateMeshBuffer(mAskMesh, 3, mAskMesh.colors, (int)(static_cast<unsigned long>(mAskMesh.vertexCount) * 4 * sizeof(unsigned char)), 0);
 }
 
 Rectangle RLOrderBookVis::getPlotArea() const {
-    float lPad = mStyle.mPadding;
+    const float lPad = mStyle.mPadding;
     return Rectangle{
         mBounds.x + lPad,
         mBounds.y + lPad,
@@ -645,13 +671,15 @@ void RLOrderBookVis::drawBackground() const {
 }
 
 void RLOrderBookVis::drawGrid2D() const {
-    if (!mStyle.mShowGrid) return;
+    if (!mStyle.mShowGrid) {
+        return;
+    }
 
-    Rectangle lPlot = getPlotArea();
+    const Rectangle lPlot = getPlotArea();
 
     // Vertical lines (time axis)
     for (int i = 0; i <= mStyle.mGridLinesX; ++i) {
-        float lX = lPlot.x + lPlot.width * (float)i / (float)mStyle.mGridLinesX;
+        const float lX = lPlot.x + lPlot.width * (float)i / (float)mStyle.mGridLinesX;
         DrawLineV(
             Vector2{lX, lPlot.y},
             Vector2{lX, lPlot.y + lPlot.height},
@@ -661,7 +689,7 @@ void RLOrderBookVis::drawGrid2D() const {
 
     // Horizontal lines (price axis)
     for (int i = 0; i <= mStyle.mGridLinesY; ++i) {
-        float lY = lPlot.y + lPlot.height * (float)i / (float)mStyle.mGridLinesY;
+        const float lY = lPlot.y + lPlot.height * (float)i / (float)mStyle.mGridLinesY;
         DrawLineV(
             Vector2{lPlot.x, lY},
             Vector2{lPlot.x + lPlot.width, lY},
@@ -671,22 +699,24 @@ void RLOrderBookVis::drawGrid2D() const {
 }
 
 void RLOrderBookVis::drawMidLine2D() const {
-    if (!mStyle.mShowMidLine && !mStyle.mShowSpreadArea) return;
+    if (!mStyle.mShowMidLine && !mStyle.mShowSpreadArea) {
+        return;
+    }
 
-    Rectangle lPlot = getPlotArea();
+    const Rectangle lPlot = getPlotArea();
 
     // Normalize mid price to plot Y
-    float lMidNorm = priceToNormalized(mCurrentMidPrice);
-    float lMidY = lPlot.y + (1.0f - lMidNorm) * lPlot.height;
+    const float lMidNorm = priceToNormalized(mCurrentMidPrice);
+    const float lMidY = lPlot.y + (1.0f - lMidNorm) * lPlot.height;
 
     if (mStyle.mShowSpreadArea) {
-        float lBidNorm = priceToNormalized(mCurrentBestBid);
-        float lAskNorm = priceToNormalized(mCurrentBestAsk);
+        const float lBidNorm = priceToNormalized(mCurrentBestBid);
+        const float lAskNorm = priceToNormalized(mCurrentBestAsk);
 
-        float lBidY = lPlot.y + (1.0f - lBidNorm) * lPlot.height;
-        float lAskY = lPlot.y + (1.0f - lAskNorm) * lPlot.height;
+        const float lBidY = lPlot.y + (1.0f - lBidNorm) * lPlot.height;
+        const float lAskY = lPlot.y + (1.0f - lAskNorm) * lPlot.height;
 
-        float lSpreadHeight = lBidY - lAskY;
+        const float lSpreadHeight = lBidY - lAskY;
         if (lSpreadHeight > 0) {
             DrawRectangle(
                 (int)lPlot.x, (int)lAskY,
@@ -707,16 +737,20 @@ void RLOrderBookVis::drawMidLine2D() const {
 }
 
 void RLOrderBookVis::drawHeatmap2D() const {
-    if (!mTextureValid || mTexture.id == 0) return;
-    if (mSnapshotCount == 0) return;
+    if (!mTextureValid || mTexture.id == 0) {
+        return;
+    }
+    if (mSnapshotCount == 0) {
+        return;
+    }
 
-    Rectangle lPlot = getPlotArea();
+    const Rectangle lPlot = getPlotArea();
 
     // Source rectangle (full texture)
-    Rectangle lSrc = {0, 0, (float)mHistoryLength, (float)mPriceLevels};
+    const Rectangle lSrc = {0, 0, (float)mHistoryLength, (float)mPriceLevels};
 
     // Destination rectangle (plot area)
-    Rectangle lDst = lPlot;
+    const Rectangle lDst = lPlot;
 
     DrawTexturePro(mTexture, lSrc, lDst, Vector2{0, 0}, 0.0f, WHITE);
 }
@@ -729,25 +763,29 @@ void RLOrderBookVis::draw2D() const {
 }
 
 void RLOrderBookVis::draw3D(const Camera3D& rCamera) const {
-    if (!mMeshValid) return;
-    if (mSnapshotCount == 0) return;
+    if (!mMeshValid) {
+        return;
+    }
+    if (mSnapshotCount == 0) {
+        return;
+    }
 
     BeginMode3D(rCamera);
 
     // Center the mesh
-    float lOffsetX = -(float)mHistoryLength * mStyle.m3DCellSize * 0.5f;
-    float lOffsetZ = -(float)mPriceLevels * mStyle.m3DCellSize * 0.5f;
+    const float lOffsetX = -(float)mHistoryLength * mStyle.m3DCellSize * 0.5f;
+    const float lOffsetZ = -(float)mPriceLevels * mStyle.m3DCellSize * 0.5f;
 
-    Matrix lTransform = MatrixTranslate(lOffsetX, 0.0f, lOffsetZ);
+    const Matrix lTransform = MatrixTranslate(lOffsetX, 0.0f, lOffsetZ);
 
     // Draw floor grid
     if (mStyle.mShow3DGrid) {
-        float lGridSize = (float)mHistoryLength * mStyle.m3DCellSize;
-        float lGridSizeZ = (float)mPriceLevels * mStyle.m3DCellSize;
-        int lGridDivs = 10;
+        const float lGridSize = (float)mHistoryLength * mStyle.m3DCellSize;
+        const float lGridSizeZ = (float)mPriceLevels * mStyle.m3DCellSize;
+        const int lGridDivs = 10;
 
         for (int i = 0; i <= lGridDivs; ++i) {
-            float lT = (float)i / (float)lGridDivs;
+            const float lT = (float)i / (float)lGridDivs;
             // Time axis lines
             DrawLine3D(
                 Vector3{lOffsetX + lT * lGridSize, 0.0f, lOffsetZ},
@@ -765,8 +803,7 @@ void RLOrderBookVis::draw3D(const Camera3D& rCamera) const {
 
     // Draw bid and ask meshes
     // Use a simple material with vertex colors
-    Material lMat = LoadMaterialDefault();
-    lMat.maps[MATERIAL_MAP_DIFFUSE].color = WHITE;
+    const Material lMat = LoadMaterialDefault();
 
     DrawMesh(mBidMesh, lMat, lTransform);
     DrawMesh(mAskMesh, lMat, lTransform);

@@ -52,6 +52,16 @@ C++ Coding Style Guide
     letter.
 -   Do not use typedef or using alias unless a well‑justified technical
     reason exists.
+-   use std::string instead of char*.
+-   use uint8_t instead of unsigned char.
+-   use int8_t instead of signed char.
+-   use uint16_t instead of unsigned short.
+-   use int16_t instead of signed short.
+-   use uint32_t instead of unsigned int.
+-   use int32_t instead of signed int.
+-   use uint64_t instead of unsigned long long.
+-   use int64_t instead of signed long long.
+-   use auto instead of explicit type declarations.
 
 7. Functions
 

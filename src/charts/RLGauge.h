@@ -28,11 +28,11 @@ struct RLGaugeStyle {
     float mTickThickness = 2.0f;  // minor tick thickness
     float mMajorTickThickness = 3.0f; // major tick thickness
     float mNeedleWidth = 4.0f;    // needle thickness
-    float mNeedleRadiusScale = 0.86f; // as fraction of radius
+    float mNeedleRadiusScale = 0.86f; // as a fraction of radius
     bool mShowValueText = true;
     bool mShowTicks = true;
     bool mShowNeedle = true;
-    bool mSmoothAnimate = true;   // smooth animation towards target
+    bool mSmoothAnimate = true;   // smooth animation towards the target
     Font mLabelFont{};            // optional custom font; if .baseSize==0 use default
 };
 

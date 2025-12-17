@@ -1,5 +1,6 @@
 #include "RLScatterPlot.h"
 #include "RLCommon.h"
+#include <algorithm>
 #include <cmath>
 
 
@@ -43,7 +44,9 @@ size_t RLScatterPlot::addSeries(const RLScatterSeries &rSeries){
 }
 
 void RLScatterPlot::setSeries(size_t aIndex, const RLScatterSeries &rSeries){
-    if (aIndex >= mSeries.size()) return;
+    if (aIndex >= mSeries.size()) {
+        return;
+    }
     mSeries[aIndex] = rSeries;
     mSeries[aIndex].mDirty = true;
     mScaleDirty = true;
@@ -64,12 +67,16 @@ void RLScatterPlot::setSingleSeries(const std::vector<Vector2> &rData, const RLS
 }
 
 void RLScatterPlot::markAllDirty() const {
-    for (auto &s : mSeries) s.mDirty = true;
+    for (auto &s : mSeries) {
+        s.mDirty = true;
+    }
 }
 
 Rectangle RLScatterPlot::plotRect() const{
-    if (!mGeomDirty) return mPlotRect;
-    float lPad = RLCharts::maxVal(0.0f, mStyle.mPadding);
+    if (!mGeomDirty) {
+        return mPlotRect;
+    }
+    const float lPad = RLCharts::maxVal(0.0f, mStyle.mPadding);
     mPlotRect = { mBounds.x + lPad, mBounds.y + lPad,
                   RLCharts::maxVal(1.0f, mBounds.width - 2*lPad), RLCharts::maxVal(1.0f, mBounds.height - 2*lPad) };
     mGeomDirty = false;
@@ -77,7 +84,9 @@ Rectangle RLScatterPlot::plotRect() const{
 }
 
 void RLScatterPlot::ensureScale() const{
-    if (!mScaleDirty) return;
+    if (!mScaleDirty) {
+        return;
+    }
     if (!mStyle.mAutoScale){
         mScaleMinX = mStyle.mMinX; mScaleMaxX = mStyle.mMaxX;
         mScaleMinY = mStyle.mMinY; mScaleMaxY = mStyle.mMaxY;
@@ -89,14 +98,19 @@ void RLScatterPlot::ensureScale() const{
     bool lFirst = true;
     for (const auto &s : mSeries){
         // consider both current and target data to avoid popping during animation
-        const std::vector<Vector2> *lists[2] = { &s.mData, &s.mTargetData };
+        const std::vector<Vector2> * const lLists[2] = { &s.mData, &s.mTargetData };
         for (int li=0; li<2; ++li){
-            const auto &vec = *lists[li];
+            const auto &vec = *lLists[li];
             for (const auto &p : vec){
-                if (lFirst){ lMinX = lMaxX = p.x; lMinY = lMaxY = p.y; lFirst = false; }
-                else {
-                    if (p.x < lMinX) lMinX = p.x; if (p.x > lMaxX) lMaxX = p.x;
-                    if (p.y < lMinY) lMinY = p.y; if (p.y > lMaxY) lMaxY = p.y;
+                if (lFirst){
+                    lMinX = lMaxX = p.x;
+                    lMinY = lMaxY = p.y;
+                    lFirst = false;
+                } else {
+                    lMinX = std::min(p.x, lMinX);
+                    lMaxX = std::max(p.x, lMaxX);
+                    lMinY = std::min(p.y, lMinY);
+                    lMaxY = std::max(p.y, lMaxY);
                 }
             }
         }
@@ -113,7 +127,7 @@ void RLScatterPlot::ensureScale() const{
 }
 
 Vector2 RLScatterPlot::mapPoint(const Vector2 &rPt) const{
-    Rectangle lRect = plotRect();
+    const Rectangle lRect = plotRect();
     ensureScale();
     float lNx = (rPt.x - mScaleMinX) / (mScaleMaxX - mScaleMinX);
     float lNy = (rPt.y - mScaleMinY) / (mScaleMaxY - mScaleMinY);
@@ -128,12 +142,14 @@ Vector2 RLScatterPlot::mapPoint(const Vector2 &rPt) const{
 
 
 void RLScatterPlot::buildCaches() const{
-    Rectangle lRect = plotRect();
+    const Rectangle lRect = plotRect();
     (void)lRect;
     ensureScale();
     // For each series, rebuild mapped points and spline cache if dirty
     for (auto &s : mSeries){
-        if (!s.mDirty) continue;
+        if (!s.mDirty) {
+            continue;
+        }
         // Ensure dyn arrays are initialized
         ensureDynInitialized(s);
         // Map to screen space from dynamic positions
@@ -152,9 +168,9 @@ void RLScatterPlot::buildCaches() const{
         if (s.mStyle.mLineMode == RLScatterLineMode::Spline && s.mCache.size() >= 2){
             const std::vector<Vector2> &lPts = s.mCache;
             // Estimate sampling based on pixel spacing
-            float lTargetPx = RLCharts::maxVal(2.0f, mStyle.mSplinePixels);
+            const float lTargetPx = RLCharts::maxVal(2.0f, mStyle.mSplinePixels);
             // For endpoints, duplicate end points to compute CR
-            size_t lN = lPts.size();
+            const size_t lN = lPts.size();
             s.mSpline.reserve(lN * 8);
             s.mSplineVis.reserve(lN * 8);
             for (size_t i = 0; i+1 < lN; ++i){
@@ -162,14 +178,14 @@ void RLScatterPlot::buildCaches() const{
                 const Vector2 &p1 = lPts[i];
                 const Vector2 &p2 = lPts[i+1];
                 const Vector2 &p3 = (i+2<lN) ? lPts[i+2] : lPts[lN-1];
-                float lSegLen = RLCharts::distance(p1,p2);
-                int lSteps = (int)RLCharts::maxVal(1.0f, floorf(lSegLen / lTargetPx));
-                float lInv = 1.0f / (float)lSteps;
+                const float lSegLen = RLCharts::distance(p1,p2);
+                const int lSteps = (int)RLCharts::maxVal(1.0f, floorf(lSegLen / lTargetPx));
+                const float lInv = 1.0f / (float)lSteps;
                 for (int k=0; k<lSteps; ++k){
-                    float t = k * lInv;
+                    const float t = (float)k * lInv;
                     s.mSpline.push_back(RLCharts::catmullRom(p0,p1,p2,p3,t));
-                    float lVa = s.mCacheVis[i];
-                    float lVb = s.mCacheVis[i+1];
+                    const float lVa = s.mCacheVis[i];
+                    const float lVb = s.mCacheVis[i+1];
                     s.mSplineVis.push_back(lVa + (lVb - lVa) * t);
                 }
             }
@@ -187,15 +203,15 @@ void RLScatterPlot::draw() const{
         DrawRectangleRounded(mBounds, 0.06f, 6, mStyle.mBackground);
     }
 
-    Rectangle lRect = plotRect();
+    const Rectangle lRect = plotRect();
 
     // Grid / axes
     if (mStyle.mShowGrid){
-        int lN = (mStyle.mGridLines < 0) ? 0 : mStyle.mGridLines;
+        const int lN = (mStyle.mGridLines < 0) ? 0 : mStyle.mGridLines;
         for (int i=0;i<=lN;i++){
-            float lT = (lN==0)?0.0f:(float)i/(float)lN;
-            float lX = lRect.x + lT * lRect.width;
-            float lY = lRect.y + lT * lRect.height;
+            const float lT = (lN==0)?0.0f:(float)i/(float)lN;
+            const float lX = lRect.x + lT * lRect.width;
+            const float lY = lRect.y + lT * lRect.height;
             DrawLineV({lX, lRect.y}, {lX, lRect.y + lRect.height}, mStyle.mGridColor);
             DrawLineV({lRect.x, lY}, {lRect.x + lRect.width, lY}, mStyle.mGridColor);
         }
@@ -215,10 +231,12 @@ void RLScatterPlot::draw() const{
                 // Draw consecutive segments
                 if (s.mCache.size() >= 2){
                     for (size_t i=0;i+1<s.mCache.size();++i){
-                        float lVa = (i < s.mCacheVis.size()) ? s.mCacheVis[i] : 1.0f;
-                        float lVb = (i+1 < s.mCacheVis.size()) ? s.mCacheVis[i+1] : 1.0f;
-                        float lV = RLCharts::minVal(lVa, lVb);
-                        if (lV <= 0.001f) continue;
+                        const float lVa = (i < s.mCacheVis.size()) ? s.mCacheVis[i] : 1.0f;
+                        const float lVb = (i+1 < s.mCacheVis.size()) ? s.mCacheVis[i+1] : 1.0f;
+                        const float lV = RLCharts::minVal(lVa, lVb);
+                        if (lV <= 0.001f) {
+                            continue;
+                        }
                         Color lC = lSS.mLineColor;
                         lC.a = RLCharts::mulAlpha(lC.a, lV);
                         DrawLineEx(s.mCache[i], s.mCache[i+1], RLCharts::maxVal(1.0f, lSS.mLineThickness), lC);
@@ -227,10 +245,12 @@ void RLScatterPlot::draw() const{
             } else { // Spline
                 if (s.mSpline.size() >= 2){
                     for (size_t i=0;i+1<s.mSpline.size();++i){
-                        float lVa = (i < s.mSplineVis.size()) ? s.mSplineVis[i] : 1.0f;
-                        float lVb = (i+1 < s.mSplineVis.size()) ? s.mSplineVis[i+1] : 1.0f;
-                        float lV = RLCharts::minVal(lVa, lVb);
-                        if (lV <= 0.001f) continue;
+                        const float lVa = (i < s.mSplineVis.size()) ? s.mSplineVis[i] : 1.0f;
+                        const float lVb = (i+1 < s.mSplineVis.size()) ? s.mSplineVis[i+1] : 1.0f;
+                        const float lV = RLCharts::minVal(lVa, lVb);
+                        if (lV <= 0.001f) {
+                            continue;
+                        }
                         Color lC = lSS.mLineColor;
                         lC.a = RLCharts::mulAlpha(lC.a, lV);
                         DrawLineEx(s.mSpline[i], s.mSpline[i+1], RLCharts::maxVal(1.0f, lSS.mLineThickness), lC);
@@ -242,21 +262,28 @@ void RLScatterPlot::draw() const{
 
     for (const auto &s : mSeries){
         const RLScatterSeriesStyle &lSS = s.mStyle;
-        if (!lSS.mShowPoints) continue;
-        Color lPc = (lSS.mPointColor.a == 0) ? lSS.mLineColor : lSS.mPointColor;
-        float lRadius = lSS.mPointSizePx > 0.0f ? lSS.mPointSizePx : RLCharts::maxVal(1.0f, lSS.mLineThickness * lSS.mPointScale);
+        if (!lSS.mShowPoints) {
+            continue;
+        }
+        const Color lPc = (lSS.mPointColor.a == 0) ? lSS.mLineColor : lSS.mPointColor;
+        const float lRadius = lSS.mPointSizePx > 0.0f ? lSS.mPointSizePx : RLCharts::maxVal(1.0f, lSS.mLineThickness * lSS.mPointScale);
         // Draw all points
         for (size_t i=0; i<s.mCache.size(); ++i){
-            float lV = (i < s.mCacheVis.size()) ? s.mCacheVis[i] : 1.0f;
-            if (lV <= 0.001f) continue;
-            Color lC = lPc; lC.a = RLCharts::mulAlpha(lC.a, lV);
+            const float lV = (i < s.mCacheVis.size()) ? s.mCacheVis[i] : 1.0f;
+            if (lV <= 0.001f) {
+                continue;
+            }
+            Color lC = lPc;
+            lC.a = RLCharts::mulAlpha(lC.a, lV);
             DrawCircleV(s.mCache[i], lRadius, lC);
         }
     }
 }
 
 void RLScatterPlot::ensureDynInitialized(const RLScatterSeries &rSeries) const{
-    if (!rSeries.mDynPos.empty()) return;
+    if (!rSeries.mDynPos.empty()) {
+        return;
+    }
     const auto &src = rSeries.mData;
     rSeries.mDynPos = src;
     rSeries.mDynTarget = src;
@@ -265,15 +292,17 @@ void RLScatterPlot::ensureDynInitialized(const RLScatterSeries &rSeries) const{
 }
 
 void RLScatterPlot::setSeriesTargetData(size_t aIndex, const std::vector<Vector2> &rData){
-    if (aIndex >= mSeries.size()) return;
+    if (aIndex >= mSeries.size()) {
+        return;
+    }
     RLScatterSeries &s = mSeries[aIndex];
     s.mTargetData = rData;
     ensureDynInitialized(s);
-    size_t lOld = s.mDynPos.size();
-    size_t lNew = rData.size();
+    const size_t lOld = s.mDynPos.size();
+    const size_t lNew = rData.size();
     s.mDynTarget.resize(lNew);
     // Existing pairs
-    size_t lMin = (lOld < lNew) ? lOld : lNew;
+    const size_t lMin = std::min(lOld, lNew);
     for (size_t i=0;i<lMin;++i){
         s.mDynTarget[i] = rData[i];
         s.mVisTarget[i] = 1.0f;
@@ -309,26 +338,32 @@ void RLScatterPlot::setSingleSeriesTargetData(const std::vector<Vector2> &rData)
 }
 
 void RLScatterPlot::update(float aDt){
-    if (aDt <= 0.0f) return;
-    float lMoveT = RLCharts::clamp01(mStyle.mMoveSpeed * aDt);
-    float lFadeT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
+    if (aDt <= 0.0f) {
+        return;
+    }
+    const float lMoveT = RLCharts::clamp01(mStyle.mMoveSpeed * aDt);
+    const float lFadeT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
     for (auto &s : mSeries){
         ensureDynInitialized(s);
         bool lAnyChange = false;
-        size_t n = s.mDynPos.size();
+        const size_t n = s.mDynPos.size();
         // If we had points faded to zero and beyond new size, we can shrink containers lazily
         // But keep them until visibility is ~0
         for (size_t i=0;i<n;++i){
             // If i exceeds target array (after shrink), keep target at current to not move
-            Vector2 lTarget = (i < s.mDynTarget.size()) ? s.mDynTarget[i] : s.mDynPos[i];
+            const Vector2 lTarget = (i < s.mDynTarget.size()) ? s.mDynTarget[i] : s.mDynPos[i];
             Vector2 lP = s.mDynPos[i];
             lP.x += (lTarget.x - lP.x) * lMoveT;
             lP.y += (lTarget.y - lP.y) * lMoveT;
-            if (fabsf(lP.x - s.mDynPos[i].x) > 1e-6f || fabsf(lP.y - s.mDynPos[i].y) > 1e-6f) lAnyChange = true;
+            if (fabsf(lP.x - s.mDynPos[i].x) > 1e-6f || fabsf(lP.y - s.mDynPos[i].y) > 1e-6f) {
+                lAnyChange = true;
+            }
             s.mDynPos[i] = lP;
-            float lVt = (i < s.mVisTarget.size()) ? s.mVisTarget[i] : 1.0f;
-            float lV = s.mVis[i] + (lVt - s.mVis[i]) * lFadeT;
-            if (fabsf(lV - s.mVis[i]) > 1e-6f) lAnyChange = true;
+            const float lVt = (i < s.mVisTarget.size()) ? s.mVisTarget[i] : 1.0f;
+            const float lV = s.mVis[i] + (lVt - s.mVis[i]) * lFadeT;
+            if (fabsf(lV - s.mVis[i]) > 1e-6f) {
+                lAnyChange = true;
+            }
             s.mVis[i] = lV;
         }
         // Remove fully faded trailing items (compact vectors end-to-start)
@@ -337,15 +372,18 @@ void RLScatterPlot::update(float aDt){
             size_t i = 0;
             // Compact in-place to avoid allocations
             size_t w = 0;
-            size_t total = s.mDynPos.size();
+            const size_t total = s.mDynPos.size();
             for (i=0; i<total; ++i){
-                bool removeCond = (i >= s.mTargetData.size()) && (s.mVis[i] < 0.01f);
+                const bool removeCond = (i >= s.mTargetData.size()) && (s.mVis[i] < 0.01f);
                 if (!removeCond){
                     if (w != i){
                         s.mDynPos[w] = s.mDynPos[i];
                         if (i < s.mDynTarget.size()){
-                            if (w >= s.mDynTarget.size()) s.mDynTarget.push_back(s.mDynTarget[i]);
-                            else s.mDynTarget[w] = s.mDynTarget[i];
+                            if (w >= s.mDynTarget.size()) {
+                                s.mDynTarget.push_back(s.mDynTarget[i]);
+                            } else {
+                                s.mDynTarget[w] = s.mDynTarget[i];
+                            }
                         }
                         s.mVis[w] = s.mVis[i];
                         s.mVisTarget[w] = (i < s.mVisTarget.size()) ? s.mVisTarget[i] : 1.0f;
@@ -355,9 +393,13 @@ void RLScatterPlot::update(float aDt){
             }
             if (w != total){
                 s.mDynPos.resize(w);
-                if (s.mDynTarget.size() > w) s.mDynTarget.resize(w);
+                if (s.mDynTarget.size() > w) {
+                    s.mDynTarget.resize(w);
+                }
                 s.mVis.resize(w);
-                if (s.mVisTarget.size() > w) s.mVisTarget.resize(w);
+                if (s.mVisTarget.size() > w) {
+                    s.mVisTarget.resize(w);
+                }
                 lAnyChange = true;
             }
         }

@@ -1,0 +1,177 @@
+How to use clang-tidy on this project (macOS with Homebrew LLVM)
+================================================================
+
+Tool Location
+-------------
+clang-tidy is installed via Homebrew LLVM at:
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy
+
+Basic Usage
+-----------
+To analyze a file, run from the project root directory:
+
+cd /Users/anderscedronius/git/cpp-charts
+
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy src/charts/<file>.cpp \
+    --checks='<checks>' \
+    -- -std=c++20 \
+    -I/Users/anderscedronius/git/cpp-charts/src/charts \
+    -I/Users/anderscedronius/git/cpp-charts/src \
+    -I/opt/homebrew/Cellar/raylib/5.5/include
+
+Explanation of Options
+----------------------
+--checks='...'     : Specify which checks to enable (comma-separated)
+-- -std=c++20      : Pass compiler flags after the double dash
+-I<path>           : Include paths for headers
+
+================================================================================
+RECOMMENDED CHECK CONFIGURATIONS
+================================================================================
+
+1. Quick Code Quality Check (Recommended for regular use)
+---------------------------------------------------------
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy src/charts/RLHeatMap3D.cpp \
+    --checks='modernize-use-auto,misc-const-correctness,bugprone-*,performance-*,readability-braces-around-statements,readability-use-std-min-max,-bugprone-easily-swappable-parameters' \
+    -- -std=c++20 \
+    -I/Users/anderscedronius/git/cpp-charts/src/charts \
+    -I/Users/anderscedronius/git/cpp-charts/src \
+    -I/opt/homebrew/Cellar/raylib/5.5/include
+
+2. Full Check (with project-appropriate suppressions)
+-----------------------------------------------------
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy src/charts/RLHeatMap3D.cpp \
+    --checks='*,\
+-google-readability-casting,\
+-cppcoreguidelines-pro-type-cstyle-cast,\
+-llvmlibc-*,\
+-boost-*,\
+-altera-*,\
+-fuchsia-*,\
+-hicpp-vararg,\
+-cppcoreguidelines-pro-type-vararg,\
+-cppcoreguidelines-avoid-magic-numbers,\
+-readability-magic-numbers,\
+-readability-identifier-length,\
+-readability-uppercase-literal-suffix,\
+-hicpp-uppercase-literal-suffix,\
+-bugprone-easily-swappable-parameters,\
+-misc-include-cleaner' \
+    -- -std=c++20 \
+    -I/Users/anderscedronius/git/cpp-charts/src/charts \
+    -I/Users/anderscedronius/git/cpp-charts/src \
+    -I/opt/homebrew/Cellar/raylib/5.5/include
+
+3. Readability Focus
+--------------------
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy src/charts/RLHeatMap3D.cpp \
+    --checks='readability-*,\
+-readability-magic-numbers,\
+-readability-identifier-length,\
+-readability-uppercase-literal-suffix,\
+-readability-math-missing-parentheses' \
+    -- -std=c++20 \
+    -I/Users/anderscedronius/git/cpp-charts/src/charts \
+    -I/Users/anderscedronius/git/cpp-charts/src \
+    -I/opt/homebrew/Cellar/raylib/5.5/include
+
+================================================================================
+SUPPRESSIONS EXPLAINED (per project codestyle.txt and conventions)
+================================================================================
+
+C-Style Cast Suppressions (codestyle.txt rule 8 allows C-style casts):
+----------------------------------------------------------------------
+-google-readability-casting
+-cppcoreguidelines-pro-type-cstyle-cast
+
+Not Applicable to This Project:
+-------------------------------
+-llvmlibc-*                    : LLVM libc-specific (not using LLVM libc)
+-boost-*                       : Boost library suggestions (not using Boost)
+-altera-*                      : FPGA/OpenCL checks (not applicable)
+-fuchsia-*                     : Fuchsia OS specific (not applicable)
+
+Too Noisy / Low Value for This Project:
+---------------------------------------
+-cppcoreguidelines-avoid-magic-numbers  : Color values (255, etc.) are common
+-readability-magic-numbers              : Same as above
+-readability-identifier-length          : Short names like lX, lY are fine in loops
+-readability-uppercase-literal-suffix   : 1.0f vs 1.0F is stylistic
+-hicpp-uppercase-literal-suffix         : Same as above
+-bugprone-easily-swappable-parameters   : Too many false positives for (min, max) pairs
+-hicpp-vararg                           : TraceLog uses varargs (raylib)
+-cppcoreguidelines-pro-type-vararg      : Same as above
+-misc-include-cleaner                   : Raylib headers are indirect
+
+Optional (can be useful but verbose):
+-------------------------------------
+-readability-math-missing-parentheses   : a + b * c warnings (math precedence)
+
+================================================================================
+USEFUL CHECK CATEGORIES
+================================================================================
+
+High Value:
+-----------
+modernize-use-auto           : Use 'auto' with casts to avoid type duplication
+misc-const-correctness       : Add 'const' to immutable variables
+bugprone-*                   : Catch potential bugs (narrowing, misplaced casts)
+performance-*                : Performance improvements
+readability-braces-around-statements    : Enforce braces on all if/for/while
+readability-use-std-min-max             : Use std::min/std::max instead of if statements
+
+Medium Value:
+-------------
+readability-convert-member-functions-to-static : Find methods that could be static
+
+Lower Priority:
+---------------
+modernize-*                  : C++ modernization (some overlap with project style)
+cppcoreguidelines-*          : Core guidelines (many conflict with codestyle.txt)
+
+================================================================================
+OUTPUT FILTERING
+================================================================================
+
+See only warnings (no notes):
+    ... 2>&1 | grep -E "warning:"
+
+Count total warnings:
+    ... 2>&1 | grep -E "warning:" | wc -l
+
+Save to file:
+    ... 2>&1 | grep -E "warning:" > warnings.txt
+
+Filter by specific check:
+    ... 2>&1 | grep "misc-const-correctness"
+
+================================================================================
+COMPILE COMMANDS DATABASE
+================================================================================
+
+If a file is included in the CMake build and compile_commands.json exists,
+you can use -p <build_dir> instead of manually specifying include paths:
+
+/opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy src/file.cpp -p build_clang_tidy
+
+To generate compile_commands.json, ensure CMakeLists.txt has:
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+Then rebuild:
+    mkdir -p build_clang_tidy && cd build_clang_tidy
+    cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+Note: If a file is not in compile_commands.json (e.g., not part of any target),
+you must manually specify include paths as shown in the examples above.
+
+================================================================================
+QUICK REFERENCE
+================================================================================
+
+Check all charts:
+    for f in src/charts/*.cpp; do echo "=== $f ==="; \
+    /opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy "$f" \
+    --checks='modernize-use-auto,misc-const-correctness' \
+    -- -std=c++20 -Isrc/charts -Isrc -I/opt/homebrew/Cellar/raylib/5.5/include \
+    2>&1 | grep -E "warning:" | wc -l; done
+

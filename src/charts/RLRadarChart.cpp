@@ -83,7 +83,7 @@ void RLRadarChart::addSeries(const RLRadarSeries& rSeries) {
     lDyn.mCacheDirty = true;
 
     // Initialize values - start at center (0) and animate to target
-    size_t lAxisCount = mAxes.size();
+    const size_t lAxisCount = mAxes.size();
     lDyn.mValues.resize(lAxisCount, 0.0f);
     lDyn.mTargets.resize(lAxisCount, 0.0f);
 
@@ -98,10 +98,12 @@ void RLRadarChart::addSeries(const RLRadarSeries& rSeries) {
 }
 
 void RLRadarChart::setSeriesData(size_t aIndex, const std::vector<float>& rValues) {
-    if (aIndex >= mSeries.size()) return;
+    if (aIndex >= mSeries.size()) {
+        return;
+    }
 
     SeriesDyn& rSeries = mSeries[aIndex];
-    size_t lAxisCount = mAxes.size();
+    const size_t lAxisCount = mAxes.size();
 
     for (size_t i = 0; i < lAxisCount && i < rValues.size(); ++i) {
         rSeries.mTargets[i] = rValues[i];
@@ -111,7 +113,9 @@ void RLRadarChart::setSeriesData(size_t aIndex, const std::vector<float>& rValue
 }
 
 void RLRadarChart::setSeriesData(size_t aIndex, const RLRadarSeries& rSeries) {
-    if (aIndex >= mSeries.size()) return;
+    if (aIndex >= mSeries.size()) {
+        return;
+    }
 
     SeriesDyn& rDyn = mSeries[aIndex];
     rDyn.mLabel = rSeries.mLabel;
@@ -122,7 +126,7 @@ void RLRadarChart::setSeriesData(size_t aIndex, const RLRadarSeries& rSeries) {
     rDyn.mShowMarkers = rSeries.mShowMarkers;
     rDyn.mMarkerScale = rSeries.mMarkerScale;
 
-    size_t lAxisCount = mAxes.size();
+    const size_t lAxisCount = mAxes.size();
     for (size_t i = 0; i < lAxisCount && i < rSeries.mValues.size(); ++i) {
         rDyn.mTargets[i] = rSeries.mValues[i];
     }
@@ -131,7 +135,9 @@ void RLRadarChart::setSeriesData(size_t aIndex, const RLRadarSeries& rSeries) {
 }
 
 void RLRadarChart::removeSeries(size_t aIndex) {
-    if (aIndex >= mSeries.size()) return;
+    if (aIndex >= mSeries.size()) {
+        return;
+    }
 
     // Mark for removal with fade-out animation
     mSeries[aIndex].mVisibilityTarget = 0.0f;
@@ -172,15 +178,15 @@ void RLRadarChart::update(float aDt) {
             rSeries.mCacheDirty = true;
         }
     } else {
-        float lValueSpeed = mStyle.mAnimateSpeed * aDt;
-        float lFadeSpeed = mStyle.mFadeSpeed * aDt;
+        const float lValueSpeed = mStyle.mAnimateSpeed * aDt;
+        const float lFadeSpeed = mStyle.mFadeSpeed * aDt;
 
         for (auto& rSeries : mSeries) {
             bool lChanged = false;
 
             // Animate values
             for (size_t i = 0; i < rSeries.mValues.size(); ++i) {
-                float lOld = rSeries.mValues[i];
+                const float lOld = rSeries.mValues[i];
                 rSeries.mValues[i] = RLCharts::approach(rSeries.mValues[i], rSeries.mTargets[i], lValueSpeed);
                 if (rSeries.mValues[i] != lOld) {
                     lChanged = true;
@@ -188,7 +194,7 @@ void RLRadarChart::update(float aDt) {
             }
 
             // Animate visibility
-            float lOldVis = rSeries.mVisibility;
+            const float lOldVis = rSeries.mVisibility;
             rSeries.mVisibility = RLCharts::approach(rSeries.mVisibility, rSeries.mVisibilityTarget, lFadeSpeed);
             if (rSeries.mVisibility != lOldVis) {
                 lChanged = true;
@@ -222,7 +228,9 @@ void RLRadarChart::update(float aDt) {
 // ============================================================================
 
 void RLRadarChart::draw() const {
-    if (mAxes.size() < 3) return; // Need at least 3 axes for a radar chart
+    if (mAxes.size() < 3) {
+        return; // Need at least 3 axes for a radar chart
+    }
 
     computeGeometry();
 
@@ -246,18 +254,20 @@ void RLRadarChart::draw() const {
 // ============================================================================
 
 void RLRadarChart::computeGeometry() const {
-    if (!mGeomDirty) return;
+    if (!mGeomDirty) {
+        return;
+    }
 
     // Compute center and radius
-    float lPadding = mStyle.mPadding;
-    float lWidth = mBounds.width - 2.0f * lPadding;
-    float lHeight = mBounds.height - 2.0f * lPadding;
+    const float lPadding = mStyle.mPadding;
+    const float lWidth = mBounds.width - 2.0f * lPadding;
+    const float lHeight = mBounds.height - 2.0f * lPadding;
     mRadius = fminf(lWidth, lHeight) * 0.5f;
     mCenter.x = mBounds.x + mBounds.width * 0.5f;
     mCenter.y = mBounds.y + mBounds.height * 0.5f;
 
     // Compute axis angles (evenly distributed, starting from top)
-    size_t lAxisCount = mAxes.size();
+    const size_t lAxisCount = mAxes.size();
     mAxisAngles.resize(lAxisCount);
     mAxisEndpoints.resize(lAxisCount);
 
@@ -265,11 +275,11 @@ void RLRadarChart::computeGeometry() const {
     constexpr float LOCAL_TWO_PI = 2.0f * LOCAL_PI;
     constexpr float LOCAL_HALF_PI = LOCAL_PI * 0.5f;
 
-    float lAngleStep = LOCAL_TWO_PI / (float)lAxisCount;
-    float lStartAngle = -LOCAL_HALF_PI; // Start from top (12 o'clock)
+    const float lAngleStep = LOCAL_TWO_PI / (float)lAxisCount;
+    const float lStartAngle = -LOCAL_HALF_PI; // Start from top (12 o'clock)
 
     for (size_t i = 0; i < lAxisCount; ++i) {
-        float lAngle = lStartAngle + lAngleStep * (float)i;
+        const float lAngle = lStartAngle + lAngleStep * (float)i;
         mAxisAngles[i] = lAngle;
         mAxisEndpoints[i] = {
             mCenter.x + cosf(lAngle) * mRadius,
@@ -294,14 +304,16 @@ void RLRadarChart::computeGeometry() const {
 }
 
 void RLRadarChart::computeSeriesPoints(const SeriesDyn& rSeries) const {
-    if (!rSeries.mCacheDirty) return;
+    if (!rSeries.mCacheDirty) {
+        return;
+    }
 
-    size_t lAxisCount = mAxes.size();
+    const size_t lAxisCount = mAxes.size();
     rSeries.mCachedPoints.resize(lAxisCount);
 
     for (size_t i = 0; i < lAxisCount; ++i) {
-        float lValue = (i < rSeries.mValues.size()) ? rSeries.mValues[i] : 0.0f;
-        float lNorm = normalizeValue(lValue, i);
+        const float lValue = (i < rSeries.mValues.size()) ? rSeries.mValues[i] : 0.0f;
+        const float lNorm = normalizeValue(lValue, i);
         rSeries.mCachedPoints[i] = getPointOnAxis(i, lNorm);
     }
 
@@ -319,18 +331,22 @@ float RLRadarChart::normalizeValue(float aValue, size_t aAxisIndex) const {
         lMax = mGlobalMax;
     }
 
-    float lRange = lMax - lMin;
-    if (lRange < 0.0001f) return 0.5f;
+    const float lRange = lMax - lMin;
+    if (lRange < 0.0001f) {
+        return 0.5f;
+    }
 
-    float lNorm = (aValue - lMin) / lRange;
+    const float lNorm = (aValue - lMin) / lRange;
     return RLCharts::clamp01(lNorm);
 }
 
 Vector2 RLRadarChart::getPointOnAxis(size_t aAxisIndex, float aNormalizedValue) const {
-    if (aAxisIndex >= mAxisAngles.size()) return mCenter;
+    if (aAxisIndex >= mAxisAngles.size()) {
+        return mCenter;
+    }
 
-    float lAngle = mAxisAngles[aAxisIndex];
-    float lR = mRadius * aNormalizedValue;
+    const float lAngle = mAxisAngles[aAxisIndex];
+    const float lR = mRadius * aNormalizedValue;
 
     return {
         mCenter.x + cosf(lAngle) * lR,
@@ -343,41 +359,49 @@ Vector2 RLRadarChart::getPointOnAxis(size_t aAxisIndex, float aNormalizedValue) 
 // ============================================================================
 
 void RLRadarChart::drawBackground() const {
-    if (!mStyle.mShowBackground) return;
+    if (!mStyle.mShowBackground) {
+        return;
+    }
 
     DrawRectangleRec(mBounds, mStyle.mBackground);
 }
 
 void RLRadarChart::drawGrid() const {
-    if (!mStyle.mShowGrid) return;
+    if (!mStyle.mShowGrid) {
+        return;
+    }
 
-    size_t lAxisCount = mAxes.size();
-    if (lAxisCount < 3) return;
+    const size_t lAxisCount = mAxes.size();
+    if (lAxisCount < 3) {
+        return;
+    }
 
-    int lRings = mStyle.mGridRings;
-    Color lGridColor = mStyle.mGridColor;
-    float lThickness = mStyle.mGridThickness;
+    const int lRings = mStyle.mGridRings;
+    const Color lGridColor = mStyle.mGridColor;
+    const float lThickness = mStyle.mGridThickness;
 
     // Draw concentric rings (polygons)
     for (int ring = 1; ring <= lRings; ++ring) {
-        float lFrac = (float)ring / (float)lRings;
+        const float lFrac = (float)ring / (float)lRings;
 
         // Draw polygon for this ring
         for (size_t i = 0; i < lAxisCount; ++i) {
-            size_t lNext = (i + 1) % lAxisCount;
-            Vector2 lP1 = getPointOnAxis(i, lFrac);
-            Vector2 lP2 = getPointOnAxis(lNext, lFrac);
+            const size_t lNext = (i + 1) % lAxisCount;
+            const Vector2 lP1 = getPointOnAxis(i, lFrac);
+            const Vector2 lP2 = getPointOnAxis(lNext, lFrac);
             DrawLineEx(lP1, lP2, lThickness, lGridColor);
         }
     }
 }
 
 void RLRadarChart::drawAxes() const {
-    if (!mStyle.mShowAxes) return;
+    if (!mStyle.mShowAxes) {
+        return;
+    }
 
-    size_t lAxisCount = mAxes.size();
-    Color lAxisColor = mStyle.mAxisColor;
-    float lThickness = mStyle.mAxisThickness;
+    const size_t lAxisCount = mAxes.size();
+    const Color lAxisColor = mStyle.mAxisColor;
+    const float lThickness = mStyle.mAxisThickness;
 
     // Draw radial lines from center to perimeter
     for (size_t i = 0; i < lAxisCount; ++i) {
@@ -386,22 +410,26 @@ void RLRadarChart::drawAxes() const {
 }
 
 void RLRadarChart::drawAxisLabels() const {
-    if (!mStyle.mShowLabels) return;
+    if (!mStyle.mShowLabels) {
+        return;
+    }
 
-    size_t lAxisCount = mAxes.size();
-    Font lFont = mStyle.mLabelFont;
-    int lFontSize = mStyle.mLabelFontSize;
-    Color lColor = mStyle.mLabelColor;
-    float lOffset = mStyle.mLabelOffset;
+    const size_t lAxisCount = mAxes.size();
+    const Font lFont = mStyle.mLabelFont;
+    const int lFontSize = mStyle.mLabelFontSize;
+    const Color lColor = mStyle.mLabelColor;
+    const float lOffset = mStyle.mLabelOffset;
 
-    bool lUseDefaultFont = (lFont.texture.id == 0);
+    const bool lUseDefaultFont = (lFont.texture.id == 0);
 
     for (size_t i = 0; i < lAxisCount; ++i) {
         const std::string& rLabel = mAxes[i].mLabel;
-        if (rLabel.empty()) continue;
+        if (rLabel.empty()) {
+            continue;
+        }
 
         // Position label beyond the axis endpoint
-        float lAngle = mAxisAngles[i];
+        const float lAngle = mAxisAngles[i];
         Vector2 lPos = {
             mAxisEndpoints[i].x + cosf(lAngle) * lOffset,
             mAxisEndpoints[i].y + sinf(lAngle) * lOffset
@@ -421,8 +449,8 @@ void RLRadarChart::drawAxisLabels() const {
         // Bottom: center horizontally, below
         // Left: right-align
         // Right: left-align
-        float lCosA = cosf(lAngle);
-        float lSinA = sinf(lAngle);
+        const float lCosA = cosf(lAngle);
+        const float lSinA = sinf(lAngle);
 
         // Horizontal adjustment
         if (lCosA < -0.3f) {
@@ -458,24 +486,26 @@ void RLRadarChart::drawAxisLabels() const {
 void RLRadarChart::drawSeries(const SeriesDyn& rSeries) const {
     computeSeriesPoints(rSeries);
 
-    size_t lAxisCount = mAxes.size();
-    if (lAxisCount < 3 || rSeries.mCachedPoints.size() < 3) return;
+    const size_t lAxisCount = mAxes.size();
+    if (lAxisCount < 3 || rSeries.mCachedPoints.size() < 3) {
+        return;
+    }
 
-    float lAlpha = rSeries.mVisibility;
+    const float lAlpha = rSeries.mVisibility;
 
     // Apply visibility to colors
     Color lLineColor = rSeries.mLineColor;
-    lLineColor.a = (unsigned char)(lLineColor.a * lAlpha);
+    lLineColor.a = static_cast<unsigned char>(static_cast<float>(lLineColor.a) * lAlpha);
 
     Color lFillColor = rSeries.mFillColor;
-    lFillColor.a = (unsigned char)(lFillColor.a * lAlpha);
+    lFillColor.a = static_cast<unsigned char>(static_cast<float>(lFillColor.a) * lAlpha);
 
     // Draw filled polygon
     if (rSeries.mShowFill && lFillColor.a > 0) {
         // Draw as triangle fan from center
         // Note: DrawTriangle requires counter-clockwise vertex order
         for (size_t i = 0; i < lAxisCount; ++i) {
-            size_t lNext = (i + 1) % lAxisCount;
+            const size_t lNext = (i + 1) % lAxisCount;
             DrawTriangle(
                 mCenter,
                 rSeries.mCachedPoints[lNext],
@@ -486,9 +516,9 @@ void RLRadarChart::drawSeries(const SeriesDyn& rSeries) const {
     }
 
     // Draw outline
-    float lThickness = rSeries.mLineThickness;
+    const float lThickness = rSeries.mLineThickness;
     for (size_t i = 0; i < lAxisCount; ++i) {
-        size_t lNext = (i + 1) % lAxisCount;
+        const size_t lNext = (i + 1) % lAxisCount;
         DrawLineEx(
             rSeries.mCachedPoints[i],
             rSeries.mCachedPoints[lNext],
@@ -499,7 +529,7 @@ void RLRadarChart::drawSeries(const SeriesDyn& rSeries) const {
 
     // Draw markers
     if (rSeries.mShowMarkers) {
-        float lMarkerRadius = lThickness * rSeries.mMarkerScale;
+        const float lMarkerRadius = lThickness * rSeries.mMarkerScale;
         for (size_t i = 0; i < lAxisCount; ++i) {
             DrawCircleV(rSeries.mCachedPoints[i], lMarkerRadius, lLineColor);
         }
@@ -507,25 +537,33 @@ void RLRadarChart::drawSeries(const SeriesDyn& rSeries) const {
 }
 
 void RLRadarChart::drawLegend() const {
-    if (!mStyle.mShowLegend) return;
-    if (mSeries.empty()) return;
+    if (!mStyle.mShowLegend) {
+        return;
+    }
+    if (mSeries.empty()) {
+        return;
+    }
 
-    Font lFont = mStyle.mLabelFont;
-    int lFontSize = mStyle.mLabelFontSize;
-    float lPadding = mStyle.mLegendPadding;
-    bool lUseDefaultFont = (lFont.texture.id == 0);
+    const Font lFont = mStyle.mLabelFont;
+    const int lFontSize = mStyle.mLabelFontSize;
+    const float lPadding = mStyle.mLegendPadding;
+    const bool lUseDefaultFont = (lFont.texture.id == 0);
 
     // Position legend at bottom-right
-    float lX = mBounds.x + mBounds.width - lPadding;
+    const float lX = mBounds.x + mBounds.width - lPadding;
     float lY = mBounds.y + lPadding;
 
-    float lBoxSize = (float)lFontSize;
-    float lSpacing = 4.0f;
-    float lLineHeight = lBoxSize + lSpacing;
+    const auto lBoxSize = static_cast<float>(lFontSize);
+    const float lSpacing = 4.0f;
+    const float lLineHeight = lBoxSize + lSpacing;
 
     for (const auto& rSeries : mSeries) {
-        if (rSeries.mVisibility < 0.01f) continue;
-        if (rSeries.mLabel.empty()) continue;
+        if (rSeries.mVisibility < 0.01f) {
+            continue;
+        }
+        if (rSeries.mLabel.empty()) {
+            continue;
+        }
 
         // Measure text
         Vector2 lTextSize;
@@ -535,18 +573,18 @@ void RLRadarChart::drawLegend() const {
             lTextSize = MeasureTextEx(lFont, rSeries.mLabel.c_str(), (float)lFontSize, 1.0f);
         }
 
-        float lEntryWidth = lBoxSize + lSpacing + lTextSize.x;
-        float lEntryX = lX - lEntryWidth;
+        const float lEntryWidth = lBoxSize + lSpacing + lTextSize.x;
+        const float lEntryX = lX - lEntryWidth;
 
         // Draw color box
         Color lBoxColor = rSeries.mLineColor;
-        lBoxColor.a = (unsigned char)(lBoxColor.a * rSeries.mVisibility);
+        lBoxColor.a = static_cast<unsigned char>(static_cast<float>(lBoxColor.a) * rSeries.mVisibility);
         DrawRectangle((int)lEntryX, (int)lY, (int)lBoxSize, (int)lBoxSize, lBoxColor);
 
         // Draw label
         Color lTextColor = mStyle.mLabelColor;
-        lTextColor.a = (unsigned char)(lTextColor.a * rSeries.mVisibility);
-        Vector2 lTextPos = {lEntryX + lBoxSize + lSpacing, lY};
+        lTextColor.a = static_cast<unsigned char>(static_cast<float>(lTextColor.a) * rSeries.mVisibility);
+        const Vector2 lTextPos = {lEntryX + lBoxSize + lSpacing, lY};
 
         if (lUseDefaultFont) {
             DrawText(rSeries.mLabel.c_str(), (int)lTextPos.x, (int)lTextPos.y, lFontSize, lTextColor);

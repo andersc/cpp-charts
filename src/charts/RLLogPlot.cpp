@@ -33,7 +33,7 @@ void RLLogPlot::setWindowSize(size_t aMaxSamples) {
     mMaxWindowSize = aMaxSamples;
     if (mTimeSeries.size() > mMaxWindowSize) {
         // Trim oldest samples
-        size_t lExcess = mTimeSeries.size() - mMaxWindowSize;
+        const size_t lExcess = mTimeSeries.size() - mMaxWindowSize;
         mTimeSeries.erase(mTimeSeries.begin(), mTimeSeries.begin() + (int)lExcess);
     }
 }
@@ -46,7 +46,7 @@ void RLLogPlot::pushSample(float aValue) {
 }
 
 void RLLogPlot::pushSamples(const std::vector<float>& rValues) {
-    for (float lVal : rValues) {
+    for (const float lVal : rValues) {
         pushSample(lVal);
     }
 }
@@ -68,7 +68,9 @@ size_t RLLogPlot::addTrace(const RLLogPlotTrace& rTrace) {
 }
 
 void RLLogPlot::setTrace(size_t aIndex, const RLLogPlotTrace& rTrace) {
-    if (aIndex >= mTraces.size()) return;
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
     mTraces[aIndex] = rTrace;
     mTraces[aIndex].mDirty = true;
     mScaleDirty = true;
@@ -77,7 +79,9 @@ void RLLogPlot::setTrace(size_t aIndex, const RLLogPlotTrace& rTrace) {
 void RLLogPlot::updateTraceData(size_t aIndex, const std::vector<float>& rXValues,
                                 const std::vector<float>& rYValues,
                                 const std::vector<RLLogPlotConfidence>* pConfidence) {
-    if (aIndex >= mTraces.size()) return;
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
     auto& lTrace = mTraces[aIndex];
     lTrace.mXValues = rXValues;
     lTrace.mYValues = rYValues;
@@ -89,11 +93,13 @@ void RLLogPlot::updateTraceData(size_t aIndex, const std::vector<float>& rXValue
 }
 
 void RLLogPlot::updateLayout() const {
-    if (!mLayoutDirty) return;
+    if (!mLayoutDirty) {
+        return;
+    }
 
-    float lTotalHeight = mBounds.height;
-    float lTimeSeriesH = lTotalHeight * mTimeSeriesHeightFraction;
-    float lLogPlotH = lTotalHeight - lTimeSeriesH - mGapBetweenPlots;
+    const float lTotalHeight = mBounds.height;
+    const float lTimeSeriesH = lTotalHeight * mTimeSeriesHeightFraction;
+    const float lLogPlotH = lTotalHeight - lTimeSeriesH - mGapBetweenPlots;
 
     // Time series on bottom
     mTimeSeriesRect = Rectangle{
@@ -115,7 +121,9 @@ void RLLogPlot::updateLayout() const {
 }
 
 void RLLogPlot::updateLogScale() const {
-    if (!mScaleDirty) return;
+    if (!mScaleDirty) {
+        return;
+    }
 
     if (!mLogPlotStyle.mAutoScaleX) {
         mLogMinX = mLogPlotStyle.mMinLogX;
@@ -126,22 +134,24 @@ void RLLogPlot::updateLogScale() const {
         mLogMaxX = 1.0f;
         bool lFirst = true;
         for (const auto& lTrace : mTraces) {
-            for (float lX : lTrace.mXValues) {
+            for (const float lX : lTrace.mXValues) {
                 if (lX > 0.0f) {
-                    float lLogX = log10f(lX);
+                    const float lLogX = log10f(lX);
                     if (lFirst) {
                         mLogMinX = mLogMaxX = lLogX;
                         lFirst = false;
                     } else {
-                        if (lLogX < mLogMinX) mLogMinX = lLogX;
-                        if (lLogX > mLogMaxX) mLogMaxX = lLogX;
+                        mLogMinX = std::min(lLogX, mLogMinX);
+                        mLogMaxX = std::max(lLogX, mLogMaxX);
                     }
                 }
             }
         }
         // Add some padding
         float lRangeX = mLogMaxX - mLogMinX;
-        if (lRangeX < 1e-6f) lRangeX = 1.0f;
+        if (lRangeX < 1e-6f) {
+            lRangeX = 1.0f;
+        }
         mLogMinX -= lRangeX * 0.05f;
         mLogMaxX += lRangeX * 0.05f;
     }
@@ -155,15 +165,15 @@ void RLLogPlot::updateLogScale() const {
         mLogMaxY = 1.0f;
         bool lFirst = true;
         for (const auto& lTrace : mTraces) {
-            for (float lY : lTrace.mYValues) {
+            for (const float lY : lTrace.mYValues) {
                 if (lY > 0.0f) {
-                    float lLogY = log10f(lY);
+                    const float lLogY = log10f(lY);
                     if (lFirst) {
                         mLogMinY = mLogMaxY = lLogY;
                         lFirst = false;
                     } else {
-                        if (lLogY < mLogMinY) mLogMinY = lLogY;
-                        if (lLogY > mLogMaxY) mLogMaxY = lLogY;
+                        mLogMinY = std::min(lLogY, mLogMinY);
+                        mLogMaxY = std::max(lLogY, mLogMaxY);
                     }
                 }
             }
@@ -171,26 +181,28 @@ void RLLogPlot::updateLogScale() const {
             for (const auto& lConf : lTrace.mConfidence) {
                 if (lConf.mEnabled) {
                     if (lConf.mLowerBound > 0.0f) {
-                        float lLogY = log10f(lConf.mLowerBound);
+                        const float lLogY = log10f(lConf.mLowerBound);
                         if (lFirst) {
                             mLogMinY = mLogMaxY = lLogY;
                             lFirst = false;
                         } else {
-                            if (lLogY < mLogMinY) mLogMinY = lLogY;
-                            if (lLogY > mLogMaxY) mLogMaxY = lLogY;
+                            mLogMinY = std::min(lLogY, mLogMinY);
+                            mLogMaxY = std::max(lLogY, mLogMaxY);
                         }
                     }
                     if (lConf.mUpperBound > 0.0f) {
-                        float lLogY = log10f(lConf.mUpperBound);
-                        if (lLogY < mLogMinY) mLogMinY = lLogY;
-                        if (lLogY > mLogMaxY) mLogMaxY = lLogY;
+                        const float lLogY = log10f(lConf.mUpperBound);
+                        mLogMinY = std::min(lLogY, mLogMinY);
+                        mLogMaxY = std::max(lLogY, mLogMaxY);
                     }
                 }
             }
         }
         // Add some padding
         float lRangeY = mLogMaxY - mLogMinY;
-        if (lRangeY < 1e-6f) lRangeY = 1.0f;
+        if (lRangeY < 1e-6f) {
+            lRangeY = 1.0f;
+        }
         mLogMinY -= lRangeY * 0.08f;
         mLogMaxY += lRangeY * 0.08f;
     }
@@ -199,8 +211,8 @@ void RLLogPlot::updateLogScale() const {
 }
 
 Vector2 RLLogPlot::mapLogPoint(float aLogX, float aLogY, Rectangle aRect) const {
-    float lNormX = (aLogX - mLogMinX) / (mLogMaxX - mLogMinX);
-    float lNormY = (aLogY - mLogMinY) / (mLogMaxY - mLogMinY);
+    const float lNormX = (aLogX - mLogMinX) / (mLogMaxX - mLogMinX);
+    const float lNormY = (aLogY - mLogMinY) / (mLogMaxY - mLogMinY);
     return Vector2{
         aRect.x + lNormX * aRect.width,
         aRect.y + aRect.height - lNormY * aRect.height  // Flip Y
@@ -208,7 +220,7 @@ Vector2 RLLogPlot::mapLogPoint(float aLogX, float aLogY, Rectangle aRect) const 
 }
 
 void RLLogPlot::ensureTraceAnimation(RLLogPlotTrace& rTrace) const {
-    size_t lN = rTrace.mXValues.size();
+    const size_t lN = rTrace.mXValues.size();
 
     if (rTrace.mAnimX.size() != lN) {
         rTrace.mAnimX.resize(lN);
@@ -232,13 +244,15 @@ void RLLogPlot::ensureTraceAnimation(RLLogPlotTrace& rTrace) const {
 
 
 void RLLogPlot::update(float aDt) {
-    if (!mLogPlotStyle.mSmoothAnimate) return;
+    if (!mLogPlotStyle.mSmoothAnimate) {
+        return;
+    }
 
-    float lSpeed = mLogPlotStyle.mAnimSpeed * aDt;
+    const float lSpeed = mLogPlotStyle.mAnimSpeed * aDt;
 
     for (auto& lTrace : mTraces) {
         ensureTraceAnimation(lTrace);
-        size_t lN = lTrace.mXValues.size();
+        const size_t lN = lTrace.mXValues.size();
 
         // Animate each point
         for (size_t i = 0; i < lN; ++i) {
@@ -281,11 +295,13 @@ void RLLogPlot::draw() const {
 }
 
 void RLLogPlot::drawTimeSeries() const {
-    if (mTimeSeries.empty()) return;
+    if (mTimeSeries.empty()) {
+        return;
+    }
 
-    Rectangle lBounds = mTimeSeriesRect;
-    float lPad = mTimeSeriesStyle.mPadding;
-    Rectangle lPlotRect = { lBounds.x + lPad, lBounds.y + lPad,
+    const Rectangle lBounds = mTimeSeriesRect;
+    const float lPad = mTimeSeriesStyle.mPadding;
+    const Rectangle lPlotRect = { lBounds.x + lPad, lBounds.y + lPad,
                            lBounds.width - 2*lPad, lBounds.height - 2*lPad };
 
     // Background
@@ -297,11 +313,11 @@ void RLLogPlot::drawTimeSeries() const {
     float lMinY = 0.0f, lMaxY = 1.0f;
     if (mTimeSeriesStyle.mAutoScaleY && !mTimeSeries.empty()) {
         lMinY = lMaxY = mTimeSeries[0];
-        for (float lV : mTimeSeries) {
-            if (lV < lMinY) lMinY = lV;
-            if (lV > lMaxY) lMaxY = lV;
+        for (const float lV : mTimeSeries) {
+            lMinY = std::min(lV, lMinY);
+            lMaxY = std::max(lV, lMaxY);
         }
-        float lRange = lMaxY - lMinY;
+        const float lRange = lMaxY - lMinY;
         if (lRange < 1e-6f) {
             lMinY -= 0.5f;
             lMaxY += 0.5f;
@@ -316,9 +332,9 @@ void RLLogPlot::drawTimeSeries() const {
 
     // Grid
     if (mTimeSeriesStyle.mShowGrid) {
-        int lGridLines = 4;
+        const int lGridLines = 4;
         for (int i = 0; i <= lGridLines; ++i) {
-            float lY = lPlotRect.y + ((float)i / (float)lGridLines) * lPlotRect.height;
+            const float lY = lPlotRect.y + ((float)i / (float)lGridLines) * lPlotRect.height;
             DrawLineEx(Vector2{lPlotRect.x, lY},
                       Vector2{lPlotRect.x + lPlotRect.width, lY},
                       1.0f, mTimeSeriesStyle.mGridColor);
@@ -334,25 +350,27 @@ void RLLogPlot::drawTimeSeries() const {
               2.0f, mTimeSeriesStyle.mAxesColor);
 
     // Map points to screen space
-    size_t lN = mTimeSeries.size();
-    if (lN < 2) return;
+    const size_t lN = mTimeSeries.size();
+    if (lN < 2) {
+        return;
+    }
 
     std::vector<Vector2> lPoints;
     lPoints.reserve(lN);
 
     for (size_t i = 0; i < lN; ++i) {
-        float lX = lPlotRect.x + ((float)i / (float)(lN - 1)) * lPlotRect.width;
-        float lNormY = (mTimeSeries[i] - lMinY) / (lMaxY - lMinY);
-        float lY = lPlotRect.y + lPlotRect.height - lNormY * lPlotRect.height;
+        const float lX = lPlotRect.x + ((float)i / (float)(lN - 1)) * lPlotRect.width;
+        const float lNormY = (mTimeSeries[i] - lMinY) / (lMaxY - lMinY);
+        const float lY = lPlotRect.y + lPlotRect.height - lNormY * lPlotRect.height;
         lPoints.push_back(Vector2{lX, lY});
     }
 
     // Fill under curve
     if (mTimeSeriesStyle.mFillUnderCurve && lN >= 2) {
         for (size_t i = 0; i < lN - 1; ++i) {
-            Vector2 lP1 = lPoints[i];
-            Vector2 lP2 = lPoints[i + 1];
-            float lBottom = lPlotRect.y + lPlotRect.height;
+            const Vector2 lP1 = lPoints[i];
+            const Vector2 lP2 = lPoints[i + 1];
+            const float lBottom = lPlotRect.y + lPlotRect.height;
 
             DrawTriangle(
                 Vector2{lP1.x, lBottom},
@@ -378,7 +396,7 @@ void RLLogPlot::drawTimeSeries() const {
 
     // Title
     if (!mTimeSeriesStyle.mTitle.empty()) {
-        int lTitleSize = (int)mTimeSeriesStyle.mFontSize + 2;
+        const int lTitleSize = (int)mTimeSeriesStyle.mFontSize + 2;
         const Font& lFont = (mTimeSeriesStyle.mFont.baseSize > 0) ? mTimeSeriesStyle.mFont : GetFontDefault();
         DrawTextEx(lFont, mTimeSeriesStyle.mTitle.c_str(),
                 Vector2{lBounds.x + 10, lBounds.y + 5},
@@ -397,9 +415,9 @@ void RLLogPlot::drawTimeSeries() const {
 }
 
 void RLLogPlot::drawLogPlot() const {
-    Rectangle lBounds = mLogPlotRect;
-    float lPad = mLogPlotStyle.mPadding;
-    Rectangle lPlotRect = { lBounds.x + lPad, lBounds.y + lPad,
+    const Rectangle lBounds = mLogPlotRect;
+    const float lPad = mLogPlotStyle.mPadding;
+    const Rectangle lPlotRect = { lBounds.x + lPad, lBounds.y + lPad,
                            lBounds.width - 2*lPad, lBounds.height - 2*lPad };
 
     // Background
@@ -418,9 +436,9 @@ void RLLogPlot::drawLogPlot() const {
 
     // Title
     if (!mLogPlotStyle.mTitle.empty()) {
-        int lTitleSize = (int)mLogPlotStyle.mTitleFontSize;
+        const int lTitleSize = (int)mLogPlotStyle.mTitleFontSize;
         const Font& lFont = (mLogPlotStyle.mFont.baseSize > 0) ? mLogPlotStyle.mFont : GetFontDefault();
-        Vector2 lTitleSize2 = MeasureTextEx(lFont, mLogPlotStyle.mTitle.c_str(), (float)lTitleSize, 0);
+        const Vector2 lTitleSize2 = MeasureTextEx(lFont, mLogPlotStyle.mTitle.c_str(), (float)lTitleSize, 0);
         DrawTextEx(lFont, mLogPlotStyle.mTitle.c_str(),
                 Vector2{lBounds.x + lBounds.width * 0.5f - lTitleSize2.x * 0.5f, lBounds.y + 8},
                 (float)lTitleSize, 0,
@@ -429,52 +447,62 @@ void RLLogPlot::drawLogPlot() const {
 }
 
 void RLLogPlot::drawLogGrid(Rectangle aPlotRect) const {
-    if (!mLogPlotStyle.mShowGrid) return;
+    if (!mLogPlotStyle.mShowGrid) {
+        return;
+    }
 
 
     // X grid
-    int lStartDecadeX = (int)floorf(mLogMinX);
-    int lEndDecadeX = (int)ceilf(mLogMaxX);
+    const int lStartDecadeX = (int)floorf(mLogMinX);
+    const int lEndDecadeX = (int)ceilf(mLogMaxX);
     for (int lDec = lStartDecadeX; lDec <= lEndDecadeX; ++lDec) {
-        float lLogX = (float)lDec;
-        if (lLogX < mLogMinX || lLogX > mLogMaxX) continue;
+        const auto lLogX = (float)lDec;
+        if (lLogX < mLogMinX || lLogX > mLogMaxX) {
+            continue;
+        }
 
-        Vector2 lP1 = mapLogPoint(lLogX, mLogMinY, aPlotRect);
-        Vector2 lP2 = mapLogPoint(lLogX, mLogMaxY, aPlotRect);
+        const Vector2 lP1 = mapLogPoint(lLogX, mLogMinY, aPlotRect);
+        const Vector2 lP2 = mapLogPoint(lLogX, mLogMaxY, aPlotRect);
         DrawLineEx(lP1, lP2, 1.5f, mLogPlotStyle.mGridColor);
 
         // Minor grid
         if (mLogPlotStyle.mShowMinorGrid) {
             for (int lMinor = 2; lMinor <= 9; ++lMinor) {
-                float lLogXMinor = lLogX + log10f((float)lMinor);
-                if (lLogXMinor < mLogMinX || lLogXMinor > mLogMaxX) continue;
+                const float lLogXMinor = lLogX + log10f((float)lMinor);
+                if (lLogXMinor < mLogMinX || lLogXMinor > mLogMaxX) {
+                    continue;
+                }
 
-                Vector2 lPM1 = mapLogPoint(lLogXMinor, mLogMinY, aPlotRect);
-                Vector2 lPM2 = mapLogPoint(lLogXMinor, mLogMaxY, aPlotRect);
+                const Vector2 lPM1 = mapLogPoint(lLogXMinor, mLogMinY, aPlotRect);
+                const Vector2 lPM2 = mapLogPoint(lLogXMinor, mLogMaxY, aPlotRect);
                 DrawLineEx(lPM1, lPM2, 0.8f, mLogPlotStyle.mMinorGridColor);
             }
         }
     }
 
     // Y grid
-    int lStartDecadeY = (int)floorf(mLogMinY);
-    int lEndDecadeY = (int)ceilf(mLogMaxY);
+    const int lStartDecadeY = (int)floorf(mLogMinY);
+    const int lEndDecadeY = (int)ceilf(mLogMaxY);
     for (int lDec = lStartDecadeY; lDec <= lEndDecadeY; ++lDec) {
-        float lLogY = (float)lDec;
-        if (lLogY < mLogMinY || lLogY > mLogMaxY) continue;
+        const auto lLogY = (float)lDec;
+        if (lLogY < mLogMinY || lLogY > mLogMaxY) {
+            continue;
+        }
 
-        Vector2 lP1 = mapLogPoint(mLogMinX, lLogY, aPlotRect);
-        Vector2 lP2 = mapLogPoint(mLogMaxX, lLogY, aPlotRect);
+        const Vector2 lP1 = mapLogPoint(mLogMinX, lLogY, aPlotRect);
+        const Vector2 lP2 = mapLogPoint(mLogMaxX, lLogY, aPlotRect);
         DrawLineEx(lP1, lP2, 1.5f, mLogPlotStyle.mGridColor);
 
         // Minor grid
         if (mLogPlotStyle.mShowMinorGrid) {
             for (int lMinor = 2; lMinor <= 9; ++lMinor) {
-                float lLogYMinor = lLogY + log10f((float)lMinor);
-                if (lLogYMinor < mLogMinY || lLogYMinor > mLogMaxY) continue;
+                const float lLogYMinor = lLogY + log10f((float)lMinor);
+                if (lLogYMinor < mLogMinY || lLogYMinor > mLogMaxY) {
+                    continue;
+                }
 
-                Vector2 lPM1 = mapLogPoint(mLogMinX, lLogYMinor, aPlotRect);
-                Vector2 lPM2 = mapLogPoint(mLogMaxX, lLogYMinor, aPlotRect);
+                const Vector2 lPM1 = mapLogPoint(mLogMinX, lLogYMinor, aPlotRect);
+                const Vector2 lPM2 = mapLogPoint(mLogMaxX, lLogYMinor, aPlotRect);
                 DrawLineEx(lPM1, lPM2, 0.8f, mLogPlotStyle.mMinorGridColor);
             }
         }
@@ -491,43 +519,47 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
               2.5f, mLogPlotStyle.mAxesColor);
 
     // Tick labels
-    int lFontSize = (int)mLogPlotStyle.mFontSize;
+    const int lFontSize = (int)mLogPlotStyle.mFontSize;
     const Font& lFont = (mLogPlotStyle.mFont.baseSize > 0) ? mLogPlotStyle.mFont : GetFontDefault();
 
     // X-axis labels
-    int lStartDecadeX = (int)floorf(mLogMinX);
-    int lEndDecadeX = (int)ceilf(mLogMaxX);
+    const int lStartDecadeX = (int)floorf(mLogMinX);
+    const int lEndDecadeX = (int)ceilf(mLogMaxX);
     for (int lDec = lStartDecadeX; lDec <= lEndDecadeX; ++lDec) {
-        float lLogX = (float)lDec;
-        if (lLogX < mLogMinX || lLogX > mLogMaxX) continue;
+        const auto lLogX = (float)lDec;
+        if (lLogX < mLogMinX || lLogX > mLogMaxX) {
+            continue;
+        }
 
-        Vector2 lPos = mapLogPoint(lLogX, mLogMinY, aPlotRect);
+        const Vector2 lPos = mapLogPoint(lLogX, mLogMinY, aPlotRect);
         char lBuf[32];
         snprintf(lBuf, sizeof(lBuf), "10^%d", lDec);
-        Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
+        const Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
         DrawTextEx(lFont, lBuf, Vector2{lPos.x - lTextSize.x * 0.5f, lPos.y + 8},
                 (float)lFontSize, 0, mLogPlotStyle.mTextColor);
     }
 
     // Y-axis labels
-    int lStartDecadeY = (int)floorf(mLogMinY);
-    int lEndDecadeY = (int)ceilf(mLogMaxY);
+    const int lStartDecadeY = (int)floorf(mLogMinY);
+    const int lEndDecadeY = (int)ceilf(mLogMaxY);
     for (int lDec = lStartDecadeY; lDec <= lEndDecadeY; ++lDec) {
-        float lLogY = (float)lDec;
-        if (lLogY < mLogMinY || lLogY > mLogMaxY) continue;
+        const auto lLogY = (float)lDec;
+        if (lLogY < mLogMinY || lLogY > mLogMaxY) {
+            continue;
+        }
 
-        Vector2 lPos = mapLogPoint(mLogMinX, lLogY, aPlotRect);
+        const Vector2 lPos = mapLogPoint(mLogMinX, lLogY, aPlotRect);
         char lBuf[32];
         snprintf(lBuf, sizeof(lBuf), "10^%d", lDec);
-        Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
-        DrawTextEx(lFont, lBuf, Vector2{lPos.x - lTextSize.x - 10, lPos.y - lFontSize * 0.5f},
+        const Vector2 lTextSize = MeasureTextEx(lFont, lBuf, (float)lFontSize, 0);
+        DrawTextEx(lFont, lBuf, Vector2{lPos.x - lTextSize.x - 10, lPos.y - (float)lFontSize * 0.5f},
                 (float)lFontSize, 0, mLogPlotStyle.mTextColor);
     }
 
     // Axis labels
     if (!mLogPlotStyle.mXAxisLabel.empty()) {
-        int lLabelSize = lFontSize + 2;
-        Vector2 lTextSize = MeasureTextEx(lFont, mLogPlotStyle.mXAxisLabel.c_str(), (float)lLabelSize, 0);
+        const int lLabelSize = lFontSize + 2;
+        const Vector2 lTextSize = MeasureTextEx(lFont, mLogPlotStyle.mXAxisLabel.c_str(), (float)lLabelSize, 0);
         DrawTextEx(lFont, mLogPlotStyle.mXAxisLabel.c_str(),
                 Vector2{aPlotRect.x + aPlotRect.width * 0.5f - lTextSize.x * 0.5f, aPlotRect.y + aPlotRect.height + 35},
                 (float)lLabelSize, 0,
@@ -536,7 +568,7 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
 
     if (!mLogPlotStyle.mYAxisLabel.empty()) {
         // Vertical text (FIXME: simplified - draw horizontally for now)
-        int lLabelSize = lFontSize + 2;
+        const int lLabelSize = lFontSize + 2;
         DrawTextEx(lFont, mLogPlotStyle.mYAxisLabel.c_str(),
                 Vector2{aPlotRect.x - mLogPlotStyle.mPadding + 5, aPlotRect.y + aPlotRect.height * 0.5f},
                 (float)lLabelSize, 0,
@@ -545,13 +577,17 @@ void RLLogPlot::drawLogAxes(Rectangle aPlotRect) const {
 }
 
 void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) const {
-    if (rTrace.mXValues.empty() || rTrace.mYValues.empty()) return;
+    if (rTrace.mXValues.empty() || rTrace.mYValues.empty()) {
+        return;
+    }
 
     // Ensure animation data is initialized
     const_cast<RLLogPlot*>(this)->ensureTraceAnimation(const_cast<RLLogPlotTrace&>(rTrace));
 
-    size_t lN = RLCharts::minVal(rTrace.mXValues.size(), rTrace.mYValues.size());
-    if (lN == 0) return;
+    const size_t lN = RLCharts::minVal(rTrace.mXValues.size(), rTrace.mYValues.size());
+    if (lN == 0) {
+        return;
+    }
 
     // Use animated values if available
     const std::vector<float>* pXVals = &rTrace.mXValues;
@@ -567,13 +603,15 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
 
     for (size_t i = 0; i < lN; ++i) {
         if ((*pXVals)[i] > 0.0f && (*pYVals)[i] > 0.0f) {
-            float lLogX = log10f((*pXVals)[i]);
-            float lLogY = log10f((*pYVals)[i]);
+            const float lLogX = log10f((*pXVals)[i]);
+            const float lLogY = log10f((*pYVals)[i]);
             lScreenPoints.push_back(mapLogPoint(lLogX, lLogY, aPlotRect));
         }
     }
 
-    if (lScreenPoints.empty()) return;
+    if (lScreenPoints.empty()) {
+        return;
+    }
 
     // Draw confidence intervals first (so they're behind the line)
     if (rTrace.mStyle.mShowConfidenceIntervals) {
@@ -581,11 +619,15 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
         if (lConfColor.a == 0) {
             lConfColor = rTrace.mStyle.mLineColor;
         }
-        lConfColor.a = (unsigned char)(lConfColor.a * rTrace.mStyle.mConfidenceAlpha);
+        lConfColor.a = (unsigned char)((float)lConfColor.a * rTrace.mStyle.mConfidenceAlpha);
 
         for (size_t i = 0; i < lN && i < rTrace.mConfidence.size(); ++i) {
-            if (!rTrace.mConfidence[i].mEnabled) continue;
-            if ((*pXVals)[i] <= 0.0f) continue;
+            if (!rTrace.mConfidence[i].mEnabled) {
+                continue;
+            }
+            if ((*pXVals)[i] <= 0.0f) {
+                continue;
+            }
 
             float lLower = rTrace.mConfidence[i].mLowerBound;
             float lUpper = rTrace.mConfidence[i].mUpperBound;
@@ -596,22 +638,24 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
                 lUpper = rTrace.mAnimConfUpper[i];
             }
 
-            if (lLower <= 0.0f || lUpper <= 0.0f) continue;
+            if (lLower <= 0.0f || lUpper <= 0.0f) {
+                continue;
+            }
 
-            float lLogX = log10f((*pXVals)[i]);
-            float lLogLower = log10f(lLower);
-            float lLogUpper = log10f(lUpper);
+            const float lLogX = log10f((*pXVals)[i]);
+            const float lLogLower = log10f(lLower);
+            const float lLogUpper = log10f(lUpper);
 
-            Vector2 lLowerPt = mapLogPoint(lLogX, lLogLower, aPlotRect);
-            Vector2 lUpperPt = mapLogPoint(lLogX, lLogUpper, aPlotRect);
+            const Vector2 lLowerPt = mapLogPoint(lLogX, lLogLower, aPlotRect);
+            const Vector2 lUpperPt = mapLogPoint(lLogX, lLogUpper, aPlotRect);
 
-            float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            Color lDrawColor = RLCharts::fadeColor(lConfColor, lVis);
+            const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
+            const Color lDrawColor = RLCharts::fadeColor(lConfColor, lVis);
 
             if (rTrace.mStyle.mConfidenceAsBars) {
                 // Error bars
                 DrawLineEx(lLowerPt, lUpperPt, 2.0f, lDrawColor);
-                float lCapW = rTrace.mStyle.mConfidenceBarWidth * 0.5f;
+                const float lCapW = rTrace.mStyle.mConfidenceBarWidth * 0.5f;
                 DrawLineEx(Vector2{lLowerPt.x - lCapW, lLowerPt.y},
                           Vector2{lLowerPt.x + lCapW, lLowerPt.y}, 2.0f, lDrawColor);
                 DrawLineEx(Vector2{lUpperPt.x - lCapW, lUpperPt.y},
@@ -630,9 +674,9 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
                     }
 
                     if (lNextLower > 0.0f && lNextUpper > 0.0f) {
-                        float lNextLogX = log10f((*pXVals)[i + 1]);
-                        Vector2 lNextLowerPt = mapLogPoint(lNextLogX, log10f(lNextLower), aPlotRect);
-                        Vector2 lNextUpperPt = mapLogPoint(lNextLogX, log10f(lNextUpper), aPlotRect);
+                        const float lNextLogX = log10f((*pXVals)[i + 1]);
+                        const Vector2 lNextLowerPt = mapLogPoint(lNextLogX, log10f(lNextLower), aPlotRect);
+                        const Vector2 lNextUpperPt = mapLogPoint(lNextLogX, log10f(lNextUpper), aPlotRect);
 
                         // Draw quad as two triangles
                         DrawTriangle(lLowerPt, lUpperPt, lNextUpperPt, lDrawColor);
@@ -645,8 +689,8 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
 
     // Draw connecting lines
     for (size_t i = 0; i < lScreenPoints.size() - 1; ++i) {
-        float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-        Color lDrawColor = RLCharts::fadeColor(rTrace.mStyle.mLineColor, lVis);
+        const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
+        const Color lDrawColor = RLCharts::fadeColor(rTrace.mStyle.mLineColor, lVis);
         DrawLineEx(lScreenPoints[i], lScreenPoints[i + 1],
                   rTrace.mStyle.mLineThickness, lDrawColor);
     }
@@ -659,12 +703,12 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
         }
 
         for (size_t i = 0; i < lScreenPoints.size(); ++i) {
-            float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            Color lDrawColor = RLCharts::fadeColor(lPointColor, lVis);
+            const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
+            const Color lDrawColor = RLCharts::fadeColor(lPointColor, lVis);
             DrawCircleV(lScreenPoints[i], rTrace.mStyle.mPointRadius, lDrawColor);
 
             // Outline for visibility
-            Color lOutline = Color{20, 22, 28, (unsigned char)(255 * lVis)};
+            const Color lOutline = Color{20, 22, 28, (unsigned char)(255.0f * lVis)};
             DrawCircleLines((int)lScreenPoints[i].x, (int)lScreenPoints[i].y,
                           rTrace.mStyle.mPointRadius, lOutline);
         }

@@ -1,6 +1,7 @@
 // RLTreeMap.cpp
 #include "RLTreeMap.h"
 #include <algorithm>
+#include <cmath>
 #include <utility>
 
 // Default color palette for depth-based coloring
@@ -53,7 +54,7 @@ void RLTreeMap::setData(const RLTreeNode& rRoot) {
 
 void RLTreeMap::setTargetData(const RLTreeNode& rRoot) {
     // Store old rects for animation
-    std::vector<RLTreeRect> lOldRects = mRects;
+    const std::vector<RLTreeRect> lOldRects = mRects;
 
     mRoot = rRoot;
     computeLayout();
@@ -85,7 +86,9 @@ void RLTreeMap::updateValue(const std::vector<std::string>& rPath, float aNewVal
                 break;
             }
         }
-        if (!lFound) return; // Path not found
+        if (!lFound) {
+            return; // Path not found
+        }
     }
     pNode->mValue = aNewValue;
     setTargetData(mRoot);
@@ -116,7 +119,7 @@ void RLTreeMap::computeLayout() {
     flattenHierarchy(mRoot, 0, (size_t)-1);
 
     // Calculate the available area
-    Rectangle lAvailable = {
+    const Rectangle lAvailable = {
         mBounds.x + mStyle.mPaddingOuter,
         mBounds.y + mStyle.mPaddingOuter,
         mBounds.width - 2.0f * mStyle.mPaddingOuter,
@@ -143,7 +146,7 @@ float RLTreeMap::computeSubtreeValue(const RLTreeNode& rNode) const {
 }
 
 void RLTreeMap::flattenHierarchy(const RLTreeNode& rNode, int aDepth, size_t aParentIdx) {
-    size_t lMyIndex = mRects.size();
+    const size_t lMyIndex = mRects.size();
 
     RLTreeRect lRect;
     lRect.mLabel = rNode.mLabel;
@@ -177,7 +180,9 @@ void RLTreeMap::flattenHierarchy(const RLTreeNode& rNode, int aDepth, size_t aPa
 }
 
 void RLTreeMap::layoutNode(size_t aNodeIdx, Rectangle aAvailable, int aDepth) {
-    if (aNodeIdx >= mRects.size()) return;
+    if (aNodeIdx >= mRects.size()) {
+        return;
+    }
 
     RLTreeRect& rNode = mRects[aNodeIdx];
     rNode.mTargetRect = aAvailable;
@@ -226,23 +231,25 @@ void RLTreeMap::layoutNode(size_t aNodeIdx, Rectangle aAvailable, int aDepth) {
     }
 
     // Recursively layout children
-    for (size_t lIdx : lChildIndices) {
+    for (const size_t lIdx : lChildIndices) {
         // Find grandchildren depth
-        int lChildDepth = mRects[lIdx].mDepth;
+        const int lChildDepth = mRects[lIdx].mDepth;
         layoutNode(lIdx, mRects[lIdx].mTargetRect, lChildDepth);
     }
 }
 
 float RLTreeMap::sumChildValues(const std::vector<size_t>& rIndices) const {
     float lSum = 0.0f;
-    for (size_t i : rIndices) {
+    for (const size_t i : rIndices) {
         lSum += mRects[i].mValue;
     }
     return lSum;
 }
 
 void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle aAvailable) {
-    if (rChildIndices.empty()) return;
+    if (rChildIndices.empty()) {
+        return;
+    }
 
     // Sort children by value (descending) for better squarification
     std::sort(rChildIndices.begin(), rChildIndices.end(),
@@ -250,8 +257,10 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
                   return mRects[a].mValue > mRects[b].mValue;
               });
 
-    float lTotalValue = sumChildValues(rChildIndices);
-    if (lTotalValue <= 0.0f) return;
+    const float lTotalValue = sumChildValues(rChildIndices);
+    if (lTotalValue <= 0.0f) {
+        return;
+    }
 
     // Working variables
     Rectangle lRemaining = aAvailable;
@@ -261,10 +270,12 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
 
     while (lIdx < rChildIndices.size()) {
         // Determine a layout direction based on the remaining area
-        bool lVertical = lRemaining.width >= lRemaining.height;
-        float lSide = lVertical ? lRemaining.height : lRemaining.width;
+        const bool lVertical = lRemaining.width >= lRemaining.height;
+        const float lSide = lVertical ? lRemaining.height : lRemaining.width;
 
-        if (lSide <= 0.0f) break;
+        if (lSide <= 0.0f) {
+            break;
+        }
 
         // Calculate remaining total value
         float lRemainingValue = 0.0f;
@@ -278,26 +289,26 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
         float lBestAspect = std::numeric_limits<float>::max();
 
         while (lIdx < rChildIndices.size()) {
-            float lNodeValue = mRects[rChildIndices[lIdx]].mValue;
-            float lTestRowValue = lRowValue + lNodeValue;
-            float lRowFraction = lTestRowValue / lRemainingValue;
-            float lRowSize = lVertical ? (lRemaining.width * lRowFraction) : (lRemaining.height * lRowFraction);
+            const float lNodeValue = mRects[rChildIndices[lIdx]].mValue;
+            const float lTestRowValue = lRowValue + lNodeValue;
+            const float lRowFraction = lTestRowValue / lRemainingValue;
+            const float lRowSize = lVertical ? (lRemaining.width * lRowFraction) : (lRemaining.height * lRowFraction);
 
             // Calculate worst aspect ratio if we add this node
             float lWorstAspect = 0.0f;
 
-            for (size_t lRowItem : lRow) {
-                float lFrac = mRects[lRowItem].mValue / lTestRowValue;
-                float lNodeSize = lSide * lFrac;
-                float lAspect = (lRowSize > lNodeSize) ? (lRowSize / lNodeSize) : (lNodeSize / lRowSize);
-                if (lAspect > lWorstAspect) lWorstAspect = lAspect;
+            for (const size_t lRowItem : lRow) {
+                const float lFrac = mRects[lRowItem].mValue / lTestRowValue;
+                const float lNodeSize = lSide * lFrac;
+                const float lAspect = (lRowSize > lNodeSize) ? (lRowSize / lNodeSize) : (lNodeSize / lRowSize);
+                lWorstAspect = std::max(lAspect, lWorstAspect);
             }
 
             // Add current node
-            float lFrac = lNodeValue / lTestRowValue;
-            float lNodeSize = lSide * lFrac;
-            float lAspect = (lRowSize > lNodeSize) ? (lRowSize / lNodeSize) : (lNodeSize / lRowSize);
-            if (lAspect > lWorstAspect) lWorstAspect = lAspect;
+            const float lFrac = lNodeValue / lTestRowValue;
+            const float lNodeSize = lSide * lFrac;
+            const float lAspect = (lRowSize > lNodeSize) ? (lRowSize / lNodeSize) : (lNodeSize / lRowSize);
+            lWorstAspect = std::max(lAspect, lWorstAspect);
 
             if (lRow.empty() || lWorstAspect <= lBestAspect) {
                 // Accept this node
@@ -313,13 +324,13 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
 
         // Layout the row
         if (!lRow.empty()) {
-            float lRowFraction = lRowValue / lRemainingValue;
-            float lRowSize = lVertical ? (lRemaining.width * lRowFraction) : (lRemaining.height * lRowFraction);
+            const float lRowFraction = lRowValue / lRemainingValue;
+            const float lRowSize = lVertical ? (lRemaining.width * lRowFraction) : (lRemaining.height * lRowFraction);
             float lOffset = 0.0f;
 
-            for (size_t lRowIdx : lRow) {
-                float lFrac = mRects[lRowIdx].mValue / lRowValue;
-                float lNodeSize = lSide * lFrac;
+            for (const size_t lRowIdx : lRow) {
+                const float lFrac = mRects[lRowIdx].mValue / lRowValue;
+                const float lNodeSize = lSide * lFrac;
 
                 Rectangle lNodeRect;
                 if (lVertical) {
@@ -335,8 +346,8 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
                 }
 
                 // Clamp to positive dimensions
-                if (lNodeRect.width < 0) lNodeRect.width = 0;
-                if (lNodeRect.height < 0) lNodeRect.height = 0;
+                lNodeRect.width = std::max<float>(lNodeRect.width, 0);
+                lNodeRect.height = std::max<float>(lNodeRect.height, 0);
 
                 mRects[lRowIdx].mTargetRect = lNodeRect;
                 lOffset += lNodeSize;
@@ -355,17 +366,19 @@ void RLTreeMap::layoutSquarified(std::vector<size_t>& rChildIndices, Rectangle a
 }
 
 void RLTreeMap::layoutSlice(std::vector<size_t>& rChildIndices, Rectangle aAvailable, bool aVertical) {
-    float lTotalValue = sumChildValues(rChildIndices);
-    if (lTotalValue <= 0.0f) return;
+    const float lTotalValue = sumChildValues(rChildIndices);
+    if (lTotalValue <= 0.0f) {
+        return;
+    }
 
     float lOffset = 0.0f;
-    for (size_t lIdx : rChildIndices) {
-        float lFrac = mRects[lIdx].mValue / lTotalValue;
+    for (const size_t lIdx : rChildIndices) {
+        const float lFrac = mRects[lIdx].mValue / lTotalValue;
 
         Rectangle lNodeRect;
         if (aVertical) {
             float lHeight = aAvailable.height * lFrac - mStyle.mPaddingInner;
-            if (lHeight < 0) lHeight = 0;
+            lHeight = std::max<float>(lHeight, 0);
             lNodeRect = {
                 aAvailable.x,
                 aAvailable.y + lOffset,
@@ -375,7 +388,7 @@ void RLTreeMap::layoutSlice(std::vector<size_t>& rChildIndices, Rectangle aAvail
             lOffset += aAvailable.height * lFrac;
         } else {
             float lWidth = aAvailable.width * lFrac - mStyle.mPaddingInner;
-            if (lWidth < 0) lWidth = 0;
+            lWidth = std::max<float>(lWidth, 0);
             lNodeRect = {
                 aAvailable.x + lOffset,
                 aAvailable.y,
@@ -395,7 +408,7 @@ Color RLTreeMap::computeNodeColor(const RLTreeNode& rNode, int aDepth) const {
     }
 
     if (mStyle.mUseDepthColors && !mStyle.mDepthPalette.empty()) {
-        size_t lPaletteIdx = (size_t)aDepth % mStyle.mDepthPalette.size();
+        const size_t lPaletteIdx = (size_t)aDepth % mStyle.mDepthPalette.size();
         return mStyle.mDepthPalette[lPaletteIdx];
     }
 
@@ -417,8 +430,8 @@ void RLTreeMap::update(float aDt) {
         return;
     }
 
-    float lSizeDt = mStyle.mAnimateSpeed * aDt;
-    float lColorDt = mStyle.mColorSpeed * aDt;
+    const float lSizeDt = mStyle.mAnimateSpeed * aDt;
+    const float lColorDt = mStyle.mColorSpeed * aDt;
 
     for (auto& rRect : mRects) {
         rRect.mRect = lerpRect(rRect.mRect, rRect.mTargetRect, lSizeDt);
@@ -443,7 +456,7 @@ void RLTreeMap::draw() const {
         }
 
         // Skip internal nodes if not showing them (but still need to draw children)
-        bool lIsInternal = !rRect.mIsLeaf;
+        const bool lIsInternal = !rRect.mIsLeaf;
         if (lIsInternal && !mStyle.mShowInternalNodes) {
             continue;
         }
@@ -459,7 +472,7 @@ void RLTreeMap::draw() const {
         }
 
         // Draw filled rectangle
-        float lMinDim = rRect.mRect.width < rRect.mRect.height ? rRect.mRect.width : rRect.mRect.height;
+        const float lMinDim = rRect.mRect.width < rRect.mRect.height ? rRect.mRect.width : rRect.mRect.height;
         if (mStyle.mCornerRadius > 0.0f && lMinDim > 0.0f) {
             DrawRectangleRounded(rRect.mRect, mStyle.mCornerRadius / lMinDim, 8, lDrawColor);
         } else {
@@ -468,7 +481,7 @@ void RLTreeMap::draw() const {
 
         // Highlight
         if ((int)i == mHighlightedIndex) {
-            Color lHighlight = {255, 255, 255, 60};
+            const Color lHighlight = {255, 255, 255, 60};
             if (mStyle.mCornerRadius > 0.0f && lMinDim > 0.0f) {
                 DrawRectangleRounded(rRect.mRect, mStyle.mCornerRadius / lMinDim, 8, lHighlight);
             } else {
@@ -489,20 +502,20 @@ void RLTreeMap::draw() const {
         }
 
         // Label
-        bool lShowLabel = (rRect.mIsLeaf && mStyle.mShowLeafLabels) ||
+        const bool lShowLabel = (rRect.mIsLeaf && mStyle.mShowLeafLabels) ||
                           (!rRect.mIsLeaf && mStyle.mShowInternalLabels);
 
         if (lShowLabel && !rRect.mLabel.empty()) {
-            int lFontSize = mStyle.mLabelFontSize;
+            const int lFontSize = mStyle.mLabelFontSize;
             const Font& lFont = (mStyle.mLabelFont.baseSize > 0) ? mStyle.mLabelFont : GetFontDefault();
-            Vector2 lTextSize = MeasureTextEx(lFont, rRect.mLabel.c_str(), (float)lFontSize, 0);
-            int lTextWidth = (int)lTextSize.x;
-            int lTextHeight = (int)lTextSize.y;
+            const Vector2 lTextSize = MeasureTextEx(lFont, rRect.mLabel.c_str(), (float)lFontSize, 0);
+            const int lTextWidth = (int)lTextSize.x;
+            const int lTextHeight = (int)lTextSize.y;
 
             // Check if label fits
             bool lFits = true;
             if (mStyle.mLabelFitCheck) {
-                float lPadding = 4.0f;
+                const float lPadding = 4.0f;
                 lFits = ((float)lTextWidth + 2.0f * lPadding <= rRect.mRect.width) &&
                         ((float)lTextHeight + 2.0f * lPadding <= rRect.mRect.height);
             }
@@ -512,7 +525,7 @@ void RLTreeMap::draw() const {
                 Color lLabelColor = mStyle.mLabelColor;
                 if (mStyle.mAutoLabelColor) {
                     // Calculate luminance
-                    float lLuma = 0.2126f * (float)lDrawColor.r + 0.7152f * (float)lDrawColor.g + 0.0722f * (float)lDrawColor.b;
+                    const float lLuma = 0.2126f * (float)lDrawColor.r + 0.7152f * (float)lDrawColor.g + 0.0722f * (float)lDrawColor.b;
                     lLabelColor = (lLuma > 140.0f) ? Color{20, 20, 20, 255} : Color{240, 240, 240, 255};
                 }
                 lLabelColor.a = (unsigned char)((float)lLabelColor.a * rRect.mAlpha);
@@ -551,14 +564,20 @@ void RLTreeMap::setHighlightedNode(int aIndex) {
 }
 
 float RLTreeMap::approach(float a, float b, float aSpeedDt) {
-    float lDiff = b - a;
-    if (lDiff * lDiff < 1e-8f) return b;
+    const float lDiff = b - a;
+    if (lDiff * lDiff < 1e-8f) {
+        return b;
+    }
     return a + lDiff * (aSpeedDt > 1.0f ? 1.0f : aSpeedDt);
 }
 
 Color RLTreeMap::lerpColor(const Color& a, const Color& b, float t) {
-    if (t >= 1.0f) return b;
-    if (t <= 0.0f) return a;
+    if (t >= 1.0f) {
+        return b;
+    }
+    if (t <= 0.0f) {
+        return a;
+    }
     Color lResult;
     lResult.r = (unsigned char)((float)a.r + ((float)b.r - (float)a.r) * t);
     lResult.g = (unsigned char)((float)a.g + ((float)b.g - (float)a.g) * t);
@@ -568,8 +587,12 @@ Color RLTreeMap::lerpColor(const Color& a, const Color& b, float t) {
 }
 
 Rectangle RLTreeMap::lerpRect(const Rectangle& a, const Rectangle& b, float t) {
-    if (t >= 1.0f) return b;
-    if (t <= 0.0f) return a;
+    if (t >= 1.0f) {
+        return b;
+    }
+    if (t <= 0.0f) {
+        return a;
+    }
     Rectangle lResult;
     lResult.x = a.x + (b.x - a.x) * t;
     lResult.y = a.y + (b.y - a.y) * t;

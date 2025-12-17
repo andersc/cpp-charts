@@ -2,6 +2,7 @@
 #include "RLHeatMap3D.h"
 #include "RLCommon.h"
 #include "rlgl.h"
+#include <algorithm>
 #include <cstring>
 #include <cmath>
 #include <cstdio>
@@ -36,7 +37,7 @@ void RLHeatMap3D::setGridSize(int aWidth, int aHeight) {
         return;
     }
 
-    int lTotalCells = aWidth * aHeight;
+    const int lTotalCells = aWidth * aHeight;
     if (lTotalCells > PERFORMANCE_WARNING_THRESHOLD) {
         TraceLog(LOG_WARNING, "RLHeatMap3D: Grid size %dx%d (%d cells) exceeds recommended maximum of %d cells. Performance may be degraded.",
                  aWidth, aHeight, lTotalCells, PERFORMANCE_WARNING_THRESHOLD);
@@ -49,7 +50,7 @@ void RLHeatMap3D::setGridSize(int aWidth, int aHeight) {
     mWidth = aWidth;
     mHeight = aHeight;
 
-    size_t lSize = (size_t)(mWidth * mHeight);
+    const auto lSize = (size_t)mWidth * (size_t)mHeight;
     mCurrentValues.resize(lSize, 0.0f);
     mTargetValues.resize(lSize, 0.0f);
 
@@ -72,15 +73,15 @@ void RLHeatMap3D::setValues(const float* pValues, int aCount) {
         return;
     }
 
-    int lCopyCount = aCount < (int)mTargetValues.size() ? aCount : (int)mTargetValues.size();
+    const int lCopyCount = aCount < (int)mTargetValues.size() ? aCount : (int)mTargetValues.size();
     std::memcpy(mTargetValues.data(), pValues, (size_t)lCopyCount * sizeof(float));
 
     if (mAutoRange && lCopyCount > 0) {
         float lMin = mTargetValues[0];
         float lMax = mTargetValues[0];
         for (int i = 1; i < lCopyCount; ++i) {
-            if (mTargetValues[(size_t)i] < lMin) lMin = mTargetValues[(size_t)i];
-            if (mTargetValues[(size_t)i] > lMax) lMax = mTargetValues[(size_t)i];
+            lMin = std::min(lMin, mTargetValues[(size_t)i]);
+            lMax = std::max(lMax, mTargetValues[(size_t)i]);
         }
         if (lMax - lMin < 1e-6f) {
             lMax = lMin + 1.0f;
@@ -99,10 +100,10 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
         return;
     }
 
-    int lX0 = aX < 0 ? 0 : aX;
-    int lY0 = aY < 0 ? 0 : aY;
-    int lX1 = (aX + aW) > mWidth ? mWidth : (aX + aW);
-    int lY1 = (aY + aH) > mHeight ? mHeight : (aY + aH);
+    const int lX0 = aX < 0 ? 0 : aX;
+    const int lY0 = aY < 0 ? 0 : aY;
+    const int lX1 = (aX + aW) > mWidth ? mWidth : (aX + aW);
+    const int lY1 = (aY + aH) > mHeight ? mHeight : (aY + aH);
 
     if (lX0 >= lX1 || lY0 >= lY1) {
         return;
@@ -110,10 +111,10 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
 
     for (int lY = lY0; lY < lY1; ++lY) {
         for (int lX = lX0; lX < lX1; ++lX) {
-            int lSrcX = lX - aX;
-            int lSrcY = lY - aY;
-            int lSrcIdx = lSrcY * aW + lSrcX;
-            int lDstIdx = lY * mWidth + lX;
+            const int lSrcX = lX - aX;
+            const int lSrcY = lY - aY;
+            const int lSrcIdx = lSrcY * aW + lSrcX;
+            const int lDstIdx = lY * mWidth + lX;
             mTargetValues[(size_t)lDstIdx] = pValues[lSrcIdx];
         }
     }
@@ -122,8 +123,8 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
         float lMin = mTargetValues[0];
         float lMax = mTargetValues[0];
         for (size_t i = 1; i < mTargetValues.size(); ++i) {
-            if (mTargetValues[i] < lMin) lMin = mTargetValues[i];
-            if (mTargetValues[i] > lMax) lMax = mTargetValues[i];
+            lMin = std::min(lMin, mTargetValues[i]);
+            lMax = std::max(lMax, mTargetValues[i]);
         }
         if (lMax - lMin < 1e-6f) {
             lMax = lMin + 1.0f;
@@ -173,8 +174,8 @@ void RLHeatMap3D::setAutoRange(bool aEnabled) {
         float lMin = mTargetValues[0];
         float lMax = mTargetValues[0];
         for (size_t i = 1; i < mTargetValues.size(); ++i) {
-            if (mTargetValues[i] < lMin) lMin = mTargetValues[i];
-            if (mTargetValues[i] > lMax) lMax = mTargetValues[i];
+            lMin = std::min(lMin, mTargetValues[i]);
+            lMax = std::max(lMax, mTargetValues[i]);
         }
         if (lMax - lMin < 1e-6f) {
             lMax = lMin + 1.0f;
@@ -240,11 +241,11 @@ void RLHeatMap3D::update(float aDt) {
         return;
     }
 
-    float lAlpha = 1.0f - expf(-mStyle.mSmoothingSpeed * aDt);
+    const float lAlpha = 1.0f - expf(-mStyle.mSmoothingSpeed * aDt);
     bool lChanged = false;
 
     for (size_t i = 0; i < mCurrentValues.size(); ++i) {
-        float lDiff = mTargetValues[i] - mCurrentValues[i];
+        const float lDiff = mTargetValues[i] - mCurrentValues[i];
         if (fabsf(lDiff) > 1e-6f) {
             mCurrentValues[i] += lDiff * lAlpha;
             lChanged = true;
@@ -273,7 +274,7 @@ void RLHeatMap3D::draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)
         return;
     }
 
-    // Draw floor grid first (opaque)
+    // Draw the floor grid first (opaque)
     if (mStyle.mShowFloorGrid) {
         drawFloorGrid(aPosition, aScale);
     }
@@ -300,8 +301,8 @@ void RLHeatMap3D::draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)
 }
 
 void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D& rCamera) const {
-    float lHalfSize = BOX_SIZE * 0.5f * aScale;
-    float lHeight = BOX_SIZE * aScale;
+    const float lHalfSize = BOX_SIZE * 0.5f * aScale;
+    const float lHeight = BOX_SIZE * aScale;
 
     // Disable depth writing and enable blending for transparent walls
     rlDisableDepthMask();
@@ -309,8 +310,8 @@ void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D&
     rlSetBlendMode(BLEND_ALPHA);
 
     // Calculate camera position relative to the box center
-    float lCamRelX = rCamera.position.x - aPosition.x;
-    float lCamRelZ = rCamera.position.z - aPosition.z;
+    const float lCamRelX = rCamera.position.x - aPosition.x;
+    const float lCamRelZ = rCamera.position.z - aPosition.z;
 
     // Only draw walls that are on the OPPOSITE side from the camera
     // This makes them appear as background reference planes
@@ -320,28 +321,28 @@ void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D&
         Color lWallColor = mStyle.mBackWallColor;
         // Fade based on how much the camera is in front
         float lFade = lCamRelZ / (lHalfSize * 3.0f);
-        if (lFade > 1.0f) lFade = 1.0f;
-        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
+        lFade = std::min(lFade, 1.0f);
+        lWallColor.a = (unsigned char)((float)lWallColor.a * lFade);
 
-        Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
-        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        const Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+        const Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+        const Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        const Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
         DrawTriangle3D(lV1, lV2, lV3, lWallColor);
         DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
 
-    // Front wall (at Z = +halfSize) - only draw if camera is behind (Z < 0)
+    // Front wall (at Z = +halfSize) - only draw if the camera is behind (Z < 0)
     if (lCamRelZ < 0) {
         Color lWallColor = mStyle.mBackWallColor;
         float lFade = -lCamRelZ / (lHalfSize * 3.0f);
-        if (lFade > 1.0f) lFade = 1.0f;
-        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
+        lFade = std::min(lFade, 1.0f);
+        lWallColor.a = (unsigned char)((float)lWallColor.a * lFade);
 
-        Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
-        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        const Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        const Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        const Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        const Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
         DrawTriangle3D(lV1, lV2, lV3, lWallColor);
         DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
@@ -350,28 +351,28 @@ void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D&
     if (lCamRelX > 0) {
         Color lWallColor = mStyle.mBackWallColor;
         float lFade = lCamRelX / (lHalfSize * 3.0f);
-        if (lFade > 1.0f) lFade = 1.0f;
-        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
+        lFade = std::min(lFade, 1.0f);
+        lWallColor.a = (unsigned char)((float)lWallColor.a * lFade);
 
-        Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
-        Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        const Vector3 lV1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+        const Vector3 lV2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        const Vector3 lV3 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        const Vector3 lV4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
         DrawTriangle3D(lV1, lV2, lV3, lWallColor);
         DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
 
-    // Right wall (at X = +halfSize) - only draw if camera is to the left (X < 0)
+    // Right wall (at X = +halfSize) - only draw if the camera is to the left (X < 0)
     if (lCamRelX < 0) {
         Color lWallColor = mStyle.mBackWallColor;
         float lFade = -lCamRelX / (lHalfSize * 3.0f);
-        if (lFade > 1.0f) lFade = 1.0f;
-        lWallColor.a = (unsigned char)(lWallColor.a * lFade);
+        lFade = std::min(lFade, 1.0f);
+        lWallColor.a = (unsigned char)((float)lWallColor.a * lFade);
 
-        Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-        Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
-        Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+        const Vector3 lV1 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+        const Vector3 lV2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+        const Vector3 lV3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+        const Vector3 lV4 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
         DrawTriangle3D(lV1, lV2, lV3, lWallColor);
         DrawTriangle3D(lV1, lV3, lV4, lWallColor);
     }
@@ -381,22 +382,22 @@ void RLHeatMap3D::drawBackWalls(Vector3 aPosition, float aScale, const Camera3D&
 }
 
 void RLHeatMap3D::drawFloorGrid(Vector3 aPosition, float aScale) const {
-    float lHalfSize = BOX_SIZE * 0.5f * aScale;
-    int lDivisions = mStyle.mGridDivisions;
-    float lStep = (lHalfSize * 2.0f) / (float)lDivisions;
+    const float lHalfSize = BOX_SIZE * 0.5f * aScale;
+    const int lDivisions = mStyle.mGridDivisions;
+    const float lStep = (lHalfSize * 2.0f) / (float)lDivisions;
 
     // Draw grid lines on floor (Y = 0 plane)
     for (int i = 0; i <= lDivisions; ++i) {
-        float lOffset = -lHalfSize + (float)i * lStep;
+        const float lOffset = -lHalfSize + (float)i * lStep;
 
         // Lines parallel to Z axis
-        Vector3 lStart1 = {aPosition.x + lOffset, aPosition.y, aPosition.z - lHalfSize};
-        Vector3 lEnd1 = {aPosition.x + lOffset, aPosition.y, aPosition.z + lHalfSize};
+        const Vector3 lStart1 = {aPosition.x + lOffset, aPosition.y, aPosition.z - lHalfSize};
+        const Vector3 lEnd1 = {aPosition.x + lOffset, aPosition.y, aPosition.z + lHalfSize};
         DrawLine3D(lStart1, lEnd1, mStyle.mFloorGridColor);
 
         // Lines parallel to X axis
-        Vector3 lStart2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lOffset};
-        Vector3 lEnd2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lOffset};
+        const Vector3 lStart2 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lOffset};
+        const Vector3 lEnd2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lOffset};
         DrawLine3D(lStart2, lEnd2, mStyle.mFloorGridColor);
     }
 }
@@ -404,20 +405,20 @@ void RLHeatMap3D::drawFloorGrid(Vector3 aPosition, float aScale) const {
 void RLHeatMap3D::drawAxisBox(Vector3 aPosition, float aScale, const Camera3D& rCamera) const {
     (void)rCamera; // May be used for adaptive rendering
 
-    float lHalfSize = BOX_SIZE * 0.5f * aScale;
-    float lHeight = BOX_SIZE * aScale;
+    const float lHalfSize = BOX_SIZE * 0.5f * aScale;
+    const float lHeight = BOX_SIZE * aScale;
 
     // Bottom rectangle (floor edges)
-    Vector3 lB1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-    Vector3 lB2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
-    Vector3 lB3 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
-    Vector3 lB4 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+    const Vector3 lB1 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+    const Vector3 lB2 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z - lHalfSize};
+    const Vector3 lB3 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+    const Vector3 lB4 = {aPosition.x - lHalfSize, aPosition.y, aPosition.z + lHalfSize};
 
     // Top rectangle
-    Vector3 lT1 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
-    Vector3 lT2 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
-    Vector3 lT3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
-    Vector3 lT4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+    const Vector3 lT1 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+    const Vector3 lT2 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z - lHalfSize};
+    const Vector3 lT3 = {aPosition.x + lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
+    const Vector3 lT4 = {aPosition.x - lHalfSize, aPosition.y + lHeight, aPosition.z + lHalfSize};
 
     // Draw bottom edges
     DrawLine3D(lB1, lB2, mStyle.mAxisColor);
@@ -439,33 +440,33 @@ void RLHeatMap3D::drawAxisBox(Vector3 aPosition, float aScale, const Camera3D& r
 
     // Draw tick marks on axes
     if (mStyle.mShowTicks) {
-        int lTickCount = mStyle.mTickCount;
-        float lTickLen = 0.02f * aScale;
+        const int lTickCount = mStyle.mTickCount;
+        const float lTickLen = 0.02f * aScale;
 
         // Z-axis ticks (on the back-left vertical edge)
         for (int i = 0; i <= lTickCount; ++i) {
-            float lT = (float)i / (float)lTickCount;
-            float lY = aPosition.y + lT * lHeight;
-            Vector3 lTickStart = {lB1.x, lY, lB1.z};
-            Vector3 lTickEnd = {lB1.x - lTickLen, lY, lB1.z - lTickLen};
+            const float lT = (float)i / (float)lTickCount;
+            const float lY = aPosition.y + lT * lHeight;
+            const Vector3 lTickStart = {lB1.x, lY, lB1.z};
+            const Vector3 lTickEnd = {lB1.x - lTickLen, lY, lB1.z - lTickLen};
             DrawLine3D(lTickStart, lTickEnd, mStyle.mTickColor);
         }
 
         // X-axis ticks (on the front-bottom edge)
         for (int i = 0; i <= lTickCount; ++i) {
-            float lT = (float)i / (float)lTickCount;
-            float lX = aPosition.x - lHalfSize + lT * lHalfSize * 2.0f;
-            Vector3 lTickStart = {lX, aPosition.y, lB3.z};
-            Vector3 lTickEnd = {lX, aPosition.y - lTickLen, lB3.z + lTickLen};
+            const float lT = (float)i / (float)lTickCount;
+            const float lX = aPosition.x - lHalfSize + lT * lHalfSize * 2.0f;
+            const Vector3 lTickStart = {lX, aPosition.y, lB3.z};
+            const Vector3 lTickEnd = {lX, aPosition.y - lTickLen, lB3.z + lTickLen};
             DrawLine3D(lTickStart, lTickEnd, mStyle.mTickColor);
         }
 
         // Y-axis ticks (on the right-bottom edge)
         for (int i = 0; i <= lTickCount; ++i) {
-            float lT = (float)i / (float)lTickCount;
-            float lZ = aPosition.z - lHalfSize + lT * lHalfSize * 2.0f;
-            Vector3 lTickStart = {lB2.x, aPosition.y, lZ};
-            Vector3 lTickEnd = {lB2.x + lTickLen, aPosition.y - lTickLen, lZ};
+            const float lT = (float)i / (float)lTickCount;
+            const float lZ = aPosition.z - lHalfSize + lT * lHalfSize * 2.0f;
+            const Vector3 lTickStart = {lB2.x, aPosition.y, lZ};
+            const Vector3 lTickEnd = {lB2.x + lTickLen, aPosition.y - lTickLen, lZ};
             DrawLine3D(lTickStart, lTickEnd, mStyle.mTickColor);
         }
     }
@@ -523,15 +524,15 @@ float RLHeatMap3D::calculateWallAlpha(Vector3 aWallNormal, const Camera3D& rCame
     };
 
     // Normalize
-    float lLen = sqrtf(lViewDir.x * lViewDir.x + lViewDir.y * lViewDir.y + lViewDir.z * lViewDir.z);
+    const float lLen = sqrtf(lViewDir.x * lViewDir.x + lViewDir.y * lViewDir.y + lViewDir.z * lViewDir.z);
     if (lLen > 0.0f) {
         lViewDir.x /= lLen;
         lViewDir.y /= lLen;
         lViewDir.z /= lLen;
     }
 
-    // Dot product: wall is visible when camera looks at it (dot > 0)
-    float lDot = aWallNormal.x * lViewDir.x + aWallNormal.y * lViewDir.y + aWallNormal.z * lViewDir.z;
+    // Dot product: wall is visible when the camera looks at it (dot > 0)
+    const float lDot = aWallNormal.x * lViewDir.x + aWallNormal.y * lViewDir.y + aWallNormal.z * lViewDir.z;
 
     // Fade wall as it becomes more perpendicular to view
     // Wall fully visible when dot approaches 1, invisible when dot <= 0
@@ -546,26 +547,26 @@ float RLHeatMap3D::calculateWallAlpha(Vector3 aWallNormal, const Camera3D& rCame
 void RLHeatMap3D::rebuildLut() {
     if (mPaletteStops.size() < 2) {
         for (int i = 0; i < LUT_SIZE; ++i) {
-            unsigned char lVal = (unsigned char)i;
+            const auto lVal = (unsigned char)i;
             mLut[i] = Color{lVal, lVal, lVal, 255};
         }
         mLutDirty = false;
         return;
     }
 
-    int lNumStops = (int)mPaletteStops.size();
+    const int lNumStops = (int)mPaletteStops.size();
     for (int i = 0; i < LUT_SIZE; ++i) {
-        float lT = (float)i / (float)(LUT_SIZE - 1);
-        float lScaled = lT * (float)(lNumStops - 1);
+        const float lT = (float)i / (float)(LUT_SIZE - 1);
+        const float lScaled = lT * (float)(lNumStops - 1);
         int lIdx0 = (int)lScaled;
         int lIdx1 = lIdx0 + 1;
         if (lIdx1 >= lNumStops) {
             lIdx1 = lNumStops - 1;
             lIdx0 = lIdx1 - 1;
         }
-        if (lIdx0 < 0) lIdx0 = 0;
+        lIdx0 = std::max(lIdx0, 0);
 
-        float lLocalT = lScaled - (float)lIdx0;
+        const float lLocalT = lScaled - (float)lIdx0;
         mLut[i] = RLCharts::lerpColor(mPaletteStops[(size_t)lIdx0], mPaletteStops[(size_t)lIdx1], lLocalT);
     }
 
@@ -579,10 +580,10 @@ void RLHeatMap3D::buildMesh() {
 
     freeMesh();
 
-    int lCellsX = mWidth - 1;
-    int lCellsY = mHeight - 1;
-    int lTriangleCount = lCellsX * lCellsY * 2;
-    int lVertexCount = lTriangleCount * 3;
+    const int lCellsX = mWidth - 1;
+    const int lCellsY = mHeight - 1;
+    const int lTriangleCount = lCellsX * lCellsY * 2;
+    const int lVertexCount = lTriangleCount * 3;
 
     mMesh.triangleCount = lTriangleCount;
     mMesh.vertexCount = lVertexCount;
@@ -618,34 +619,34 @@ void RLHeatMap3D::updateMeshVertices() {
         return;
     }
 
-    int lCellsX = mWidth - 1;
-    int lCellsY = mHeight - 1;
-    float lHalfSize = BOX_SIZE * 0.5f;
-    float lHeight = BOX_SIZE;
+    const int lCellsX = mWidth - 1;
+    const int lCellsY = mHeight - 1;
+    const float lHalfSize = BOX_SIZE * 0.5f;
+    const float lHeight = BOX_SIZE;
 
     int lVertIdx = 0;
     for (int lCy = 0; lCy < lCellsY; ++lCy) {
         for (int lCx = 0; lCx < lCellsX; ++lCx) {
             // Grid positions mapped to [-halfSize, +halfSize]
-            float lX0 = -lHalfSize + ((float)lCx / (float)lCellsX) * lHalfSize * 2.0f;
-            float lX1 = -lHalfSize + ((float)(lCx + 1) / (float)lCellsX) * lHalfSize * 2.0f;
-            float lZ0 = -lHalfSize + ((float)lCy / (float)lCellsY) * lHalfSize * 2.0f;
-            float lZ1 = -lHalfSize + ((float)(lCy + 1) / (float)lCellsY) * lHalfSize * 2.0f;
+            const float lX0 = -lHalfSize + ((float)lCx / (float)lCellsX) * lHalfSize * 2.0f;
+            const float lX1 = -lHalfSize + ((float)(lCx + 1) / (float)lCellsX) * lHalfSize * 2.0f;
+            const float lZ0 = -lHalfSize + ((float)lCy / (float)lCellsY) * lHalfSize * 2.0f;
+            const float lZ1 = -lHalfSize + ((float)(lCy + 1) / (float)lCellsY) * lHalfSize * 2.0f;
 
-            int lIdx00 = lCy * mWidth + lCx;
-            int lIdx10 = lCy * mWidth + (lCx + 1);
-            int lIdx01 = (lCy + 1) * mWidth + lCx;
-            int lIdx11 = (lCy + 1) * mWidth + (lCx + 1);
+            const int lIdx00 = lCy * mWidth + lCx;
+            const int lIdx10 = lCy * mWidth + (lCx + 1);
+            const int lIdx01 = (lCy + 1) * mWidth + lCx;
+            const int lIdx11 = (lCy + 1) * mWidth + (lCx + 1);
 
-            float lN00 = normalizeValue(mCurrentValues[(size_t)lIdx00]);
-            float lN10 = normalizeValue(mCurrentValues[(size_t)lIdx10]);
-            float lN01 = normalizeValue(mCurrentValues[(size_t)lIdx01]);
-            float lN11 = normalizeValue(mCurrentValues[(size_t)lIdx11]);
+            const float lN00 = normalizeValue(mCurrentValues[(size_t)lIdx00]);
+            const float lN10 = normalizeValue(mCurrentValues[(size_t)lIdx10]);
+            const float lN01 = normalizeValue(mCurrentValues[(size_t)lIdx01]);
+            const float lN11 = normalizeValue(mCurrentValues[(size_t)lIdx11]);
 
-            float lH00 = lN00 * lHeight;
-            float lH10 = lN10 * lHeight;
-            float lH01 = lN01 * lHeight;
-            float lH11 = lN11 * lHeight;
+            const float lH00 = lN00 * lHeight;
+            const float lH10 = lN10 * lHeight;
+            const float lH01 = lN01 * lHeight;
+            const float lH11 = lN11 * lHeight;
 
             Color lC00 = getColorForValue(lN00);
             Color lC10 = getColorForValue(lN10);
@@ -739,10 +740,10 @@ void RLHeatMap3D::buildScatterMesh() {
 
     freeScatterMesh();
 
-    int lPointCount = mWidth * mHeight;
-    int lTrianglesPerPoint = 12; // 6 faces x 2 triangles per cube
-    int lTriangleCount = lPointCount * lTrianglesPerPoint;
-    int lVertexCount = lTriangleCount * 3;
+    const int lPointCount = mWidth * mHeight;
+    const int lTrianglesPerPoint = 12; // 6 faces x 2 triangles per cube
+    const int lTriangleCount = lPointCount * lTrianglesPerPoint;
+    const int lVertexCount = lTriangleCount * 3;
 
     mScatterMesh.triangleCount = lTriangleCount;
     mScatterMesh.vertexCount = lVertexCount;
@@ -777,23 +778,23 @@ void RLHeatMap3D::updateScatterMeshVertices() {
         return;
     }
 
-    float lHalfSize = BOX_SIZE * 0.5f;
-    float lHeight = BOX_SIZE;
-    float lS = mStyle.mPointSize * 0.5f; // Half-size of cube
+    const float lHalfSize = BOX_SIZE * 0.5f;
+    const float lHeight = BOX_SIZE;
+    const float lS = mStyle.mPointSize * 0.5f; // Half-size of cube
 
     int lVertIdx = 0;
     for (int lY = 0; lY < mHeight; ++lY) {
         for (int lX = 0; lX < mWidth; ++lX) {
-            int lIdx = lY * mWidth + lX;
-            float lValue = mCurrentValues[(size_t)lIdx];
-            float lNorm = normalizeValue(lValue);
+            const int lIdx = lY * mWidth + lX;
+            const float lValue = mCurrentValues[(size_t)lIdx];
+            const float lNorm = normalizeValue(lValue);
 
             // Map grid position to box coordinates
-            float lPx = -lHalfSize + ((float)lX / (float)(mWidth - 1)) * lHalfSize * 2.0f;
-            float lPz = -lHalfSize + ((float)lY / (float)(mHeight - 1)) * lHalfSize * 2.0f;
-            float lPy = lNorm * lHeight;
+            const float lPx = -lHalfSize + ((float)lX / (float)(mWidth - 1)) * lHalfSize * 2.0f;
+            const float lPz = -lHalfSize + ((float)lY / (float)(mHeight - 1)) * lHalfSize * 2.0f;
+            const float lPy = lNorm * lHeight;
 
-            Color lC = getColorForValue(lNorm);
+            const Color lC = getColorForValue(lNorm);
 
             // 36 vertices per cube (12 triangles x 3 vertices)
             // Each face has 2 triangles = 6 vertices
@@ -1147,18 +1148,18 @@ void RLHeatMap3D::freeScatterMesh() {
 }
 
 float RLHeatMap3D::normalizeValue(float aValue) const {
-    float lRange = mMaxValue - mMinValue;
+    const float lRange = mMaxValue - mMinValue;
     if (lRange < 1e-6f) {
         return 0.5f;
     }
-    float lNorm = (aValue - mMinValue) / lRange;
+    const float lNorm = (aValue - mMinValue) / lRange;
     return RLCharts::clamp01(lNorm);
 }
 
 Color RLHeatMap3D::getColorForValue(float aNormalizedValue) const {
-    float lClamped = RLCharts::clamp01(aNormalizedValue);
+    const float lClamped = RLCharts::clamp01(aNormalizedValue);
     int lIdx = (int)(lClamped * 255.0f);
-    if (lIdx < 0) lIdx = 0;
-    if (lIdx > 255) lIdx = 255;
+    lIdx = std::max(lIdx, 0);
+    lIdx = std::min(lIdx, 255);
     return mLut[lIdx];
 }

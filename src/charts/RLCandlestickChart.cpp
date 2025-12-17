@@ -36,7 +36,7 @@ std::string RLCandlestickChart::dayKeyFromDate(const std::string &aDate) {
 void RLCandlestickChart::addSample(const CandleInput &rSample) {
     std::string lIncomingDay = dayKeyFromDate(rSample.aDate);
     if (mHasWorking && lIncomingDay != mWorking.mDayKey) {
-        // Day changed: finalize current candle early to align separator exactly at boundary
+        // Day changed: finalize the current candle early to align separator exactly at boundary
         finalizeWorkingCandle();
     }
 
@@ -54,7 +54,7 @@ void RLCandlestickChart::addSample(const CandleInput &rSample) {
         mWorking.mVolume = rSample.aVolume;
         mWorking.mDate = rSample.aDate;
         mWorking.mDayKey = lIncomingDay;
-        mWorking.mDaySeparator = false; // finalized candle will decide
+        mWorking.mDaySeparator = false; // the finalized candle will decide
         mWorkingCount = 1;
         mHasWorking = true;
     } else {
@@ -67,7 +67,7 @@ void RLCandlestickChart::addSample(const CandleInput &rSample) {
         }
         mWorking.mClose = rSample.aClose;
         mWorking.mVolume += rSample.aVolume;
-        mWorking.mDate = rSample.aDate; // keep last timestamp
+        mWorking.mDate = rSample.aDate; // keep the last timestamp
         mWorkingCount += 1;
     }
 
@@ -77,7 +77,7 @@ void RLCandlestickChart::addSample(const CandleInput &rSample) {
 }
 
 void RLCandlestickChart::finalizeWorkingCandle() {
-    // Determine if day changed compared to last finalized candle
+    // Determine if day changed compared to the last finalized candle
     bool lNewDay = false;
     std::string lKey = mWorking.mDayKey;
     if (mCandles.empty()) {
@@ -89,11 +89,11 @@ void RLCandlestickChart::finalizeWorkingCandle() {
     CandleDyn lFinal = mWorking;
     lFinal.mDaySeparator = lNewDay;
 
-    // Store the close price for next candle (important for single-value candles)
+    // Store the close price for the next candle (important for single-value candles)
     mLastClose = mWorking.mClose;
     mHasLastClose = true;
 
-    // Trigger slide for every new candle to ensure smooth "scroll left"
+    // Trigger slide for every new candle to ensure a smooth "scroll left"
     mIncoming = lFinal;
     mHasIncoming = true;
     mIsSliding = true;
@@ -109,7 +109,7 @@ void RLCandlestickChart::finalizeWorkingCandle() {
 void RLCandlestickChart::ensureWindow() {
     // Keep at most mVisibleCandles in deque.
     while ((int)mCandles.size() > mVisibleCandles) {
-        // If sliding, pop when slide finishes in update.
+        // If sliding, pop when the slide finishes in update.
         // If not sliding (e.g., init), just drop oldest.
         if (!mIsSliding) {
             mCandles.pop_front();
