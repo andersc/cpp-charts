@@ -127,6 +127,7 @@ public:
     [[nodiscard]] size_t getNodeCount() const;
     [[nodiscard]] size_t getLinkCount() const;
     [[nodiscard]] int getColumnCount() const { return mColumnCount; }
+    [[nodiscard]] bool hasPendingRemovals() const;
 
 private:
     // Internal node with animation state

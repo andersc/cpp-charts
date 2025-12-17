@@ -205,6 +205,20 @@ size_t RLSankey::getLinkCount() const {
     return lCount;
 }
 
+bool RLSankey::hasPendingRemovals() const {
+    for (const auto& rNode : mNodes) {
+        if (rNode.mPendingRemoval) {
+            return true;
+        }
+    }
+    for (const auto& rLink : mLinks) {
+        if (rLink.mPendingRemoval) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // ============================================================================
 // Update (Animation)
 // ============================================================================
@@ -267,7 +281,30 @@ void RLSankey::update(float aDt) {
         }
     }
 
-    // Remove fully faded-out nodes
+    // Remove fully faded-out nodes and update link indices
+    // Build a mapping from old indices to new indices
+    std::vector<size_t> lIndexMap(mNodes.size());
+    size_t lNewIndex = 0;
+    for (size_t i = 0; i < mNodes.size(); ++i) {
+        if (mNodes[i].mPendingRemoval && mNodes[i].mVisibility < 0.001f) {
+            lIndexMap[i] = (size_t)-1; // Node will be removed
+        } else {
+            lIndexMap[i] = lNewIndex;
+            ++lNewIndex;
+        }
+    }
+
+    // Update link source/target indices before removing nodes
+    for (auto& rLink : mLinks) {
+        if (rLink.mSourceId < lIndexMap.size() && lIndexMap[rLink.mSourceId] != (size_t)-1) {
+            rLink.mSourceId = lIndexMap[rLink.mSourceId];
+        }
+        if (rLink.mTargetId < lIndexMap.size() && lIndexMap[rLink.mTargetId] != (size_t)-1) {
+            rLink.mTargetId = lIndexMap[rLink.mTargetId];
+        }
+    }
+
+    // Now remove the nodes
     mNodes.erase(
         std::remove_if(mNodes.begin(), mNodes.end(),
             [](const NodeDyn& rN) {

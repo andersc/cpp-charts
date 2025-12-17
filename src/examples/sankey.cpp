@@ -258,6 +258,7 @@ int main() {
 
     // Track added nodes/links for removal demo
     int lExtraNodeId = -1;
+    std::vector<size_t> lExtraLinkIds;
     bool lExtraAdded = false;
 
     // ========================================================================
@@ -323,11 +324,13 @@ int main() {
         }
 
         // Manual add/remove demo
-        if (IsKeyPressed(KEY_A) && !lExtraAdded) {
+        // Only allow add if not currently added AND no pending removals in the chart
+        if (IsKeyPressed(KEY_A) && !lExtraAdded && !lChart1.hasPendingRemovals()) {
             // Add a new node and links to chart 1
             lExtraNodeId = (int)lChart1.addNode("New Source", {255, 100, 150, 255}, 0);
-            lChart1.addLink(lExtraNodeId, 4, 20.0f);
-            lChart1.addLink(lExtraNodeId, 5, 10.0f);
+            lExtraLinkIds.clear();
+            lExtraLinkIds.push_back(lChart1.addLink(lExtraNodeId, 4, 20.0f));
+            lExtraLinkIds.push_back(lChart1.addLink(lExtraNodeId, 5, 10.0f));
             lExtraAdded = true;
         }
 
@@ -336,6 +339,7 @@ int main() {
             lChart1.removeNode(lExtraNodeId);
             lExtraAdded = false;
             lExtraNodeId = -1;
+            lExtraLinkIds.clear();
         }
 
         // ====================================================================

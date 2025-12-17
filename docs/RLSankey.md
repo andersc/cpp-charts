@@ -209,6 +209,7 @@ Rectangle getBounds() const;
 size_t getNodeCount() const;
 size_t getLinkCount() const;
 int getColumnCount() const;
+bool hasPendingRemovals() const;  // Returns true if any nodes/links are still fading out
 ```
 
 ## Column Assignment
@@ -330,7 +331,15 @@ lSankey.addLink(0, lNewNode, 20.0f);
 
 // Nodes fade out when removed
 lSankey.removeNode(lNewNode);
+
+// Check if removal animation is complete before adding new nodes
+if (!lSankey.hasPendingRemovals()) {
+    // Safe to add new nodes - all pending removals have completed
+    lNewNode = lSankey.addNode("Another Node", GREEN, 1);
+}
 ```
+
+**Important:** When nodes are removed, they first fade out (marked as pending removal) and are only physically removed from the internal vector once fully faded. When nodes are physically removed, all link source/target IDs are automatically updated to maintain correct references. However, any node IDs stored externally (like `lNewNode` above) become invalid after the physical removal occurs. Use `hasPendingRemovals()` to check if removal animations have completed before adding new nodes.
 
 ### Interactive Hover
 
