@@ -2,6 +2,7 @@
 #include "RLTreeMap.h"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <utility>
 
 // Default color palette for depth-based coloring
