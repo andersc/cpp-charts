@@ -43,6 +43,19 @@ if(WIN32)
     target_link_libraries(raylib_lineargauge winmm)
 endif()
 
+# Build the volume meter demo
+add_executable(raylib_volumemeter
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/volumemeter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLinearGauge.cpp
+)
+target_link_libraries(raylib_volumemeter
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_volumemeter winmm)
+endif()
+
 # Build the bubble chart demo
 add_executable(raylib_bubble
         ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/bubble.cpp

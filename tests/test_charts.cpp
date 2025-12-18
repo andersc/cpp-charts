@@ -296,6 +296,186 @@ TEST_SUITE("RLLinearGauge") {
         CHECK(lGauge.getValue() == doctest::Approx(75.0f));
     }
 
+    TEST_CASE("VU Meter mode switching") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+
+        // Default mode is STANDARD
+        CHECK(lGauge.getMode() == RLLinearGaugeMode::STANDARD);
+
+        // Switch to VU_METER mode
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+        CHECK(lGauge.getMode() == RLLinearGaugeMode::VU_METER);
+
+        // Switch back to STANDARD
+        lGauge.setMode(RLLinearGaugeMode::STANDARD);
+        CHECK(lGauge.getMode() == RLLinearGaugeMode::STANDARD);
+    }
+
+    TEST_CASE("VU Meter multi-channel setup") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        // Setup stereo channels
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"},
+            {0.0f, "R"}
+        };
+        lGauge.setChannels(lChannels);
+
+        CHECK(lGauge.getChannelCount() == 2);
+    }
+
+    TEST_CASE("VU Meter channel values") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"},
+            {0.0f, "R"}
+        };
+        lGauge.setChannels(lChannels);
+
+        // Set individual channel values
+        lGauge.setChannelValue(0, 0.5f);
+        lGauge.setChannelValue(1, 0.75f);
+
+        // Peak values should be at least as high as current values
+        CHECK(lGauge.getPeakValue(0) >= 0.5f);
+        CHECK(lGauge.getPeakValue(1) >= 0.75f);
+    }
+
+    TEST_CASE("VU Meter channel values batch") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "1"},
+            {0.0f, "2"},
+            {0.0f, "3"},
+            {0.0f, "4"}
+        };
+        lGauge.setChannels(lChannels);
+
+        // Set multiple channel values at once
+        std::vector<float> lValues = {0.2f, 0.4f, 0.6f, 0.8f};
+        lGauge.setChannelValues(lValues);
+
+        CHECK(lGauge.getChannelCount() == 4);
+    }
+
+    TEST_CASE("VU Meter clipping detection") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"},
+            {0.0f, "R"}
+        };
+        lGauge.setChannels(lChannels);
+
+        // Set value below max - should not clip
+        lGauge.setChannelValue(0, 0.5f);
+        CHECK(lGauge.isClipping(0) == false);
+
+        // Set value at max - should clip
+        lGauge.setChannelValue(1, 1.0f);
+        CHECK(lGauge.isClipping(1) == true);
+    }
+
+    TEST_CASE("VU Meter peak hold and decay") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        RLLinearGaugeStyle lStyle;
+        lStyle.mVuStyle.mPeakHoldTime = 0.5f;
+        lStyle.mVuStyle.mPeakDecaySpeed = 1.0f;
+        lGauge.setStyle(lStyle);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"}
+        };
+        lGauge.setChannels(lChannels);
+
+        // Set a high value to create a peak
+        lGauge.setChannelValue(0, 0.8f);
+        float lInitialPeak = lGauge.getPeakValue(0);
+        CHECK(lInitialPeak >= 0.8f);
+
+        // Lower the value - peak should still be at 0.8 during hold time
+        lGauge.setChannelValue(0, 0.2f);
+        lGauge.update(0.1f);  // Update less than hold time
+        CHECK(lGauge.getPeakValue(0) >= 0.79f);  // Peak should still be near original
+    }
+
+    TEST_CASE("VU Meter reset functions") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"},
+            {0.0f, "R"}
+        };
+        lGauge.setChannels(lChannels);
+
+        // Create peaks and clips
+        lGauge.setChannelValue(0, 0.9f);
+        lGauge.setChannelValue(1, 1.0f);
+
+        CHECK(lGauge.getPeakValue(0) >= 0.9f);
+        CHECK(lGauge.isClipping(1) == true);
+
+        // Reset peaks
+        lGauge.resetPeaks();
+        CHECK(lGauge.getPeakValue(0) == doctest::Approx(0.0f));
+        CHECK(lGauge.getPeakValue(1) == doctest::Approx(0.0f));
+
+        // Reset clip
+        lGauge.resetClip();
+        CHECK(lGauge.isClipping(0) == false);
+        CHECK(lGauge.isClipping(1) == false);
+    }
+
+    TEST_CASE("VU Meter style configuration") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 1.0f);
+        lGauge.setMode(RLLinearGaugeMode::VU_METER);
+
+        RLVuMeterStyle lVuStyle;
+        lVuStyle.mLowColor = GREEN;
+        lVuStyle.mMidColor = YELLOW;
+        lVuStyle.mHighColor = RED;
+        lVuStyle.mLowThreshold = 0.5f;
+        lVuStyle.mMidThreshold = 0.8f;
+        lVuStyle.mPeakHoldTime = 2.0f;
+        lVuStyle.mPeakDecaySpeed = 0.3f;
+        lVuStyle.mUseDbScale = true;
+
+        lGauge.setVuMeterStyle(lVuStyle);
+
+        std::vector<RLVuMeterChannel> lChannels = {
+            {0.0f, "L"}
+        };
+        lGauge.setChannels(lChannels);
+        lGauge.setChannelValue(0, 0.5f);
+
+        CHECK(lGauge.getChannelCount() == 1);
+    }
+
 }
 
 TEST_SUITE("RLAreaChart") {

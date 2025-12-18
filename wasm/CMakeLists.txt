@@ -199,11 +199,19 @@ add_wasm_demo(lineargauge
     ""
 )
 
+# Volume meter demo
+add_wasm_demo(volumemeter
+    "volumemeter.cpp"
+    "${CHARTS_DIR}/RLLinearGauge.cpp"
+    ""
+)
+
 message(STATUS "")
 message(STATUS "=== cpp-charts WebAssembly Build ===")
 message(STATUS "Demos to build: gauges, bubble, barchart, candlestick, candlestick2,")
 message(STATUS "                heatmap, scatter, piechart, logplot, timeseries,")
-message(STATUS "                areachart, orderbook, treemap, heatmap3d, radar, sankey, lineargauge")
+message(STATUS "                areachart, orderbook, treemap, heatmap3d, radar, sankey,")
+message(STATUS "                lineargauge, volumemeter")
 message(STATUS "")
 message(STATUS "After build, serve the build directory with a web server:")
 message(STATUS "  cd build && python3 -m http.server 8080")

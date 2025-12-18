@@ -17,11 +17,56 @@ enum class RLLinearGaugePointerStyle {
     LINE_MARKER     // Line marker at current value
 };
 
+// Mode for the linear gauge
+enum class RLLinearGaugeMode {
+    STANDARD,       // Normal gauge with single value
+    VU_METER        // Multi-channel VU meter with peak hold and clip indicator
+};
+
 // Colored range band (e.g., green/yellow/red zones)
 struct RLLinearGaugeRangeBand {
     float mMin{0.0f};
     float mMax{100.0f};
     Color mColor{GREEN};
+};
+
+// VU Meter channel data
+struct RLVuMeterChannel {
+    float mValue{0.0f};
+    std::string mLabel{};
+};
+
+// VU Meter style configuration
+struct RLVuMeterStyle {
+    // Gradient colors (green -> yellow -> red)
+    Color mLowColor{80, 200, 120, 255};      // Green zone
+    Color mMidColor{255, 200, 80, 255};      // Yellow zone
+    Color mHighColor{255, 80, 80, 255};      // Red zone
+
+    // Thresholds for color zones (normalized 0.0 - 1.0)
+    float mLowThreshold{0.6f};               // Below this: green
+    float mMidThreshold{0.85f};              // Below this: yellow, above: red
+
+    // Peak indicator
+    Color mPeakMarkerColor{255, 255, 255, 255};
+    float mPeakMarkerThickness{2.0f};
+    float mPeakHoldTime{1.5f};               // Seconds to hold peak
+    float mPeakDecaySpeed{0.5f};             // Units per second after hold
+
+    // Clip indicator
+    Color mClipIndicatorColor{255, 0, 0, 255};
+    float mClipFlashDuration{0.3f};          // How long clip indicator flashes
+    float mClipIndicatorSize{8.0f};          // Size of clip indicator
+
+    // Channel layout
+    float mChannelSpacing{4.0f};             // Gap between channel bars
+    bool mShowChannelLabels{true};
+    float mChannelLabelFontSize{10.0f};
+
+    // dB scale option
+    bool mUseDbScale{false};
+    float mDbMin{-60.0f};                    // Minimum dB value (silence)
+    float mDbMax{0.0f};                      // Maximum dB value (full scale)
 };
 
 // Style configuration for the linear gauge
@@ -82,6 +127,9 @@ struct RLLinearGaugeStyle {
     // Background
     Color mBackgroundColor{30, 30, 36, 255};
     bool mShowBackground{true};
+
+    // VU Meter style (used when mode is VU_METER)
+    RLVuMeterStyle mVuStyle{};
 };
 
 // A lightweight, performant linear gauge for raylib.
@@ -121,6 +169,21 @@ public:
     void setTargetMarker(float aValue);
     void hideTargetMarker();
 
+    // VU Meter mode
+    void setMode(RLLinearGaugeMode aMode);
+    [[nodiscard]] RLLinearGaugeMode getMode() const { return mMode; }
+    void setVuMeterStyle(const RLVuMeterStyle &aStyle);
+
+    // VU Meter channels
+    void setChannels(const std::vector<RLVuMeterChannel> &aChannels);
+    void setChannelValue(int aIndex, float aValue);
+    void setChannelValues(const std::vector<float> &aValues);
+    [[nodiscard]] int getChannelCount() const { return (int)mChannels.size(); }
+    [[nodiscard]] float getPeakValue(int aIndex) const;
+    [[nodiscard]] bool isClipping(int aIndex) const;
+    void resetPeaks();
+    void resetClip();
+
     // Rendering
     void update(float aDt);
     void draw() const;
@@ -134,6 +197,7 @@ private:
 
     RLLinearGaugeOrientation mOrientation{RLLinearGaugeOrientation::HORIZONTAL};
     RLLinearGaugePointerStyle mPointerStyle{RLLinearGaugePointerStyle::FILL_BAR};
+    RLLinearGaugeMode mMode{RLLinearGaugeMode::STANDARD};
     RLLinearGaugeStyle mStyle{};
 
     std::string mTitle{};
@@ -142,6 +206,13 @@ private:
 
     float mTargetMarkerValue{0.0f};
     bool mShowTargetMarker{false};
+
+    // VU Meter state
+    std::vector<RLVuMeterChannel> mChannels{};
+    std::vector<float> mPeakValues{};
+    std::vector<float> mPeakHoldTimers{};
+    std::vector<bool> mClipStates{};
+    std::vector<float> mClipTimers{};
 
     // Cached geometry for ticks to avoid per-frame recalculation
     struct TickGeom {
@@ -168,5 +239,18 @@ private:
     void drawTargetMarker() const;
     void drawValueText() const;
     void drawTitle() const;
+
+    // VU Meter drawing
+    void drawVuMeter() const;
+    void drawVuMeterChannel(int aIndex, Rectangle aBounds) const;
+    void drawVuMeterPeakMarker(int aIndex, Rectangle aBounds) const;
+    void drawVuMeterClipIndicator(int aIndex, Rectangle aBounds) const;
+    void drawVuMeterChannelLabel(int aIndex, Rectangle aBounds) const;
+
+    // VU Meter helpers
+    [[nodiscard]] float linearToDb(float aLinear) const;
+    [[nodiscard]] float dbToLinear(float aDb) const;
+    [[nodiscard]] Color getVuMeterColor(float aNormalizedValue) const;
+    [[nodiscard]] Rectangle getChannelBounds(int aIndex) const;
 };
 

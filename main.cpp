@@ -547,6 +547,39 @@ int main() {
 
     float lLinearGaugeTarget = 45.0f;
 
+    // ===== 18. VU Meter (Multi-channel volume meter) =====
+    RLLinearGaugeStyle lVuMeterStyle;
+    lVuMeterStyle.mBackgroundColor = Color{24, 26, 32, 255};
+    lVuMeterStyle.mTrackColor = Color{40, 44, 52, 255};
+    lVuMeterStyle.mLabelFont = lBaseFont;
+    lVuMeterStyle.mTrackThickness = 60.0f;
+    lVuMeterStyle.mShowTicks = false;
+    lVuMeterStyle.mShowValueText = false;
+
+    // VU meter specific style
+    lVuMeterStyle.mVuStyle.mLowColor = Color{80, 200, 120, 255};
+    lVuMeterStyle.mVuStyle.mMidColor = Color{255, 200, 80, 255};
+    lVuMeterStyle.mVuStyle.mHighColor = Color{255, 80, 80, 255};
+    lVuMeterStyle.mVuStyle.mLowThreshold = 0.6f;
+    lVuMeterStyle.mVuStyle.mMidThreshold = 0.85f;
+    lVuMeterStyle.mVuStyle.mPeakHoldTime = 1.0f;
+    lVuMeterStyle.mVuStyle.mPeakDecaySpeed = 0.5f;
+    lVuMeterStyle.mVuStyle.mChannelSpacing = 4.0f;
+    lVuMeterStyle.mVuStyle.mShowChannelLabels = true;
+    lVuMeterStyle.mVuStyle.mChannelLabelFontSize = 10.0f;
+    lVuMeterStyle.mVuStyle.mClipIndicatorSize = 8.0f;
+
+    RLLinearGauge lVuMeter(getChartBounds(1, 4), 0.0f, 1.0f,
+                           RLLinearGaugeOrientation::VERTICAL, lVuMeterStyle);
+    lVuMeter.setMode(RLLinearGaugeMode::VU_METER);
+    lVuMeter.setLabel("VU Meter");
+
+    std::vector<RLVuMeterChannel> lVuChannels = {
+        {0.0f, "L"},
+        {0.0f, "R"}
+    };
+    lVuMeter.setChannels(lVuChannels);
+
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
@@ -564,6 +597,12 @@ int main() {
         }
         lGauge.setTargetValue(lGaugeTargetValue);
         lLinearGauge.setTargetValue(lLinearGaugeTarget);
+
+        // Animate VU meter channels
+        float lVuLeft = 0.5f + 0.3f * sinf(lTime * 2.0f) + randFloat(-0.1f, 0.1f);
+        float lVuRight = 0.5f + 0.3f * sinf(lTime * 2.0f + 0.5f) + randFloat(-0.1f, 0.1f);
+        lVuMeter.setChannelValue(0, std::max(0.0f, std::min(1.0f, lVuLeft)));
+        lVuMeter.setChannelValue(1, std::max(0.0f, std::min(1.0f, lVuRight)));
 
         // Animate order book - push new snapshots periodically
         lOrderBookTimer += lDt;
@@ -599,6 +638,7 @@ int main() {
         lRadarChart.update(lDt);
         lSankey.update(lDt);
         lLinearGauge.update(lDt);
+        lVuMeter.update(lDt);
 
         // Update 3D heat map with animated data
         lHeatMap3DRotation += lDt * 0.5f;
@@ -658,16 +698,17 @@ int main() {
         lRadarChart.draw();
         lSankey.draw();
         lLinearGauge.draw();
+        lVuMeter.draw();
 
         // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
         DrawTextureRec(lHeatMap3DRT.texture,
                        Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
                        Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
 
-        // Draw labels for each chart (5x4 grid, 17 charts)
+        // Draw labels for each chart (5x4 grid, 18 charts)
         const char* lLabels[] = {
             "Bar Chart", "Bubble Chart", "Candlestick", "Gauge", "Linear Gauge",
-            "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H", "",
+            "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H", "VU Meter",
             "Order Book", "TreeMap", "Time Series", "Log Plot", "",
             "Area Chart", "Sankey", "Radar Chart", "3D Heat Map", ""
         };

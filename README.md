@@ -31,6 +31,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
 - 📏 **Linear Gauges** - Horizontal/vertical progress gauges with range bands and pointer styles
+- 🎚️ **VU Meters** - Multi-channel volume meters with peak hold, clip indicators, and dB scale
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
 - 🏔️ **3D Heat Maps** - 3D surface visualization with palette-based coloring and smooth transitions
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
