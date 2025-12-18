@@ -30,6 +30,19 @@ if(WIN32)
     target_link_libraries(raylib_gauges winmm)
 endif()
 
+# Build the linear gauge demo
+add_executable(raylib_lineargauge
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/lineargauge.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLinearGauge.cpp
+)
+target_link_libraries(raylib_lineargauge
+        raylib
+        Threads::Threads
+)
+if(WIN32)
+    target_link_libraries(raylib_lineargauge winmm)
+endif()
+
 # Build the bubble chart demo
 add_executable(raylib_bubble
         ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/bubble.cpp
@@ -239,6 +252,7 @@ add_executable(raylib_all_charts
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLGauge.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLHeatMap3D.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLLinearGauge.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLPieChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/charts/RLScatterPlot.cpp

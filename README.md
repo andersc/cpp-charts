@@ -30,6 +30,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 🫧 **Bubble Charts** - Multi-dimensional data visualization
 - 🕯️ **Candlestick Charts** - Financial data visualization (OHLC)
 - 🌡️ **Gauges** - Circular and semi-circular gauge displays
+- 📏 **Linear Gauges** - Horizontal/vertical progress gauges with range bands and pointer styles
 - 🗺️ **Heat Maps** - Matrix data visualization with color gradients
 - 🏔️ **3D Heat Maps** - 3D surface visualization with palette-based coloring and smooth transitions
 - 📉 **Log-Log Plots** - Real-time streaming time series with Allan variance-style analysis and dynamic confidence intervals
@@ -76,6 +77,7 @@ For comprehensive documentation on each chart type, including full API reference
 | 🌡️ Gauge | Circular gauge displays | [RLGauge.md](docs/RLGauge.md) |
 | 🗺️ Heat Map | Matrix color visualization | [RLHeatMap.md](docs/RLHeatMap.md) |
 | 🏔️ 3D Heat Map | 3D surface visualization | [RLHeatMap3D.md](docs/RLHeatMap3D.md) |
+| 📏 Linear Gauge | Horizontal/vertical progress gauges | [RLLinearGauge.md](docs/RLLinearGauge.md) |
 | 📉 Log-Log Plot | Allan variance analysis | [RLLogPlot.md](docs/RLLogPlot.md) |
 | 📊 Order Book | DOM depth heatmap (2D/3D) | [RLOrderBookVis.md](docs/RLOrderBookVis.md) |
 | 🥧 Pie Chart | Pie and donut charts | [RLPieChart.md](docs/RLPieChart.md) |

@@ -8,6 +8,7 @@
 #include "src/charts/RLGauge.h"
 #include "src/charts/RLHeatMap.h"
 #include "src/charts/RLHeatMap3D.h"
+#include "src/charts/RLLinearGauge.h"
 #include "src/charts/RLLogPlot.h"
 #include "src/charts/RLOrderBookVis.h"
 #include "src/charts/RLPieChart.h"
@@ -53,10 +54,10 @@ int main() {
     // Load custom font
     Font lBaseFont = LoadFontEx("base.ttf", 24, nullptr, 250);
 
-    // Layout: 4x4 grid with small gaps (allows for 16 charts, using 13)
+    // Layout: 5x4 grid with small gaps (allows for 20 charts, using 17)
     const float GAP = 8.0f;
     const float MARGIN = 15.0f;
-    const float CHART_WIDTH = (SCREEN_WIDTH - 2 * MARGIN - 3 * GAP) / 4.0f;
+    const float CHART_WIDTH = (SCREEN_WIDTH - 2 * MARGIN - 4 * GAP) / 5.0f;
     const float CHART_HEIGHT = (SCREEN_HEIGHT - 2 * MARGIN - 3 * GAP) / 4.0f;
 
     // Helper to get chart bounds
@@ -515,6 +516,37 @@ int main() {
 
     float lHeatMap3DRotation = 0.0f;
 
+    // ===== 17. Linear Gauge =====
+    RLLinearGaugeStyle lLinearGaugeStyle;
+    lLinearGaugeStyle.mBackgroundColor = Color{24, 26, 32, 255};
+    lLinearGaugeStyle.mTrackColor = Color{50, 55, 65, 255};
+    lLinearGaugeStyle.mFillColor = Color{80, 200, 120, 255};
+    lLinearGaugeStyle.mLabelFont = lBaseFont;
+    lLinearGaugeStyle.mMajorTickCount = 5;
+    lLinearGaugeStyle.mMinorTicksPerMajor = 1;
+    lLinearGaugeStyle.mShowValueText = true;
+    lLinearGaugeStyle.mValueDecimals = 0;
+    lLinearGaugeStyle.mSmoothAnimate = true;
+    lLinearGaugeStyle.mAnimateSpeed = 8.0f;
+    lLinearGaugeStyle.mTrackThickness = 18.0f;
+
+    RLLinearGauge lLinearGauge(getChartBounds(0, 4), 0.0f, 100.0f,
+                                RLLinearGaugeOrientation::VERTICAL, lLinearGaugeStyle);
+    lLinearGauge.setLabel("Level");
+    lLinearGauge.setUnit("%");
+    lLinearGauge.setValue(45.0f);
+
+    // Add colored range bands
+    std::vector<RLLinearGaugeRangeBand> lLinearGaugeRanges = {
+        {0.0f, 30.0f, Color{255, 80, 80, 255}},    // Red: Low
+        {30.0f, 70.0f, Color{255, 200, 80, 255}},  // Yellow: Medium
+        {70.0f, 100.0f, Color{80, 200, 120, 255}}  // Green: High
+    };
+    lLinearGauge.setRanges(lLinearGaugeRanges);
+    lLinearGauge.setTargetMarker(75.0f);
+
+    float lLinearGaugeTarget = 45.0f;
+
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
@@ -528,8 +560,10 @@ int main() {
         // Animate gauges smoothly
         if ((int)lTime % 3 == 0 && (int)(lTime * 10.0f) % 30 == 0) {
             lGaugeTargetValue = randFloat(20.0f, 95.0f);
+            lLinearGaugeTarget = randFloat(10.0f, 95.0f);
         }
         lGauge.setTargetValue(lGaugeTargetValue);
+        lLinearGauge.setTargetValue(lLinearGaugeTarget);
 
         // Animate order book - push new snapshots periodically
         lOrderBookTimer += lDt;
@@ -564,6 +598,7 @@ int main() {
         lAreaChart.update(lDt);
         lRadarChart.update(lDt);
         lSankey.update(lDt);
+        lLinearGauge.update(lDt);
 
         // Update 3D heat map with animated data
         lHeatMap3DRotation += lDt * 0.5f;
@@ -622,24 +657,25 @@ int main() {
         lAreaChart.draw();
         lRadarChart.draw();
         lSankey.draw();
+        lLinearGauge.draw();
 
         // Draw 3D heat map render texture (flipped vertically because render textures are inverted)
         DrawTextureRec(lHeatMap3DRT.texture,
                        Rectangle{0, 0, (float)lHeatMap3DRT.texture.width, -(float)lHeatMap3DRT.texture.height},
                        Vector2{lHeatMap3DBounds.x, lHeatMap3DBounds.y}, WHITE);
 
-        // Draw labels for each chart (4x4 grid, 16 charts)
+        // Draw labels for each chart (5x4 grid, 17 charts)
         const char* lLabels[] = {
-            "Bar Chart", "Bubble Chart", "Candlestick", "Gauge",
-            "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H",
-            "Order Book", "TreeMap", "Time Series", "Log Plot",
-            "Area Chart", "Sankey", "Radar Chart", "3D Heat Map"
+            "Bar Chart", "Bubble Chart", "Candlestick", "Gauge", "Linear Gauge",
+            "Heat Map", "Pie Chart", "Scatter Plot", "Bar Chart H", "",
+            "Order Book", "TreeMap", "Time Series", "Log Plot", "",
+            "Area Chart", "Sankey", "Radar Chart", "3D Heat Map", ""
         };
 
         for (int lRow = 0; lRow < 4; ++lRow) {
-            for (int lCol = 0; lCol < 4; ++lCol) {
-                int lIndex = lRow * 4 + lCol;
-                if (lLabels[lIndex][0] != '\0') {
+            for (int lCol = 0; lCol < 5; ++lCol) {
+                int lIndex = lRow * 5 + lCol;
+                if (lIndex < 20 && lLabels[lIndex][0] != '\0') {
                     Rectangle lBounds = getChartBounds(lRow, lCol);
                     DrawText(lLabels[lIndex], (int)lBounds.x + 5, (int)lBounds.y - 16,
                              14, Color{180, 180, 190, 255});

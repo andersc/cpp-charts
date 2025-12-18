@@ -21,6 +21,7 @@ set(CHART_SOURCES
     ${CMAKE_SOURCE_DIR}/src/charts/RLGauge.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLHeatMap.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLHeatMap3D.cpp
+    ${CMAKE_SOURCE_DIR}/src/charts/RLLinearGauge.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLLogPlot.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLOrderBookVis.cpp
     ${CMAKE_SOURCE_DIR}/src/charts/RLPieChart.cpp

@@ -14,6 +14,7 @@
 #include "RLGauge.h"
 #include "RLHeatMap.h"
 #include "RLHeatMap3D.h"
+#include "RLLinearGauge.h"
 #include "RLLogPlot.h"
 #include "RLOrderBookVis.h"
 #include "RLPieChart.h"
@@ -42,6 +43,7 @@ TEST_SUITE("Chart Instantiation") {
         // Verify no static initialization conflicts between chart types
         RLAreaChart lAreaChart(TEST_BOUNDS, RLAreaChartMode::STACKED);
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+        RLLinearGauge lLinearGauge(TEST_BOUNDS, 0.0f, 100.0f);
         RLBarChart lBarChart(TEST_BOUNDS, RLBarOrientation::VERTICAL);
         RLPieChart lPieChart(TEST_BOUNDS);
         RLRadarChart lRadarChart(TEST_BOUNDS);
@@ -59,6 +61,7 @@ TEST_SUITE("Chart Instantiation") {
         // Basic sanity checks
         CHECK(lAreaChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lGauge.getValue() == doctest::Approx(0.0f));
+        CHECK(lLinearGauge.getValue() == doctest::Approx(0.0f));
         CHECK(lBarChart.getBounds().width == doctest::Approx(400.0f));
         CHECK(lPieChart.getBounds().height == doctest::Approx(300.0f));
         CHECK(lRadarChart.getBounds().width == doctest::Approx(400.0f));
@@ -128,6 +131,162 @@ TEST_SUITE("RLGauge") {
         REQUIRE_RAYLIB();
 
         RLGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        Rectangle lNewBounds = {100, 100, 200, 200};
+        lGauge.setBounds(lNewBounds);
+
+        // Value should be preserved after bounds change
+        lGauge.setValue(75.0f);
+        CHECK(lGauge.getValue() == doctest::Approx(75.0f));
+    }
+
+}
+
+TEST_SUITE("RLLinearGauge") {
+
+    TEST_CASE("Value clamping") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        SUBCASE("setValue clamps to range") {
+            lGauge.setValue(50.0f);
+            CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+
+            lGauge.setValue(-10.0f);
+            CHECK(lGauge.getValue() == doctest::Approx(0.0f));
+
+            lGauge.setValue(150.0f);
+            CHECK(lGauge.getValue() == doctest::Approx(100.0f));
+        }
+
+        SUBCASE("setTargetValue clamps to range") {
+            lGauge.setTargetValue(200.0f);
+            CHECK(lGauge.getTargetValue() == doctest::Approx(100.0f));
+
+            lGauge.setTargetValue(-50.0f);
+            CHECK(lGauge.getTargetValue() == doctest::Approx(0.0f));
+        }
+    }
+
+    TEST_CASE("Range changes") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+        lGauge.setValue(50.0f);
+
+        // Change range - value should be clamped if outside new range
+        lGauge.setRange(0.0f, 40.0f);
+        CHECK(lGauge.getValue() == doctest::Approx(40.0f));
+
+        lGauge.setRange(60.0f, 100.0f);
+        CHECK(lGauge.getValue() == doctest::Approx(60.0f));
+    }
+
+    TEST_CASE("Orientation change") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f, RLLinearGaugeOrientation::HORIZONTAL);
+        lGauge.setValue(50.0f);
+
+        // Change orientation
+        lGauge.setOrientation(RLLinearGaugeOrientation::VERTICAL);
+
+        // Value should be preserved
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+    }
+
+    TEST_CASE("Pointer style change") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+        lGauge.setValue(50.0f);
+
+        lGauge.setPointerStyle(RLLinearGaugePointerStyle::TRIANGLE);
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+
+        lGauge.setPointerStyle(RLLinearGaugePointerStyle::LINE_MARKER);
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+
+        lGauge.setPointerStyle(RLLinearGaugePointerStyle::FILL_BAR);
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+    }
+
+    TEST_CASE("Animation convergence") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+        lGauge.setValue(0.0f);
+        lGauge.setTargetValue(100.0f);
+
+        // Simulate multiple update steps
+        for (int i = 0; i < 100; i++) {
+            lGauge.update(0.016f); // ~60fps
+        }
+
+        // Value should have converged close to target
+        CHECK(lGauge.getValue() == doctest::Approx(100.0f).epsilon(0.01));
+    }
+
+    TEST_CASE("Range bands") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        std::vector<RLLinearGaugeRangeBand> lBands = {
+            {0.0f, 30.0f, RED},
+            {30.0f, 70.0f, YELLOW},
+            {70.0f, 100.0f, GREEN}
+        };
+
+        lGauge.setRanges(lBands);
+        lGauge.setValue(50.0f);
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+
+        lGauge.clearRanges();
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+    }
+
+    TEST_CASE("Target marker") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        lGauge.setTargetMarker(75.0f);
+        lGauge.setValue(50.0f);
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+
+        lGauge.hideTargetMarker();
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+    }
+
+    TEST_CASE("Labels and units") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        lGauge.setLabel("Temperature");
+        lGauge.setUnit("°C");
+        lGauge.setValue(25.0f);
+
+        CHECK(lGauge.getValue() == doctest::Approx(25.0f));
+    }
+
+    TEST_CASE("Tick configuration") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
+
+        lGauge.setTicks(10, 4);
+        lGauge.setValue(50.0f);
+
+        CHECK(lGauge.getValue() == doctest::Approx(50.0f));
+    }
+
+    TEST_CASE("Bounds update") {
+        REQUIRE_RAYLIB();
+
+        RLLinearGauge lGauge(TEST_BOUNDS, 0.0f, 100.0f);
 
         Rectangle lNewBounds = {100, 100, 200, 200};
         lGauge.setBounds(lNewBounds);
