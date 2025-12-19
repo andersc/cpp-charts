@@ -128,7 +128,7 @@ struct RLLinearGaugeStyle {
     Color mBackgroundColor{30, 30, 36, 255};
     bool mShowBackground{true};
 
-    // VU Meter style (used when mode is VU_METER)
+    // VU Meter style (used when the mode is VU_METER)
     RLVuMeterStyle mVuStyle{};
 };
 

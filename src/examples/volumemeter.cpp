@@ -80,6 +80,7 @@ int main() {
     lStereoStyle.mVuStyle.mShowChannelLabels = true;
     lStereoStyle.mVuStyle.mChannelLabelFontSize = 14.0f;
     lStereoStyle.mVuStyle.mClipIndicatorSize = 10.0f;
+    lStereoStyle.mPadding = 15.0f;
 
     Rectangle lStereoBounds = {lMargin, lMargin + 30.0f, 100.0f, 400.0f};
     RLLinearGauge lStereoMeter(lStereoBounds, 0.0f, 1.0f, RLLinearGaugeOrientation::VERTICAL, lStereoStyle);
@@ -100,6 +101,7 @@ int main() {
     lSurroundStyle.mTrackThickness = 200.0f;
     lSurroundStyle.mVuStyle.mChannelSpacing = 4.0f;
     lSurroundStyle.mVuStyle.mChannelLabelFontSize = 10.0f;
+    lSurroundStyle.mPadding = 15.0f;
 
     Rectangle lSurroundBounds = {lMargin + 130.0f, lMargin + 30.0f, 220.0f, 400.0f};
     RLLinearGauge lSurroundMeter(lSurroundBounds, 0.0f, 1.0f, RLLinearGaugeOrientation::VERTICAL, lSurroundStyle);
@@ -127,6 +129,7 @@ int main() {
     lDbStyle.mVuStyle.mDbMax = 0.0f;
     lDbStyle.mVuStyle.mLowThreshold = 0.7f;  // Adjust for dB curve
     lDbStyle.mVuStyle.mMidThreshold = 0.9f;
+    lDbStyle.mPadding = 15.0f;
 
     Rectangle lDbBounds = {lMargin + 380.0f, lMargin + 30.0f, 100.0f, 400.0f};
     RLLinearGauge lDbMeter(lDbBounds, 0.0f, 1.0f, RLLinearGaugeOrientation::VERTICAL, lDbStyle);
