@@ -94,8 +94,9 @@ public:
 
     // Sample input
     void pushSample(size_t aTraceIndex, float aValue);
-    void pushSamples(size_t aTraceIndex, const float* pValues, size_t aCount);
-    void pushSamples(size_t aTraceIndex, const std::vector<float>& rValues);
+    // Push multiple samples at once
+    // Returns false if rValues is empty or aTraceIndex is invalid
+    bool pushSamples(size_t aTraceIndex, const std::vector<float>& rValues);
 
     // Update and draw
     void update(float aDt);

@@ -50,8 +50,10 @@ void RLHeatMap::clear(){
     mCountsDirty = true;
 }
 
-void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
-    if (pPoints == nullptr || aCount == 0) return;
+bool RLHeatMap::addPoints(const std::vector<Vector2>& rPoints){
+    if (rPoints.empty()) {
+        return false;
+    }
 
     if (mMode == RLHeatMapUpdateMode::Replace){
         // Replace mode: clear first, then add.
@@ -72,8 +74,8 @@ void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
 
     // Note: We cannot easily OpenMP this loop because of race conditions on mCounts[idx]++
     // unless we use atomic adds, which might be slower than serial for dense clusters.
-    for (size_t i = 0; i < aCount; ++i){
-        const Vector2& rP = pPoints[i];
+    for (size_t i = 0; i < rPoints.size(); ++i){
+        const Vector2& rP = rPoints[i];
 
         // Bounds check (assuming input is normalized -1 to 1)
         if (rP.x < -1.0f || rP.x > 1.0f || rP.y < -1.0f || rP.y > 1.0f) continue;
@@ -102,6 +104,7 @@ void RLHeatMap::addPoints(const Vector2 *pPoints, size_t aCount){
 
     mMaxValue = lCurrentMax;
     mCountsDirty = true;
+    return true;
 }
 
 void RLHeatMap::update(float aDt){

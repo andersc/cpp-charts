@@ -103,8 +103,8 @@ struct RLHeatMap3DStyle {
 
 | Method | Description |
 |--------|-------------|
-| `setValues(const float* pValues, int aCount)` | Set all grid values (batch update) |
-| `updatePartialValues(int aX, int aY, int aW, int aH, const float* pValues)` | Update a rectangular subregion |
+| `bool setValues(int aWidth, int aHeight, const std::vector<float>& rValues)` | Set all grid values (resizes grid if dimensions differ). Returns `false` if `rValues` is empty or size doesn't match `aWidth * aHeight`. |
+| `bool updatePartialValues(int aX, int aY, int aW, int aH, const std::vector<float>& rValues)` | Update a rectangular subregion. Returns `false` if `rValues` is empty, size doesn't match `aW * aH`, or zero overlap with grid. |
 
 ### Rendering
 
@@ -185,7 +185,7 @@ int main() {
         }
 
         // Update heat map data and animation
-        lHeatMap.setValues(lValues.data(), (int)lValues.size());
+        lHeatMap.setValues(40, 40, lValues);
         lHeatMap.update(lDt);
 
         BeginDrawing();

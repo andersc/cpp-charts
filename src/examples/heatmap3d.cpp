@@ -242,11 +242,11 @@ struct PartialUpdateState {
         // Apply partial update to the heat map
         rHeatMap.updatePartialValues(mActiveRegionX, mActiveRegionY,
                                       mRegionWidth, mRegionHeight,
-                                      mRegionValues.data());
+                                      mRegionValues);
     }
 
-    void resetBase(RLHeatMap3D& rHeatMap) {
-        rHeatMap.setValues(mBaseValues.data(), (int)mBaseValues.size());
+    void resetBase(RLHeatMap3D& rHeatMap, int aWidth, int aHeight) {
+        rHeatMap.setValues(aWidth, aHeight, mBaseValues);
     }
 };
 
@@ -320,7 +320,7 @@ int main() {
 
     // Initial data
     generateGaussianHill(lValues, GRID_WIDTH, GRID_HEIGHT);
-    lHeatMap.setValues(lValues.data(), (int)lValues.size());
+    lHeatMap.setValues(GRID_WIDTH, GRID_HEIGHT, lValues);
 
     // Demo state
     DemoMode lMode = DemoMode::SurfaceStatic;
@@ -361,7 +361,7 @@ int main() {
 
             // Reset base data for partial mode
             if (lMode == DemoMode::SurfacePartial) {
-                lPartialState.resetBase(lHeatMap);
+                lPartialState.resetBase(lHeatMap, GRID_WIDTH, GRID_HEIGHT);
             }
 
             lPrevMode = lMode;
@@ -438,22 +438,21 @@ int main() {
                 for (size_t i = 0; i < lValues.size(); ++i) {
                     lValues[i] *= lPulse;
                 }
-                lHeatMap.setValues(lValues.data(), (int)lValues.size());
+                lHeatMap.setValues(GRID_WIDTH, GRID_HEIGHT, lValues);
                 break;
             }
 
             case DemoMode::SurfaceLive: {
                 // Animated sine waves
                 generateSineWaves(lValues, GRID_WIDTH, GRID_HEIGHT, lTime);
-                lHeatMap.setValues(lValues.data(), (int)lValues.size());
+                lHeatMap.setValues(GRID_WIDTH, GRID_HEIGHT, lValues);
                 break;
             }
 
             case DemoMode::SurfaceStreaming: {
                 // Live streaming data - simulates sensor feed
                 lStreamingState.update(lDt, GRID_WIDTH, GRID_HEIGHT);
-                lHeatMap.setValues(lStreamingState.mCurrentValues.data(),
-                                   (int)lStreamingState.mCurrentValues.size());
+                lHeatMap.setValues(GRID_WIDTH, GRID_HEIGHT, lStreamingState.mCurrentValues);
                 break;
             }
 
@@ -466,7 +465,7 @@ int main() {
             case DemoMode::ScatterLive: {
                 // Animated ripple for scatter mode
                 generateRipple(lValues, GRID_WIDTH, GRID_HEIGHT, lTime);
-                lHeatMap.setValues(lValues.data(), (int)lValues.size());
+                lHeatMap.setValues(GRID_WIDTH, GRID_HEIGHT, lValues);
                 break;
             }
 

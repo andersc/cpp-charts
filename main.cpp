@@ -162,7 +162,7 @@ int main() {
         float lRadius = randFloat(0.0f, 0.8f);
         lHeatPoints.push_back({cosf(lAngle) * lRadius, sinf(lAngle) * lRadius});
     }
-    lHeatMap.addPoints(lHeatPoints.data(), lHeatPoints.size());
+    lHeatMap.addPoints(lHeatPoints);
 
     // ===== 6. Pie Chart =====
     RLPieChartStyle lPieStyle;
@@ -512,7 +512,7 @@ int main() {
             lHeatMap3DValues[(size_t)(lY * 24 + lX)] = 0.5f + 0.3f * sinf(lNx * 6.28318f * 2.0f) * cosf(lNy * 6.28318f * 2.0f);
         }
     }
-    lHeatMap3D.setValues(lHeatMap3DValues.data(), (int)lHeatMap3DValues.size());
+    lHeatMap3D.setValues(24, 24, lHeatMap3DValues);
 
     float lHeatMap3DRotation = 0.0f;
 
@@ -651,7 +651,7 @@ int main() {
                 lHeatMap3DValues[(size_t)(lY * 24 + lX)] = 0.5f + lWave1 + lWave2;
             }
         }
-        lHeatMap3D.setValues(lHeatMap3DValues.data(), (int)lHeatMap3DValues.size());
+        lHeatMap3D.setValues(24, 24, lHeatMap3DValues);
         lHeatMap3D.update(lDt);
 
         // Update 3D camera rotation for heat map (orbit around the plot)

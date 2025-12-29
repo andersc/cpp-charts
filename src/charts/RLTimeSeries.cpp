@@ -136,27 +136,21 @@ void RLTimeSeries::pushSample(size_t aTraceIndex, float aValue) {
     rTrace.mDirty = true;
 }
 
-void RLTimeSeries::pushSamples(size_t aTraceIndex, const float* pValues, size_t aCount) {
-    if (aTraceIndex >= mTraces.size() || pValues == nullptr || aCount == 0) {
-        return;
+bool RLTimeSeries::pushSamples(size_t aTraceIndex, const std::vector<float>& rValues) {
+    if (rValues.empty() || aTraceIndex >= mTraces.size()) {
+        return false;
     }
 
     RLTimeSeriesTrace& rTrace = mTraces[aTraceIndex];
-    for (size_t i = 0; i < aCount; ++i) {
-        rTrace.mSamples[rTrace.mHead] = pValues[i];
+    for (size_t i = 0; i < rValues.size(); ++i) {
+        rTrace.mSamples[rTrace.mHead] = rValues[i];
         rTrace.mHead = (rTrace.mHead + 1) % mWindowSize;
         if (rTrace.mCount < mWindowSize) {
             rTrace.mCount++;
         }
     }
     rTrace.mDirty = true;
-}
-
-void RLTimeSeries::pushSamples(size_t aTraceIndex, const std::vector<float>& rValues) {
-    if (rValues.empty()) {
-        return;
-    }
-    pushSamples(aTraceIndex, rValues.data(), rValues.size());
+    return true;
 }
 
 // ============================================================================

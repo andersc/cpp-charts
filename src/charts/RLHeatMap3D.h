@@ -62,11 +62,13 @@ public:
     // Grid configuration
     void setGridSize(int aWidth, int aHeight);
 
-    // Data input - batch update all values
-    void setValues(const float* pValues, int aCount);
+    // Data input - batch update all values (resizes grid if dimensions differ)
+    // Returns false if rValues is empty or size doesn't match aWidth * aHeight
+    bool setValues(int aWidth, int aHeight, const std::vector<float>& rValues);
 
     // Data input - partial region update
-    void updatePartialValues(int aX, int aY, int aW, int aH, const float* pValues);
+    // Returns false if rValues is empty, size doesn't match aW * aH, or zero overlap with grid
+    bool updatePartialValues(int aX, int aY, int aW, int aH, const std::vector<float>& rValues);
 
     // Palette configuration (3-4 color stops)
     void setPalette(Color aColorA, Color aColorB, Color aColorC);

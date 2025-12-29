@@ -34,7 +34,8 @@ public:
     void setColorStops(const std::vector<Color> &rStops);
 
     // Add points in normalized space [-1,1] for both x and y
-    void addPoints(const Vector2 *pPoints, size_t aCount);
+    // Returns false if rPoints is empty
+    bool addPoints(const std::vector<Vector2>& rPoints);
     void clear();
 
     void update(float aDt);

@@ -3,7 +3,6 @@
 #include "RLCommon.h"
 #include "rlgl.h"
 #include <algorithm>
-#include <cstring>
 #include <cmath>
 #include <cstdio>
 
@@ -68,20 +67,28 @@ void RLHeatMap3D::setGridSize(int aWidth, int aHeight) {
     buildMesh();
 }
 
-void RLHeatMap3D::setValues(const float* pValues, int aCount) {
-    if (pValues == nullptr || aCount <= 0) {
-        return;
+bool RLHeatMap3D::setValues(int aWidth, int aHeight, const std::vector<float>& rValues) {
+    if (rValues.empty()) {
+        return false;
     }
 
-    const int lCopyCount = aCount < (int)mTargetValues.size() ? aCount : (int)mTargetValues.size();
-    std::memcpy(mTargetValues.data(), pValues, (size_t)lCopyCount * sizeof(float));
+    const size_t lExpectedSize = (size_t)aWidth * (size_t)aHeight;
+    if (rValues.size() != lExpectedSize) {
+        return false;
+    }
 
-    if (mAutoRange && lCopyCount > 0) {
+    if (mWidth != aWidth || mHeight != aHeight) {
+        setGridSize(aWidth, aHeight);
+    }
+
+    mTargetValues = rValues;
+
+    if (mAutoRange) {
         float lMin = mTargetValues[0];
         float lMax = mTargetValues[0];
-        for (int i = 1; i < lCopyCount; ++i) {
-            lMin = std::min(lMin, mTargetValues[(size_t)i]);
-            lMax = std::max(lMax, mTargetValues[(size_t)i]);
+        for (size_t i = 1; i < mTargetValues.size(); ++i) {
+            lMin = std::min(lMin, mTargetValues[i]);
+            lMax = std::max(lMax, mTargetValues[i]);
         }
         if (lMax - lMin < 1e-6f) {
             lMax = lMin + 1.0f;
@@ -93,11 +100,17 @@ void RLHeatMap3D::setValues(const float* pValues, int aCount) {
     }
 
     mMeshDirty = true;
+    return true;
 }
 
-void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const float* pValues) {
-    if (pValues == nullptr || aW <= 0 || aH <= 0) {
-        return;
+bool RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const std::vector<float>& rValues) {
+    if (rValues.empty() || aW <= 0 || aH <= 0) {
+        return false;
+    }
+
+    const size_t lExpectedSize = (size_t)aW * (size_t)aH;
+    if (rValues.size() != lExpectedSize) {
+        return false;
     }
 
     const int lX0 = aX < 0 ? 0 : aX;
@@ -106,7 +119,7 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
     const int lY1 = (aY + aH) > mHeight ? mHeight : (aY + aH);
 
     if (lX0 >= lX1 || lY0 >= lY1) {
-        return;
+        return false;
     }
 
     for (int lY = lY0; lY < lY1; ++lY) {
@@ -115,7 +128,7 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
             const int lSrcY = lY - aY;
             const int lSrcIdx = lSrcY * aW + lSrcX;
             const int lDstIdx = lY * mWidth + lX;
-            mTargetValues[(size_t)lDstIdx] = pValues[lSrcIdx];
+            mTargetValues[(size_t)lDstIdx] = rValues[(size_t)lSrcIdx];
         }
     }
 
@@ -136,6 +149,7 @@ void RLHeatMap3D::updatePartialValues(int aX, int aY, int aW, int aH, const floa
     }
 
     mMeshDirty = true;
+    return true;
 }
 
 void RLHeatMap3D::setPalette(Color aColorA, Color aColorB, Color aColorC) {

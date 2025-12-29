@@ -63,7 +63,7 @@ struct RLHeatMapStyle {
 
 | Method | Description |
 |--------|-------------|
-| `addPoints(const Vector2 *pPoints, size_t aCount)` | Add points in normalized [-1,1] space |
+| `bool addPoints(const std::vector<Vector2>& rPoints)` | Add points in normalized [-1,1] space. Returns `false` if `rPoints` is empty. |
 | `clear()` | Clear all data |
 
 ### Rendering
@@ -131,7 +131,7 @@ int main() {
         }
 
         // Add points to heat map
-        lHeatMap.addPoints(lPoints.data(), lPoints.size());
+        lHeatMap.addPoints(lPoints);
 
         // Update
         lHeatMap.update(lDt);

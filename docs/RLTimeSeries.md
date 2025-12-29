@@ -109,8 +109,7 @@ struct RLTimeSeriesChartStyle {
 | Method | Description |
 |--------|-------------|
 | `pushSample(size_t aTraceIndex, float aValue)` | Add one sample to a trace |
-| `pushSamples(size_t aTraceIndex, const float *pValues, size_t aCount)` | Add multiple samples |
-| `pushSamples(size_t aTraceIndex, const std::vector<float> &aValues)` | Add multiple samples |
+| `bool pushSamples(size_t aTraceIndex, const std::vector<float>& rValues)` | Add multiple samples. Returns `false` if `rValues` is empty or `aTraceIndex` is invalid. |
 
 ### Rendering
 

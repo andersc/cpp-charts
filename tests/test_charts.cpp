@@ -1025,6 +1025,40 @@ TEST_SUITE("RLTimeSeries") {
         CHECK(lTs.getBounds().width == doctest::Approx(400.0f));
     }
 
+    TEST_CASE("Push samples - batch") {
+        REQUIRE_RAYLIB();
+
+        RLTimeSeries lTs(TEST_BOUNDS, 100);
+        size_t lTraceIdx = lTs.addTrace();
+
+        std::vector<float> lSamples = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+        bool lResult = lTs.pushSamples(lTraceIdx, lSamples);
+        CHECK(lResult == true);
+        CHECK(lTs.getTraceSampleCount(lTraceIdx) == 5);
+    }
+
+    TEST_CASE("Push samples - empty vector returns false") {
+        REQUIRE_RAYLIB();
+
+        RLTimeSeries lTs(TEST_BOUNDS, 100);
+        size_t lTraceIdx = lTs.addTrace();
+
+        std::vector<float> lEmptySamples;
+        bool lResult = lTs.pushSamples(lTraceIdx, lEmptySamples);
+        CHECK(lResult == false);
+    }
+
+    TEST_CASE("Push samples - invalid trace index returns false") {
+        REQUIRE_RAYLIB();
+
+        RLTimeSeries lTs(TEST_BOUNDS, 100);
+        // No traces added
+
+        std::vector<float> lSamples = {1.0f, 2.0f, 3.0f};
+        bool lResult = lTs.pushSamples(999, lSamples); // Invalid index
+        CHECK(lResult == false);
+    }
+
 }
 
 TEST_SUITE("RLHeatMap") {
@@ -1062,12 +1096,23 @@ TEST_SUITE("RLHeatMap") {
 
         RLHeatMap lHm(TEST_BOUNDS, 16, 16);
 
-        Vector2 lPoints[] = {{0.0f, 0.0f}, {0.5f, 0.5f}, {-0.5f, -0.5f}};
-        lHm.addPoints(lPoints, 3);
+        std::vector<Vector2> lPoints = {{0.0f, 0.0f}, {0.5f, 0.5f}, {-0.5f, -0.5f}};
+        bool lResult = lHm.addPoints(lPoints);
+        CHECK(lResult == true);
 
         // Should handle points without crash
         lHm.update(0.016f);
         CHECK(lHm.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("Point addition - empty vector returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap lHm(TEST_BOUNDS, 16, 16);
+
+        std::vector<Vector2> lEmptyPoints;
+        bool lResult = lHm.addPoints(lEmptyPoints);
+        CHECK(lResult == false);
     }
 
     TEST_CASE("Clear") {
@@ -1075,8 +1120,8 @@ TEST_SUITE("RLHeatMap") {
 
         RLHeatMap lHm(TEST_BOUNDS, 16, 16);
 
-        Vector2 lPoints[] = {{0.0f, 0.0f}};
-        lHm.addPoints(lPoints, 1);
+        std::vector<Vector2> lPoints = {{0.0f, 0.0f}};
+        lHm.addPoints(lPoints);
         lHm.clear();
 
         // Should clear without crash
@@ -1147,17 +1192,54 @@ TEST_SUITE("RLHeatMap3D") {
         RLHeatMap3D lHm(4, 4);
 
         // Create test data (4x4 = 16 values)
-        float lValues[16];
+        std::vector<float> lValues(16);
         for (int i = 0; i < 16; i++) {
-            lValues[i] = (float)i / 15.0f;
+            lValues[(size_t)i] = (float)i / 15.0f;
         }
 
-        lHm.setValues(lValues, 16);
+        bool lResult = lHm.setValues(4, 4, lValues);
+        CHECK(lResult == true);
         lHm.update(0.016f);
 
         // Should process values without crash
         CHECK(lHm.getWidth() == 4);
         CHECK(lHm.getHeight() == 4);
+    }
+
+    TEST_CASE("Set values - empty vector returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(4, 4);
+
+        std::vector<float> lEmptyValues;
+        bool lResult = lHm.setValues(4, 4, lEmptyValues);
+        CHECK(lResult == false);
+    }
+
+    TEST_CASE("Set values - size mismatch returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(4, 4);
+
+        // Create wrong-sized data (10 values instead of 16)
+        std::vector<float> lValues(10, 1.0f);
+        bool lResult = lHm.setValues(4, 4, lValues);
+        CHECK(lResult == false);
+    }
+
+    TEST_CASE("Set values - grid resizes on new dimensions") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(4, 4);
+        CHECK(lHm.getWidth() == 4);
+        CHECK(lHm.getHeight() == 4);
+
+        // Set values with new dimensions (8x8)
+        std::vector<float> lValues(64, 0.5f);
+        bool lResult = lHm.setValues(8, 8, lValues);
+        CHECK(lResult == true);
+        CHECK(lHm.getWidth() == 8);
+        CHECK(lHm.getHeight() == 8);
     }
 
     TEST_CASE("Partial value update") {
@@ -1166,15 +1248,48 @@ TEST_SUITE("RLHeatMap3D") {
         RLHeatMap3D lHm(8, 8);
 
         // Initialize with zeros
-        float lInitial[64] = {0};
-        lHm.setValues(lInitial, 64);
+        std::vector<float> lInitial(64, 0.0f);
+        lHm.setValues(8, 8, lInitial);
 
         // Update a 2x2 region at position (2, 2)
-        float lPartial[4] = {1.0f, 0.8f, 0.6f, 0.4f};
-        lHm.updatePartialValues(2, 2, 2, 2, lPartial);
+        std::vector<float> lPartial = {1.0f, 0.8f, 0.6f, 0.4f};
+        bool lResult = lHm.updatePartialValues(2, 2, 2, 2, lPartial);
+        CHECK(lResult == true);
 
         lHm.update(0.016f);
         CHECK(lHm.getWidth() == 8);
+    }
+
+    TEST_CASE("Partial value update - empty vector returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(8, 8);
+
+        std::vector<float> lEmpty;
+        bool lResult = lHm.updatePartialValues(2, 2, 2, 2, lEmpty);
+        CHECK(lResult == false);
+    }
+
+    TEST_CASE("Partial value update - size mismatch returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(8, 8);
+
+        // Region is 2x2 = 4 values, but we provide 3
+        std::vector<float> lWrongSize = {1.0f, 0.8f, 0.6f};
+        bool lResult = lHm.updatePartialValues(2, 2, 2, 2, lWrongSize);
+        CHECK(lResult == false);
+    }
+
+    TEST_CASE("Partial value update - zero overlap returns false") {
+        REQUIRE_RAYLIB();
+
+        RLHeatMap3D lHm(8, 8);
+
+        // Region is completely outside the grid
+        std::vector<float> lPartial = {1.0f, 0.8f, 0.6f, 0.4f};
+        bool lResult = lHm.updatePartialValues(100, 100, 2, 2, lPartial);
+        CHECK(lResult == false);
     }
 
     TEST_CASE("Axis range configuration") {
@@ -1209,11 +1324,11 @@ TEST_SUITE("RLHeatMap3D") {
         lHm.setPalette(BLUE, GREEN, RED);
 
         // Set some values to test palette
-        float lValues[256];
+        std::vector<float> lValues(256);
         for (int i = 0; i < 256; i++) {
-            lValues[i] = (float)i / 255.0f;
+            lValues[(size_t)i] = (float)i / 255.0f;
         }
-        lHm.setValues(lValues, 256);
+        lHm.setValues(16, 16, lValues);
         lHm.update(0.016f);
 
         CHECK(lHm.getWidth() == 16);
@@ -1227,11 +1342,11 @@ TEST_SUITE("RLHeatMap3D") {
         lHm.setPalette(BLUE, SKYBLUE, YELLOW, RED);
 
         // Set some values to test palette
-        float lValues[256];
+        std::vector<float> lValues(256);
         for (int i = 0; i < 256; i++) {
-            lValues[i] = (float)i / 255.0f;
+            lValues[(size_t)i] = (float)i / 255.0f;
         }
-        lHm.setValues(lValues, 256);
+        lHm.setValues(16, 16, lValues);
         lHm.update(0.016f);
 
         CHECK(lHm.getWidth() == 16);
@@ -1266,16 +1381,13 @@ TEST_SUITE("RLHeatMap3D") {
         lHm.setSmoothing(15.0f);
 
         // Set initial values
-        float lInitial[64] = {0};
-        lHm.setValues(lInitial, 64);
+        std::vector<float> lInitial(64, 0.0f);
+        lHm.setValues(8, 8, lInitial);
         lHm.update(0.016f);
 
         // Set new target values
-        float lTarget[64];
-        for (int i = 0; i < 64; i++) {
-            lTarget[i] = 1.0f;
-        }
-        lHm.setValues(lTarget, 64);
+        std::vector<float> lTarget(64, 1.0f);
+        lHm.setValues(8, 8, lTarget);
 
         // Run animation
         for (int i = 0; i < 60; i++) {
@@ -1307,11 +1419,11 @@ TEST_SUITE("RLHeatMap3D") {
         lHm.setMode(RLHeatMap3DMode::Scatter);
         lHm.setPointSize(0.25f);
 
-        float lValues[64];
+        std::vector<float> lValues(64);
         for (int i = 0; i < 64; i++) {
-            lValues[i] = (float)i / 63.0f;
+            lValues[(size_t)i] = (float)i / 63.0f;
         }
-        lHm.setValues(lValues, 64);
+        lHm.setValues(8, 8, lValues);
         lHm.update(0.016f);
 
         CHECK(lHm.getMode() == RLHeatMap3DMode::Scatter);

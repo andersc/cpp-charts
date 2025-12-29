@@ -210,9 +210,9 @@ int main(){
                 lUpdateEmitters(lEmitters, lDt);
                 GenPointsEmitters(lPoints, lBatch, lEmitters);
             }
-            lHM_Acc.addPoints(lPoints.data(), lPoints.size());
-            lHM_Repl.addPoints(lPoints.data(), lPoints.size());
-            lHM_Decay.addPoints(lPoints.data(), lPoints.size());
+            lHM_Acc.addPoints(lPoints);
+            lHM_Repl.addPoints(lPoints);
+            lHM_Decay.addPoints(lPoints);
         }
 
         lHM_Acc.update(lDt);
