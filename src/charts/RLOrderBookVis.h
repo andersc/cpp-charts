@@ -159,6 +159,12 @@ private:
     bool mMeshValid{false};
     bool mMeshDirty{true};
 
+    // 3D render target for proper viewport centering
+    mutable RenderTexture2D mRenderTarget{};
+    mutable bool mRenderTargetValid{false};
+    mutable int mRenderTargetWidth{0};
+    mutable int mRenderTargetHeight{0};
+
     // Internal helpers
     void ensureBuffers();
     void rebuildLUT();
@@ -168,6 +174,8 @@ private:
     void updateMeshData();
     void cleanupTexture();
     void cleanupMesh();
+    void cleanupRenderTarget() const;
+    void ensureRenderTarget() const;
 
     // Price mapping helpers
     [[nodiscard]] float priceToNormalized(float aPrice) const;

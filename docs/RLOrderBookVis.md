@@ -126,7 +126,7 @@ struct RLOrderBookVisStyle {
 |--------|-------------|
 | `update(float aDt)` | Update animations and textures (call each frame) |
 | `draw2D() const` | Draw the 2D heatmap view |
-| `draw3D(const Camera3D &rCamera) const` | Draw the 3D landscape view |
+| `draw3D(const Camera3D &rCamera) const` | Draw the 3D landscape view (renders to internal texture for proper viewport centering within bounds) |
 
 ### Getters
 
@@ -280,6 +280,7 @@ int main() {
 - **Y-axis (height)**: Liquidity/size
 - Separate meshes for bids and asks
 - Color corresponds to height/intensity
+- Renders to an internal RenderTexture for proper centering within bounds
 
 ### Interpreting the Display
 - **Bright walls**: Large resting orders (support/resistance)

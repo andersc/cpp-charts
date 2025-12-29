@@ -1,6 +1,4 @@
 
-//The orderbook visualization 3D mode is WIP and not 100% correct
-
 // orderbook.cpp
 // Order Book Visualization Demo
 // Demonstrates 2D heatmap and 3D landscape views of depth-of-market data
@@ -346,14 +344,8 @@ int main() {
             DrawTextEx(lFont, "Time ->", Vector2{lBounds2D.x + lBounds2D.width/2 - 30, lBounds2D.y + lBounds2D.height + 15}, 16, 1.0f, Color{120, 120, 130, 255});
             DrawTextPro(lFont, "Price", Vector2{lBounds2D.x - 25, lBounds2D.y + lBounds2D.height/2 + 20}, Vector2{0, 0}, -90.0f, 16, 1, Color{120, 120, 130, 255});
         } else {
-            // 3D view
-            DrawRectangle((int)lBounds2D.x, (int)lBounds2D.y, (int)lBounds2D.width, (int)lBounds2D.height, Color{15, 17, 22, 255});
-            DrawRectangleLinesEx(lBounds2D, 1.0f, Color{50, 55, 65, 255});
-
-            // Draw 3D in a viewport-like area
-            BeginScissorMode((int)lBounds2D.x, (int)lBounds2D.y, (int)lBounds2D.width, (int)lBounds2D.height);
+            // 3D view - draw3D handles viewport centering internally via RenderTexture
             lOrderBook.draw3D(lCamera);
-            EndScissorMode();
         }
 
         // Info panel

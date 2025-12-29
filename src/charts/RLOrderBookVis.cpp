@@ -35,6 +35,7 @@ RLOrderBookVis::RLOrderBookVis(Rectangle aBounds, size_t aHistoryLength, size_t 
 RLOrderBookVis::~RLOrderBookVis() {
     cleanupTexture();
     cleanupMesh();
+    cleanupRenderTarget();
 }
 
 void RLOrderBookVis::cleanupTexture() {
@@ -56,6 +57,33 @@ void RLOrderBookVis::cleanupMesh() {
             mAskMesh = Mesh{};
         }
         mMeshValid = false;
+    }
+}
+
+void RLOrderBookVis::cleanupRenderTarget() const {
+    if (mRenderTargetValid && mRenderTarget.id != 0) {
+        UnloadRenderTexture(mRenderTarget);
+        mRenderTarget = RenderTexture2D{};
+        mRenderTargetValid = false;
+        mRenderTargetWidth = 0;
+        mRenderTargetHeight = 0;
+    }
+}
+
+void RLOrderBookVis::ensureRenderTarget() const {
+    int lWidth = (int)mBounds.width;
+    int lHeight = (int)mBounds.height;
+
+    // Recreate if dimensions changed or not valid
+    if (mRenderTargetValid && (mRenderTargetWidth != lWidth || mRenderTargetHeight != lHeight)) {
+        cleanupRenderTarget();
+    }
+
+    if (!mRenderTargetValid || mRenderTarget.id == 0) {
+        mRenderTarget = LoadRenderTexture(lWidth, lHeight);
+        mRenderTargetValid = (mRenderTarget.id != 0);
+        mRenderTargetWidth = lWidth;
+        mRenderTargetHeight = lHeight;
     }
 }
 
@@ -770,6 +798,16 @@ void RLOrderBookVis::draw3D(const Camera3D& rCamera) const {
         return;
     }
 
+    // Ensure render target exists and matches bounds dimensions
+    ensureRenderTarget();
+    if (!mRenderTargetValid || mRenderTarget.id == 0) {
+        return;
+    }
+
+    // Render 3D scene to offscreen texture
+    BeginTextureMode(mRenderTarget);
+    ClearBackground(mStyle.mBackground);
+
     BeginMode3D(rCamera);
 
     // Center the mesh
@@ -809,5 +847,17 @@ void RLOrderBookVis::draw3D(const Camera3D& rCamera) const {
     DrawMesh(mAskMesh, lMat, lTransform);
 
     EndMode3D();
+    EndTextureMode();
+
+    // Draw the render texture at the bounds position
+    // Note: RenderTexture Y is flipped, so we use negative height in source rect
+    const Rectangle lSrc = {0, 0, (float)mRenderTargetWidth, -(float)mRenderTargetHeight};
+    const Rectangle lDst = {mBounds.x, mBounds.y, mBounds.width, mBounds.height};
+    DrawTexturePro(mRenderTarget.texture, lSrc, lDst, Vector2{0, 0}, 0.0f, WHITE);
+
+    // Draw border on top if enabled
+    if (mStyle.mShowBorder) {
+        DrawRectangleLinesEx(mBounds, mStyle.mBorderThickness, mStyle.mBorderColor);
+    }
 }
 
