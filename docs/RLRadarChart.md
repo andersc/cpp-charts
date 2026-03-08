@@ -1,5 +1,7 @@
 # RLRadarChart
 
+![RLRadarChart Animation](gifs/RLRadarChart.gif)
+
 A versatile radar/spider chart for raylib supporting single and multiple series with smooth animations, configurable axes, and customizable styling.
 
 ## Features

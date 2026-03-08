@@ -1,5 +1,7 @@
 # RLSankey
 
+![RLSankey Animation](gifs/RLSankey.gif)
+
 A Sankey diagram visualization for raylib showing weighted flow connections between nodes organized in columns/layers. Supports smooth animations, dynamic data updates, and customizable styling.
 
 ## Features

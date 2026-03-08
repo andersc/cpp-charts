@@ -668,6 +668,15 @@ Built with ❤️ using [raylib](https://www.raylib.com/) - a simple and easy-to
 ### Area Chart
 ![Area Chart](docs/gifs/RLAreaChart.gif)
 
+### Linear Gauge
+![Linear Gauge](docs/gifs/RLLinearGauge.gif)
+
+### Radar Chart
+![Radar Chart](docs/gifs/RLRadarChart.gif)
+
+### Sankey Diagram
+![Sankey Diagram](docs/gifs/RLSankey.gif)
+
 ---
 
 **Make your C++ applications beautiful with cpp-charts!** ⭐

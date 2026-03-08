@@ -1,5 +1,7 @@
 # RLLinearGauge
 
+![RLLinearGauge Animation](gifs/RLLinearGauge.gif)
+
 A horizontal or vertical linear gauge display for raylib with smooth animations.
 
 ## Features
