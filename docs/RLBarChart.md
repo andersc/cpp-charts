@@ -65,6 +65,10 @@ struct RLBarChartStyle {
     float mMaxValue = 100.0f;
     bool mSmoothAnimate = true;
     float mAnimateSpeed = 8.0f;
+
+    // Tooltip
+    bool mShowTooltip = true;              // Enable hover tooltip
+    RLTooltipStyle mTooltipStyle{};        // Tooltip appearance (see RLTooltip)
 };
 ```
 
@@ -99,6 +103,10 @@ struct RLBarChartStyle {
 |--------|-------------|
 | `getBounds() const` | Get current bounds |
 | `getOrientation() const` | Get current orientation |
+
+## Tooltip
+
+Hovering over a bar displays a tooltip showing the bar's label and value. Tooltips are enabled by default (`mShowTooltip = true`) and can be styled via `mTooltipStyle`. See [RLTooltip](RLTooltip.md) for tooltip appearance options.
 
 ## Complete Example
 

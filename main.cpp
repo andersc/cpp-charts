@@ -190,23 +190,40 @@ int main() {
     lScatterStyle.mShowAxes = true;
     lScatterStyle.mGridLines = 4;
     lScatterStyle.mAutoScale = true;
+    lScatterStyle.mShowLegend = true;
 
     RLScatterPlot lScatterPlot(getChartBounds(1, 2), lScatterStyle);
 
-    RLScatterSeriesStyle lSeriesStyle;
-    lSeriesStyle.mLineColor = Color{80, 180, 255, 255};
-    lSeriesStyle.mLineThickness = 2.0f;
-    lSeriesStyle.mLineMode = RLScatterLineMode::Spline;
-    lSeriesStyle.mShowPoints = true;
-    lSeriesStyle.mPointScale = 2.0f;
-
-    std::vector<Vector2> lScatterData;
+    RLScatterSeries lScatterS1;
+    lScatterS1.mStyle.mLineColor = Color{80, 180, 255, 255};
+    lScatterS1.mStyle.mLineThickness = 2.0f;
+    lScatterS1.mStyle.mLineMode = RLScatterLineMode::Spline;
+    lScatterS1.mStyle.mShowPoints = true;
+    lScatterS1.mStyle.mPointScale = 2.0f;
+    lScatterS1.mLabel = "Sine";
     for (int i = 0; i < 20; ++i) {
         float lX = (float)i / 19.0f;
         float lY = 0.5f + 0.3f * sinf(lX * 6.28318f * 2.0f) + randFloat(-0.05f, 0.05f);
-        lScatterData.push_back({lX, lY});
+        lScatterS1.mData.push_back({lX, lY});
     }
-    lScatterPlot.setSingleSeries(lScatterData, lSeriesStyle);
+    lScatterS1.mTargetData = lScatterS1.mData;
+
+    RLScatterSeries lScatterS2;
+    lScatterS2.mStyle.mLineColor = Color{255, 140, 80, 255};
+    lScatterS2.mStyle.mLineThickness = 2.0f;
+    lScatterS2.mStyle.mLineMode = RLScatterLineMode::Linear;
+    lScatterS2.mStyle.mShowPoints = true;
+    lScatterS2.mStyle.mPointScale = 2.0f;
+    lScatterS2.mLabel = "Cosine";
+    for (int i = 0; i < 20; ++i) {
+        float lX = (float)i / 19.0f;
+        float lY = 0.5f + 0.25f * cosf(lX * 6.28318f * 1.5f) + randFloat(-0.05f, 0.05f);
+        lScatterS2.mData.push_back({lX, lY});
+    }
+    lScatterS2.mTargetData = lScatterS2.mData;
+
+    lScatterPlot.addSeries(lScatterS1);
+    lScatterPlot.addSeries(lScatterS2);
 
     // ===== 8. Bar Chart (Horizontal) =====
     RLBarChartStyle lBarStyle2 = lBarStyle;
@@ -311,6 +328,7 @@ int main() {
     lTSStyle.mShowGrid = true;
     lTSStyle.mAutoScaleY = true;
     lTSStyle.mSmoothScale = true;
+    lTSStyle.mShowLegend = true;
 
     RLTimeSeries lTimeSeries(getChartBounds(2, 2), 200);
     lTimeSeries.setStyle(lTSStyle);
@@ -320,9 +338,11 @@ int main() {
     lTSTraceStyle.mLineThickness = 2.0f;
     lTSTraceStyle.mLineMode = RLTimeSeriesLineMode::Spline;
     size_t lTSTrace1 = lTimeSeries.addTrace(lTSTraceStyle);
+    lTimeSeries.setTraceLabel(lTSTrace1, "Signal A");
 
     lTSTraceStyle.mColor = Color{255, 150, 80, 255};
     size_t lTSTrace2 = lTimeSeries.addTrace(lTSTraceStyle);
+    lTimeSeries.setTraceLabel(lTSTrace2, "Signal B");
 
     // Pre-populate with some data
     for (int i = 0; i < 100; ++i) {

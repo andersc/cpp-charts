@@ -78,6 +78,10 @@ struct RLTimeSeriesChartStyle {
     // Smooth scale transitions
     bool mSmoothScale{true};
     float mScaleSpeed{4.0f};
+
+    // Legend
+    bool mShowLegend{false};              // Show trace legend
+    RLLegendStyle mLegendStyle{};         // Legend appearance (see RLLegend)
 };
 ```
 
@@ -103,6 +107,7 @@ struct RLTimeSeriesChartStyle {
 | `clearAllTraces()` | Clear all trace data |
 | `getTraceCount() const` | Get number of traces |
 | `getTraceSampleCount(size_t aIndex) const` | Get sample count for a trace |
+| `setTraceLabel(size_t aIndex, const std::string &rLabel)` | Set a label for a trace (used in legend) |
 
 ### Sample Input
 
@@ -124,6 +129,10 @@ struct RLTimeSeriesChartStyle {
 |--------|-------------|
 | `getBounds() const` | Get current bounds |
 | `getPlotArea() const` | Get the actual plot area (minus padding) |
+
+## Legend
+
+Traces that have been assigned a label via `setTraceLabel()` are shown in the legend when `mShowLegend` is enabled. The legend displays each labeled trace's name and color. The legend appearance can be customized through `mLegendStyle`. See [RLLegend](RLLegend.md) for legend styling options.
 
 ## Complete Example
 

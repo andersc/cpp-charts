@@ -49,6 +49,8 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 - 🔤 Custom font support (load your own TTF fonts)
 - ⚡ High performance with raylib rendering
 - 🖱️ Responsive design with various display modes
+- 🏷️ **Tooltips** — Hover tooltips on Bar, Pie, and Scatter charts (see [RLTooltip](docs/RLTooltip.md))
+- 📊 **Legends** — Series/trace legends on Scatter, TimeSeries, Area, and Radar charts (see [RLLegend](docs/RLLegend.md))
 
 **All demos use the bundled `base.ttf` font for consistent, readable text rendering.**
 

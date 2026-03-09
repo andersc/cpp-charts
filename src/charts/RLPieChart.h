@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLTooltip.h"
 #include <vector>
 #include <string>
 
@@ -26,6 +27,10 @@ struct RLPieChartStyle {
     float mAngleSpeed{ 8.0f }; // approach speed for angles (1/s)
     float mFadeSpeed{ 8.0f };  // approach speed for visibility (1/s)
     float mColorSpeed{ 6.0f }; // color blend speed (1/s)
+
+    // Tooltip
+    bool mShowTooltip{true};
+    RLTooltipStyle mTooltipStyle{};
 };
 
 class RLPieChart {

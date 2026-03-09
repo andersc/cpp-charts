@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "../RLCommon.h"
+#include "RLTooltip.h"
 #include <vector>
 #include <string>
 
@@ -48,6 +49,10 @@ struct RLBarChartStyle {
     float mMaxValue = 100.0f;    // used when autoScale == false
     bool mSmoothAnimate = true;
     float mAnimateSpeed = 8.0f;  // larger = snappier
+
+    // Tooltip
+    bool mShowTooltip{true};
+    RLTooltipStyle mTooltipStyle{};
 };
 
 class RLBarChart {
@@ -97,6 +102,8 @@ private:
     float mScaleMax{1.0f};
     float mScaleMaxTarget{1.0f};
     size_t mTargetCount{0};
+
+    mutable std::vector<Rectangle> mBarRects;
 
     void ensureSize(size_t aCount);
     void recomputeScaleTargetsFromData(const std::vector<RLBarData> &rData);

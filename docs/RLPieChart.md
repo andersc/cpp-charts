@@ -48,6 +48,10 @@ struct RLPieChartStyle {
     float mAngleSpeed{8.0f};  // Approach speed for angles (1/s)
     float mFadeSpeed{8.0f};   // Approach speed for visibility (1/s)
     float mColorSpeed{6.0f};  // Color blend speed (1/s)
+
+    // Tooltip
+    bool mShowTooltip{true};              // Enable hover tooltip
+    RLTooltipStyle mTooltipStyle{};       // Tooltip appearance (see RLTooltip)
 };
 ```
 
@@ -81,6 +85,10 @@ struct RLPieChartStyle {
 | Method | Description |
 |--------|-------------|
 | `getBounds() const` | Get current bounds |
+
+## Tooltip
+
+Hovering over a pie slice displays a tooltip showing the slice's label, value, and percentage share of the total. Tooltips are enabled by default (`mShowTooltip = true`) and can be styled via `mTooltipStyle`. See [RLTooltip](RLTooltip.md) for tooltip appearance options.
 
 ## Complete Example
 

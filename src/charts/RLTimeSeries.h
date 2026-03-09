@@ -2,7 +2,9 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLLegend.h"
 #include <vector>
+#include <string>
 #include <cstddef>
 
 // High-performance streaming time series visualizer for raylib.
@@ -29,6 +31,7 @@ struct RLTimeSeriesTraceStyle {
 // Single trace data and state
 struct RLTimeSeriesTrace {
     RLTimeSeriesTraceStyle mStyle{};
+    std::string mLabel; // optional trace name (for legend)
 
     // Ring buffer for samples
     std::vector<float> mSamples;
@@ -70,6 +73,10 @@ struct RLTimeSeriesChartStyle {
     // Smooth scale transitions
     bool mSmoothScale{ true };
     float mScaleSpeed{ 4.0f };
+
+    // Legend
+    bool mShowLegend{false};
+    RLLegendStyle mLegendStyle{};
 };
 
 // Main time series visualizer class
@@ -87,6 +94,7 @@ public:
     size_t addTrace(const RLTimeSeriesTraceStyle& aStyle = {});
     void setTraceStyle(size_t aIndex, const RLTimeSeriesTraceStyle& rStyle);
     void setTraceVisible(size_t aIndex, bool aVisible);
+    void setTraceLabel(size_t aIndex, const std::string& rLabel);
     void clearTrace(size_t aIndex);
     void clearAllTraces();
     [[nodiscard]] size_t getTraceCount() const { return mTraces.size(); }

@@ -23,6 +23,8 @@
 #include "RLScatterPlot.h"
 #include "RLTimeSeries.h"
 #include "RLTreeMap.h"
+#include "RLTooltip.h"
+#include "RLLegend.h"
 
 #include "doctest/doctest.h"
 
@@ -2153,6 +2155,241 @@ TEST_SUITE("RLSankey") {
 
         CHECK(lSankeyNorm.getNodeCount() == 3);
         CHECK(lSankeyRaw.getNodeCount() == 3);
+    }
+
+}
+
+// ============================================================================
+// Tooltip and Legend Utilities
+// ============================================================================
+
+TEST_SUITE("RLTooltip") {
+
+    TEST_CASE("Tooltip style defaults") {
+        RLTooltipStyle lStyle;
+        CHECK(lStyle.mFontSize == doctest::Approx(14.0f));
+        CHECK(lStyle.mPadding == doctest::Approx(8.0f));
+        CHECK(lStyle.mCornerRadius == doctest::Approx(4.0f));
+        CHECK(lStyle.mCursorOffset == doctest::Approx(16.0f));
+        CHECK(lStyle.mBackground.a == 230);
+    }
+
+    TEST_CASE("Tooltip entry construction") {
+        RLTooltipEntry lEntry;
+        lEntry.mLabel = "Value";
+        lEntry.mValue = "42.0";
+        CHECK(lEntry.mLabel == "Value");
+        CHECK(lEntry.mValue == "42.0");
+    }
+
+}
+
+TEST_SUITE("RLLegend") {
+
+    TEST_CASE("Legend style defaults") {
+        RLLegendStyle lStyle;
+        CHECK(lStyle.mFontSize == doctest::Approx(12.0f));
+        CHECK(lStyle.mPadding == doctest::Approx(8.0f));
+        CHECK(lStyle.mIndicatorSize == doctest::Approx(10.0f));
+        CHECK(lStyle.mBackground.a == 0);
+    }
+
+    TEST_CASE("Legend entry with visibility") {
+        RLLegendEntry lEntry;
+        lEntry.mLabel = "Series A";
+        lEntry.mColor = RED;
+        lEntry.mVisibility = 0.5f;
+        CHECK(lEntry.mLabel == "Series A");
+        CHECK(lEntry.mVisibility == doctest::Approx(0.5f));
+    }
+
+    TEST_CASE("Legend measure with no entries") {
+        REQUIRE_RAYLIB();
+        std::vector<RLLegendEntry> lEntries;
+        auto lSize = RLLegend::measure(lEntries);
+        CHECK(lSize.x > 0.0f);
+        CHECK(lSize.y > 0.0f);
+    }
+
+    TEST_CASE("Legend measure filters invisible entries") {
+        REQUIRE_RAYLIB();
+        std::vector<RLLegendEntry> lEntries;
+        lEntries.push_back({"Visible", RED, 1.0f});
+        lEntries.push_back({"Hidden", BLUE, 0.0f});
+
+        auto lSizeWith = RLLegend::measure(lEntries);
+
+        std::vector<RLLegendEntry> lSingleEntry;
+        lSingleEntry.push_back({"Visible", RED, 1.0f});
+        auto lSizeWithout = RLLegend::measure(lSingleEntry);
+
+        CHECK(lSizeWith.y == doctest::Approx(lSizeWithout.y));
+    }
+
+}
+
+// ============================================================================
+// Tooltip integration in charts
+// ============================================================================
+
+TEST_SUITE("Chart Tooltips") {
+
+    TEST_CASE("BarChart tooltip style configuration") {
+        REQUIRE_RAYLIB();
+
+        RLBarChartStyle lStyle;
+        lStyle.mShowTooltip = true;
+        lStyle.mTooltipStyle.mFontSize = 16.0f;
+
+        RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL, lStyle);
+        std::vector<RLBarData> lData = {
+            {10.0f, RED, false, BLACK, "A"},
+            {20.0f, GREEN, false, BLACK, "B"},
+        };
+        lChart.setData(lData);
+        lChart.update(0.016f);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("BarChart tooltip can be disabled") {
+        REQUIRE_RAYLIB();
+
+        RLBarChartStyle lStyle;
+        lStyle.mShowTooltip = false;
+
+        RLBarChart lChart(TEST_BOUNDS, RLBarOrientation::VERTICAL, lStyle);
+        std::vector<RLBarData> lData = {
+            {10.0f, RED, false, BLACK, "A"},
+        };
+        lChart.setData(lData);
+        lChart.update(0.016f);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("PieChart tooltip style configuration") {
+        REQUIRE_RAYLIB();
+
+        RLPieChartStyle lStyle;
+        lStyle.mShowTooltip = true;
+        lStyle.mTooltipStyle.mPadding = 12.0f;
+
+        RLPieChart lChart(TEST_BOUNDS, lStyle);
+        std::vector<RLPieSliceData> lData = {
+            {30.0f, RED, "Slice A"},
+            {70.0f, BLUE, "Slice B"},
+        };
+        lChart.setData(lData);
+        lChart.update(0.016f);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("PieChart tooltip can be disabled") {
+        REQUIRE_RAYLIB();
+
+        RLPieChartStyle lStyle;
+        lStyle.mShowTooltip = false;
+
+        RLPieChart lChart(TEST_BOUNDS, lStyle);
+        std::vector<RLPieSliceData> lData = {{50.0f, RED, "X"}};
+        lChart.setData(lData);
+        lChart.update(0.016f);
+        CHECK(lChart.getBounds().width == doctest::Approx(400.0f));
+    }
+
+    TEST_CASE("ScatterPlot tooltip style configuration") {
+        REQUIRE_RAYLIB();
+
+        RLScatterPlotStyle lStyle;
+        lStyle.mShowTooltip = true;
+        lStyle.mTooltipStyle.mCursorOffset = 20.0f;
+
+        RLScatterPlot lChart(TEST_BOUNDS, lStyle);
+        RLScatterSeries lSeries;
+        lSeries.mData = {{0.0f, 0.0f}, {1.0f, 1.0f}};
+        lSeries.mTargetData = lSeries.mData;
+        lSeries.mLabel = "Test Series";
+        lChart.addSeries(lSeries);
+        lChart.update(0.016f);
+        CHECK(lChart.seriesCount() == 1);
+    }
+
+}
+
+// ============================================================================
+// Legend integration in charts
+// ============================================================================
+
+TEST_SUITE("Chart Legends") {
+
+    TEST_CASE("ScatterPlot legend with labeled series") {
+        REQUIRE_RAYLIB();
+
+        RLScatterPlotStyle lStyle;
+        lStyle.mShowLegend = true;
+
+        RLScatterPlot lChart(TEST_BOUNDS, lStyle);
+
+        RLScatterSeries lS1;
+        lS1.mData = {{0.0f, 0.0f}, {1.0f, 1.0f}};
+        lS1.mTargetData = lS1.mData;
+        lS1.mLabel = "Series A";
+        lS1.mStyle.mLineColor = RED;
+
+        RLScatterSeries lS2;
+        lS2.mData = {{0.0f, 1.0f}, {1.0f, 0.0f}};
+        lS2.mTargetData = lS2.mData;
+        lS2.mLabel = "Series B";
+        lS2.mStyle.mLineColor = BLUE;
+
+        lChart.addSeries(lS1);
+        lChart.addSeries(lS2);
+        lChart.update(0.016f);
+
+        CHECK(lChart.seriesCount() == 2);
+    }
+
+    TEST_CASE("ScatterPlot legend disabled by default") {
+        RLScatterPlotStyle lStyle;
+        CHECK(lStyle.mShowLegend == false);
+    }
+
+    TEST_CASE("TimeSeries legend with labeled traces") {
+        REQUIRE_RAYLIB();
+
+        RLTimeSeriesChartStyle lStyle;
+        lStyle.mShowLegend = true;
+
+        RLTimeSeries lChart(TEST_BOUNDS, 100);
+        lChart.setStyle(lStyle);
+
+        auto lIdx1 = lChart.addTrace({RED, 2.0f});
+        auto lIdx2 = lChart.addTrace({BLUE, 2.0f});
+
+        lChart.setTraceLabel(lIdx1, "Temperature");
+        lChart.setTraceLabel(lIdx2, "Humidity");
+
+        for (int i = 0; i < 10; ++i) {
+            lChart.pushSample(lIdx1, (float)i * 0.5f);
+            lChart.pushSample(lIdx2, (float)i * 0.3f);
+        }
+
+        lChart.update(0.016f);
+        CHECK(lChart.getTraceCount() == 2);
+    }
+
+    TEST_CASE("TimeSeries setTraceLabel bounds check") {
+        REQUIRE_RAYLIB();
+
+        RLTimeSeries lChart(TEST_BOUNDS, 100);
+        auto lIdx = lChart.addTrace();
+        lChart.setTraceLabel(lIdx, "Valid");
+        lChart.setTraceLabel(999, "Invalid");
+        CHECK(lChart.getTraceCount() == 1);
+    }
+
+    TEST_CASE("TimeSeries legend disabled by default") {
+        RLTimeSeriesChartStyle lStyle;
+        CHECK(lStyle.mShowLegend == false);
     }
 
 }

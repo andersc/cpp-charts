@@ -2,6 +2,7 @@
 #include "RLCommon.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 
 RLScatterPlot::RLScatterPlot(Rectangle aBounds, const RLScatterPlotStyle &rStyle)
@@ -276,6 +277,54 @@ void RLScatterPlot::draw() const{
             Color lC = lPc;
             lC.a = RLCharts::mulAlpha(lC.a, lV);
             DrawCircleV(s.mCache[i], lRadius, lC);
+        }
+    }
+
+    // Legend
+    if (mStyle.mShowLegend && mSeries.size() > 1) {
+        std::vector<RLLegendEntry> lLegendEntries;
+        for (const auto& rS : mSeries) {
+            if (!rS.mLabel.empty()) {
+                lLegendEntries.push_back({rS.mLabel, rS.mStyle.mLineColor, 1.0f});
+            }
+        }
+        if (!lLegendEntries.empty()) {
+            RLLegend::draw(lLegendEntries, mBounds, mStyle.mLegendStyle);
+        }
+    }
+
+    // Tooltip on hover
+    if (mStyle.mShowTooltip) {
+        auto lMouse = GetMousePosition();
+        if (CheckCollisionPointRec(lMouse, mBounds)) {
+            auto lBestDist = 10.0f;
+            int32_t lBestSeries = -1;
+            int32_t lBestPoint = -1;
+            for (size_t si = 0; si < mSeries.size(); ++si) {
+                const auto& rS = mSeries[si];
+                for (size_t pi = 0; pi < rS.mCache.size(); ++pi) {
+                    if (pi < rS.mCacheVis.size() && rS.mCacheVis[pi] < 0.01f) continue;
+                    auto lDist = RLCharts::distance(lMouse, rS.mCache[pi]);
+                    if (lDist < lBestDist) {
+                        lBestDist = lDist;
+                        lBestSeries = (int32_t)si;
+                        lBestPoint = (int32_t)pi;
+                    }
+                }
+            }
+            if (lBestSeries >= 0 && lBestPoint >= 0) {
+                const auto& rS = mSeries[lBestSeries];
+                auto lDataPt = rS.mDynPos[lBestPoint];
+                char lXBuf[64];
+                char lYBuf[64];
+                std::snprintf(lXBuf, sizeof(lXBuf), "%.2f", (double)lDataPt.x);
+                std::snprintf(lYBuf, sizeof(lYBuf), "%.2f", (double)lDataPt.y);
+                auto lTitle = rS.mLabel.empty() ? std::string("Point") : rS.mLabel;
+                std::vector<RLTooltipEntry> lEntries;
+                lEntries.push_back({"X", lXBuf, mStyle.mTooltipStyle.mTextColor});
+                lEntries.push_back({"Y", lYBuf, mStyle.mTooltipStyle.mTextColor});
+                RLTooltip::draw(lTitle, lEntries, lMouse, mStyle.mTooltipStyle);
+            }
         }
     }
 }

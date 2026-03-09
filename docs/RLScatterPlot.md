@@ -57,6 +57,7 @@ struct RLScatterSeries {
     std::vector<Vector2> mData;       // Data points
     std::vector<Vector2> mTargetData; // For animation
     RLScatterSeriesStyle mStyle{};
+    std::string mLabel;               // Optional series name (for legend/tooltip)
 };
 ```
 
@@ -90,6 +91,14 @@ struct RLScatterPlotStyle {
     bool mSmoothAnimate{true};
     float mMoveSpeed{8.0f};   // Position approach speed (1/s)
     float mFadeSpeed{6.0f};   // Visibility fade speed (1/s)
+
+    // Legend
+    bool mShowLegend{false};              // Show series legend
+    RLLegendStyle mLegendStyle{};         // Legend appearance (see RLLegend)
+
+    // Tooltip
+    bool mShowTooltip{true};              // Enable hover tooltip
+    RLTooltipStyle mTooltipStyle{};       // Tooltip appearance (see RLTooltip)
 };
 ```
 
@@ -137,6 +146,14 @@ struct RLScatterPlotStyle {
 | Method | Description |
 |--------|-------------|
 | `getBounds() const` | Get current bounds |
+
+## Legend
+
+When `mShowLegend` is `true` and there are more than one series, a legend is displayed showing the label and color of each series. Series labels are set via the `mLabel` field of `RLScatterSeries`. The legend appearance can be customized through `mLegendStyle`. See [RLLegend](RLLegend.md) for legend styling options.
+
+## Tooltip
+
+Hovering near a data point displays a tooltip showing the series name and the point's X/Y coordinates. Tooltips are enabled by default (`mShowTooltip = true`) and can be styled via `mTooltipStyle`. See [RLTooltip](RLTooltip.md) for tooltip appearance options.
 
 ## Complete Example
 

@@ -94,6 +94,13 @@ void RLTimeSeries::setTraceVisible(size_t aIndex, bool aVisible) {
     mTraces[aIndex].mStyle.mVisible = aVisible;
 }
 
+void RLTimeSeries::setTraceLabel(size_t aIndex, const std::string& rLabel) {
+    if (aIndex >= mTraces.size()) {
+        return;
+    }
+    mTraces[aIndex].mLabel = rLabel;
+}
+
 void RLTimeSeries::clearTrace(size_t aIndex) {
     if (aIndex >= mTraces.size()) {
         return;
@@ -260,6 +267,19 @@ void RLTimeSeries::draw() const {
     }
 
     EndScissorMode();
+
+    // Legend
+    if (mStyle.mShowLegend) {
+        std::vector<RLLegendEntry> lEntries;
+        for (const auto& rTrace : mTraces) {
+            if (!rTrace.mLabel.empty() && rTrace.mStyle.mVisible) {
+                lEntries.push_back({rTrace.mLabel, rTrace.mStyle.mColor, 1.0f});
+            }
+        }
+        if (!lEntries.empty()) {
+            RLLegend::draw(lEntries, mBounds, mStyle.mLegendStyle);
+        }
+    }
 }
 
 void RLTimeSeries::drawGrid() const {

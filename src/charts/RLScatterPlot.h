@@ -1,7 +1,10 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLTooltip.h"
+#include "RLLegend.h"
 #include <vector>
+#include <string>
 
 // High-performance Scatter Plot for raylib.
 // Supports single and multiple series, with linear or spline lines and point markers.
@@ -51,6 +54,14 @@ struct RLScatterPlotStyle {
     bool mSmoothAnimate{ true };
     float mMoveSpeed{ 8.0f };  // position approach speed (1/s)
     float mFadeSpeed{ 6.0f };  // visibility fade speed (1/s)
+
+    // Legend
+    bool mShowLegend{false};
+    RLLegendStyle mLegendStyle{};
+
+    // Tooltip
+    bool mShowTooltip{true};
+    RLTooltipStyle mTooltipStyle{};
 };
 
 struct RLScatterSeries {
@@ -59,6 +70,7 @@ struct RLScatterSeries {
     // Target data used for animation and autoscale when animating
     std::vector<Vector2> mTargetData;
     RLScatterSeriesStyle mStyle{};
+    std::string mLabel; // optional series name (for legend/tooltip)
 
     // Internal cache (mutable, maintained by RLScatterPlot)
     mutable std::vector<Vector2> mCache; // mapped to screen space for fast drawing

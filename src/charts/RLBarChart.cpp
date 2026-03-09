@@ -3,7 +3,7 @@
 #include "RLCommon.h"
 #include <algorithm>
 #include <cmath>
-
+#include <cstdio>
 
 RLBarChart::RLBarChart(Rectangle aBounds, RLBarOrientation aOrientation, const RLBarChartStyle &rStyle)
     : mBounds(aBounds), mOrientation(aOrientation), mStyle(rStyle)
@@ -188,6 +188,8 @@ void RLBarChart::draw() const{
     if (lCountAll <= 0) {
         return;
     }
+    mBarRects.clear();
+    mBarRects.reserve(lCountAll);
 
     const float lCorner = mStyle.mCornerRadius;
     const float lSpacing = mStyle.mSpacing;
@@ -219,6 +221,7 @@ void RLBarChart::draw() const{
             t = RLCharts::clamp01(t);
             const float lHeight = lInner.height * (t * lScale);
             const Rectangle lRect{ x, lInner.y + (lInner.height - lHeight), lBarW, lHeight };
+            mBarRects.push_back(lRect);
 
             // bar fill
             if (lRect.height > 0.5f){
@@ -279,6 +282,7 @@ void RLBarChart::draw() const{
             t = RLCharts::clamp01(t);
             const float lWidth = lInner.width * (t * lScale);
             const Rectangle lRect{ lInner.x, y, lWidth, lBarH };
+            mBarRects.push_back(lRect);
 
             if (lRect.width > 0.5f){
                 Color lCol = lBar.mColor; lCol.a = (unsigned char)(int)((int)lCol.a * lScale);
@@ -308,6 +312,25 @@ void RLBarChart::draw() const{
             for (int j=i+1;j<lCountAll;j++) {
                 if (mBars[j].mVisAlpha > 0.0001f) {
                     y += lSpacing;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Tooltip on hover
+    if (mStyle.mShowTooltip && !mBarRects.empty()) {
+        auto lMouse = GetMousePosition();
+        if (CheckCollisionPointRec(lMouse, mBounds)) {
+            for (size_t i = 0; i < mBarRects.size() && i < mBars.size(); ++i) {
+                if (mBars[i].mVisAlpha < 0.01f) continue;
+                if (CheckCollisionPointRec(lMouse, mBarRects[i])) {
+                    char lBuf[64];
+                    std::snprintf(lBuf, sizeof(lBuf), "%.2f", (double)mBars[i].mValue);
+                    std::vector<RLTooltipEntry> lEntries;
+                    lEntries.push_back({"Value", lBuf, mStyle.mTooltipStyle.mTextColor});
+                    auto lTitle = mBars[i].mLabel.empty() ? std::string("Bar") : mBars[i].mLabel;
+                    RLTooltip::draw(lTitle, lEntries, lMouse, mStyle.mTooltipStyle);
                     break;
                 }
             }

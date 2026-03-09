@@ -2,6 +2,7 @@
 #include "RLCommon.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 
 RLPieChart::RLPieChart(Rectangle aBounds, const RLPieChartStyle &aStyle)
@@ -195,6 +196,47 @@ void RLPieChart::draw() const{
             continue;
         } else {
             DrawRing(mCenter, lInner, mOuterRadius, lStart, lEnd, lSegments, lCol);
+        }
+    }
+
+    // Tooltip on hover
+    if (mStyle.mShowTooltip && mTargetCount > 0) {
+        auto lMouse = GetMousePosition();
+        if (CheckCollisionPointRec(lMouse, mBounds)) {
+            auto lDx = lMouse.x - mCenter.x;
+            auto lDy = lMouse.y - mCenter.y;
+            auto lDist = sqrtf(lDx * lDx + lDy * lDy);
+
+            if (lDist <= mOuterRadius && lDist >= lInner) {
+                auto lAngleDeg = atan2f(lDy, lDx) * (180.0f / PI);
+
+                for (size_t i = 0; i < mTargetCount && i < mSlices.size(); ++i) {
+                    const auto& lS = mSlices[i];
+                    if (lS.mVis <= 0.001f) continue;
+                    if (lS.mEnd <= lS.mStart) continue;
+
+                    auto lRelAngle = fmodf(lAngleDeg - lS.mStart + 720.0f, 360.0f);
+                    auto lRelEnd = fmodf(lS.mEnd - lS.mStart + 720.0f, 360.0f);
+
+                    if (lRelAngle >= 0.0f && lRelAngle <= lRelEnd && lRelEnd > 0.01f) {
+                        float lSum = 0.0f;
+                        for (size_t j = 0; j < mTargetCount; ++j) {
+                            lSum += mSlices[j].mValue > 0.0f ? mSlices[j].mValue : 0.0f;
+                        }
+                        char lValBuf[64];
+                        char lPctBuf[64];
+                        std::snprintf(lValBuf, sizeof(lValBuf), "%.2f", (double)lS.mValue);
+                        auto lPct = lSum > 0.0001f ? (lS.mValue / lSum * 100.0f) : 0.0f;
+                        std::snprintf(lPctBuf, sizeof(lPctBuf), "%.1f%%", (double)lPct);
+                        std::vector<RLTooltipEntry> lEntries;
+                        lEntries.push_back({"Value", lValBuf, mStyle.mTooltipStyle.mTextColor});
+                        lEntries.push_back({"Share", lPctBuf, mStyle.mTooltipStyle.mTextColor});
+                        auto lTitle = lS.mLabel.empty() ? std::string("Slice") : lS.mLabel;
+                        RLTooltip::draw(lTitle, lEntries, lMouse, mStyle.mTooltipStyle);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
