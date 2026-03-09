@@ -53,6 +53,7 @@ struct RLGaugeStyle {
     bool mShowTicks = true;
     bool mShowNeedle = true;
     bool mSmoothAnimate = true;      // Smooth animation towards target
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
     Font mLabelFont{};               // Optional custom font; if .baseSize==0 use default
 };
 ```

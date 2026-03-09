@@ -1,5 +1,6 @@
 #include "RLScatterPlot.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -390,8 +391,8 @@ void RLScatterPlot::update(float aDt){
     if (aDt <= 0.0f) {
         return;
     }
-    const float lMoveT = RLCharts::clamp01(mStyle.mMoveSpeed * aDt);
-    const float lFadeT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
+    const float lMoveDt = mStyle.mMoveSpeed * aDt;
+    const float lFadeDt = mStyle.mFadeSpeed * aDt;
     for (auto &s : mSeries){
         ensureDynInitialized(s);
         bool lAnyChange = false;
@@ -401,19 +402,19 @@ void RLScatterPlot::update(float aDt){
         for (size_t i=0;i<n;++i){
             // If i exceeds target array (after shrink), keep target at current to not move
             const Vector2 lTarget = (i < s.mDynTarget.size()) ? s.mDynTarget[i] : s.mDynPos[i];
-            Vector2 lP = s.mDynPos[i];
-            lP.x += (lTarget.x - lP.x) * lMoveT;
-            lP.y += (lTarget.y - lP.y) * lMoveT;
-            if (fabsf(lP.x - s.mDynPos[i].x) > 1e-6f || fabsf(lP.y - s.mDynPos[i].y) > 1e-6f) {
+            auto lOldX = s.mDynPos[i].x;
+            auto lOldY = s.mDynPos[i].y;
+            s.mDynPos[i].x = RLEasing::approachEased(s.mDynPos[i].x, lTarget.x, lMoveDt, mStyle.mEaseMode);
+            s.mDynPos[i].y = RLEasing::approachEased(s.mDynPos[i].y, lTarget.y, lMoveDt, mStyle.mEaseMode);
+            if (fabsf(s.mDynPos[i].x - lOldX) > 1e-6f || fabsf(s.mDynPos[i].y - lOldY) > 1e-6f) {
                 lAnyChange = true;
             }
-            s.mDynPos[i] = lP;
             const float lVt = (i < s.mVisTarget.size()) ? s.mVisTarget[i] : 1.0f;
-            const float lV = s.mVis[i] + (lVt - s.mVis[i]) * lFadeT;
-            if (fabsf(lV - s.mVis[i]) > 1e-6f) {
+            const float lOldV = s.mVis[i];
+            s.mVis[i] = RLEasing::approachEased(s.mVis[i], lVt, lFadeDt, mStyle.mEaseMode);
+            if (fabsf(s.mVis[i] - lOldV) > 1e-6f) {
                 lAnyChange = true;
             }
-            s.mVis[i] = lV;
         }
         // Remove fully faded trailing items (compact vectors end-to-start)
         // Keep alignment by erasing elements with vis ~0 beyond target size

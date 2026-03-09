@@ -1,5 +1,6 @@
 // RLRadarChart.cpp
 #include "RLRadarChart.h"
+#include "RLEasing.h"
 #include <cmath>
 #include <algorithm>
 
@@ -187,7 +188,7 @@ void RLRadarChart::update(float aDt) {
             // Animate values
             for (size_t i = 0; i < rSeries.mValues.size(); ++i) {
                 const float lOld = rSeries.mValues[i];
-                rSeries.mValues[i] = RLCharts::approach(rSeries.mValues[i], rSeries.mTargets[i], lValueSpeed);
+                rSeries.mValues[i] = RLEasing::approachEased(rSeries.mValues[i], rSeries.mTargets[i], lValueSpeed, mStyle.mEaseMode);
                 if (rSeries.mValues[i] != lOld) {
                     lChanged = true;
                 }
@@ -195,17 +196,17 @@ void RLRadarChart::update(float aDt) {
 
             // Animate visibility
             const float lOldVis = rSeries.mVisibility;
-            rSeries.mVisibility = RLCharts::approach(rSeries.mVisibility, rSeries.mVisibilityTarget, lFadeSpeed);
+            rSeries.mVisibility = RLEasing::approachEased(rSeries.mVisibility, rSeries.mVisibilityTarget, lFadeSpeed, mStyle.mEaseMode);
             if (rSeries.mVisibility != lOldVis) {
                 lChanged = true;
             }
 
             // Animate colors
-            rSeries.mLineColor = RLCharts::lerpColor(rSeries.mLineColor, rSeries.mLineColorTarget, lValueSpeed);
-            rSeries.mFillColor = RLCharts::lerpColor(rSeries.mFillColor, rSeries.mFillColorTarget, lValueSpeed);
+            rSeries.mLineColor = RLEasing::approachColorEased(rSeries.mLineColor, rSeries.mLineColorTarget, lValueSpeed, mStyle.mEaseMode);
+            rSeries.mFillColor = RLEasing::approachColorEased(rSeries.mFillColor, rSeries.mFillColorTarget, lValueSpeed, mStyle.mEaseMode);
 
             // Animate line thickness
-            rSeries.mLineThickness = RLCharts::approach(rSeries.mLineThickness, rSeries.mLineThicknessTarget, lValueSpeed);
+            rSeries.mLineThickness = RLEasing::approachEased(rSeries.mLineThickness, rSeries.mLineThicknessTarget, lValueSpeed, mStyle.mEaseMode);
 
             if (lChanged) {
                 rSeries.mCacheDirty = true;

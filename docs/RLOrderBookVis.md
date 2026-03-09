@@ -78,6 +78,7 @@ struct RLOrderBookVisStyle {
     // Animation
     float mScrollSpeed{8.0f};
     float mScaleSpeed{4.0f};
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // 3D specific
     float mHeightScale{1.0f};

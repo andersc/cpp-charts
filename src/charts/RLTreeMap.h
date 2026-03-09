@@ -1,6 +1,7 @@
 // RLTreeMap.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <vector>
 #include <string>
 #include <functional>
@@ -59,6 +60,7 @@ struct RLTreeMapStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};          // Approach speed for size transitions
     float mColorSpeed{4.0f};            // Color blend speed
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Color mapping (used when node mUseColor == false)
     bool mUseDepthColors{true};         // Color by depth level

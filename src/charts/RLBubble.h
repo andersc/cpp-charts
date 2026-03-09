@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "../RLCommon.h"
+#include "RLEasing.h"
 #include <vector>
 
 // Simple and fast Bubble Chart for raylib.
@@ -31,6 +32,7 @@ struct RLBubbleStyle {
     Color mOutlineColor{0,0,0,80};
     bool mShowAxes = true;
     bool mSmooth = true;
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 };
 
 class RLBubble {

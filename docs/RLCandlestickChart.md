@@ -64,6 +64,7 @@ struct RLCandleStyle {
     // Animation
     float mSlideSpeed = 8.0f;                // Larger = faster slide (units per second: bodyWidth)
     float mFadeSpeed = 6.0f;                 // Alpha lerp speed
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Scaling
     bool mAutoScale = true;

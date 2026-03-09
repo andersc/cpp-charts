@@ -1,6 +1,7 @@
 // RLLinearGauge.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <string>
 #include <vector>
 
@@ -114,6 +115,7 @@ struct RLLinearGaugeStyle {
     // Animation
     bool mSmoothAnimate{true};
     float mAnimateSpeed{10.0f};
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Display options
     bool mShowTicks{true};

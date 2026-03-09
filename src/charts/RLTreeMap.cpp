@@ -1,5 +1,6 @@
 // RLTreeMap.cpp
 #include "RLTreeMap.h"
+#include "RLEasing.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -435,9 +436,12 @@ void RLTreeMap::update(float aDt) {
     const float lColorDt = mStyle.mColorSpeed * aDt;
 
     for (auto& rRect : mRects) {
-        rRect.mRect = lerpRect(rRect.mRect, rRect.mTargetRect, lSizeDt);
-        rRect.mColor = lerpColor(rRect.mColor, rRect.mTargetColor, lColorDt);
-        rRect.mAlpha = approach(rRect.mAlpha, rRect.mTargetAlpha, lSizeDt);
+        rRect.mRect.x = RLEasing::approachEased(rRect.mRect.x, rRect.mTargetRect.x, lSizeDt, mStyle.mEaseMode);
+        rRect.mRect.y = RLEasing::approachEased(rRect.mRect.y, rRect.mTargetRect.y, lSizeDt, mStyle.mEaseMode);
+        rRect.mRect.width = RLEasing::approachEased(rRect.mRect.width, rRect.mTargetRect.width, lSizeDt, mStyle.mEaseMode);
+        rRect.mRect.height = RLEasing::approachEased(rRect.mRect.height, rRect.mTargetRect.height, lSizeDt, mStyle.mEaseMode);
+        rRect.mColor = RLEasing::approachColorEased(rRect.mColor, rRect.mTargetColor, lColorDt, mStyle.mEaseMode);
+        rRect.mAlpha = RLEasing::approachEased(rRect.mAlpha, rRect.mTargetAlpha, lSizeDt, mStyle.mEaseMode);
     }
 }
 

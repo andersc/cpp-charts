@@ -1,5 +1,6 @@
 #include "RLPieChart.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -156,11 +157,11 @@ void RLPieChart::update(float aDt){
     const float lColorK = mStyle.mSmoothAnimate ? (mStyle.mColorSpeed * aDt) : 1.0f;
 
     for (auto &lS : mSlices){
-        lS.mStart = RLCharts::approach(lS.mStart, lS.mStartTarget, lAngleK);
-        lS.mEnd = RLCharts::approach(lS.mEnd, lS.mEndTarget, lAngleK);
-        lS.mVis = RLCharts::approach(lS.mVis, lS.mVisTarget, lFadeK);
-        lS.mValue = RLCharts::approach(lS.mValue, lS.mTarget, lAngleK);
-        lS.mColor = RLCharts::lerpColor(lS.mColor, lS.mColorTarget, RLCharts::clamp01(lColorK));
+        lS.mStart = RLEasing::approachEased(lS.mStart, lS.mStartTarget, lAngleK, mStyle.mEaseMode);
+        lS.mEnd = RLEasing::approachEased(lS.mEnd, lS.mEndTarget, lAngleK, mStyle.mEaseMode);
+        lS.mVis = RLEasing::approachEased(lS.mVis, lS.mVisTarget, lFadeK, mStyle.mEaseMode);
+        lS.mValue = RLEasing::approachEased(lS.mValue, lS.mTarget, lAngleK, mStyle.mEaseMode);
+        lS.mColor = RLEasing::approachColorEased(lS.mColor, lS.mColorTarget, lColorK, mStyle.mEaseMode);
     }
 }
 

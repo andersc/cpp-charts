@@ -1,6 +1,7 @@
 // RLAreaChart.cpp
 #include "RLAreaChart.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <cmath>
 #include <algorithm>
 
@@ -122,14 +123,13 @@ void RLAreaChart::update(float aDt) {
         return;
     }
 
-    float lLambda = mStyle.mAnimateSpeed;
-    float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
+    float lSpeedDt = mStyle.mAnimateSpeed * fmaxf(0.0f, aDt);
 
-    mMaxValue = RLCharts::lerpF(mMaxValue, mMaxValueTarget, lAlpha);
+    mMaxValue = RLEasing::approachEased(mMaxValue, mMaxValueTarget, lSpeedDt, mStyle.mEaseMode);
 
     for (auto& rS : mSeries) {
         for (size_t i = 0; i < rS.mValues.size() && i < rS.mTargets.size(); ++i) {
-            rS.mValues[i] = RLCharts::lerpF(rS.mValues[i], rS.mTargets[i], lAlpha);
+            rS.mValues[i] = RLEasing::approachEased(rS.mValues[i], rS.mTargets[i], lSpeedDt, mStyle.mEaseMode);
         }
     }
 }

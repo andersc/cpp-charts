@@ -65,6 +65,7 @@ struct RLBarChartStyle {
     float mMaxValue = 100.0f;
     bool mSmoothAnimate = true;
     float mAnimateSpeed = 8.0f;
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Tooltip
     bool mShowTooltip = true;              // Enable hover tooltip

@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <vector>
 #include <functional>
 #include <string>
@@ -72,6 +73,7 @@ struct RLLogPlotStyle {
     // Animation
     bool mSmoothAnimate{ true };
     float mAnimSpeed{ 6.0f };  // Approach speed for smooth transitions
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Title and labels
     std::string mTitle{};

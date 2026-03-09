@@ -254,10 +254,10 @@ void RLSankey::update(float aDt) {
 
         // Animate nodes
         for (auto& rNode : mNodes) {
-            rNode.mY = RLCharts::approach(rNode.mY, rNode.mYTarget, lValueSpeed);
-            rNode.mHeight = RLCharts::approach(rNode.mHeight, rNode.mHeightTarget, lValueSpeed);
-            rNode.mColor = RLCharts::lerpColor(rNode.mColor, rNode.mColorTarget, lValueSpeed);
-            rNode.mVisibility = RLCharts::approach(rNode.mVisibility, rNode.mVisibilityTarget, lFadeSpeed);
+            rNode.mY = RLEasing::approachEased(rNode.mY, rNode.mYTarget, lValueSpeed, mStyle.mEaseMode);
+            rNode.mHeight = RLEasing::approachEased(rNode.mHeight, rNode.mHeightTarget, lValueSpeed, mStyle.mEaseMode);
+            rNode.mColor = RLEasing::approachColorEased(rNode.mColor, rNode.mColorTarget, lValueSpeed, mStyle.mEaseMode);
+            rNode.mVisibility = RLEasing::approachEased(rNode.mVisibility, rNode.mVisibilityTarget, lFadeSpeed, mStyle.mEaseMode);
         }
 
         // Animate links
@@ -265,13 +265,13 @@ void RLSankey::update(float aDt) {
             const float lOldValue = rLink.mValue;
             const float lOldSourceThickness = rLink.mSourceThickness;
             const float lOldTargetThickness = rLink.mTargetThickness;
-            rLink.mValue = RLCharts::approach(rLink.mValue, rLink.mValueTarget, lValueSpeed);
-            rLink.mSourceThickness = RLCharts::approach(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed);
-            rLink.mTargetThickness = RLCharts::approach(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed);
-            rLink.mSourceY = RLCharts::approach(rLink.mSourceY, rLink.mSourceYTarget, lValueSpeed);
-            rLink.mTargetY = RLCharts::approach(rLink.mTargetY, rLink.mTargetYTarget, lValueSpeed);
-            rLink.mColor = RLCharts::lerpColor(rLink.mColor, rLink.mColorTarget, lValueSpeed);
-            rLink.mVisibility = RLCharts::approach(rLink.mVisibility, rLink.mVisibilityTarget, lFadeSpeed);
+            rLink.mValue = RLEasing::approachEased(rLink.mValue, rLink.mValueTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mSourceThickness = RLEasing::approachEased(rLink.mSourceThickness, rLink.mSourceThicknessTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mTargetThickness = RLEasing::approachEased(rLink.mTargetThickness, rLink.mTargetThicknessTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mSourceY = RLEasing::approachEased(rLink.mSourceY, rLink.mSourceYTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mTargetY = RLEasing::approachEased(rLink.mTargetY, rLink.mTargetYTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mColor = RLEasing::approachColorEased(rLink.mColor, rLink.mColorTarget, lValueSpeed, mStyle.mEaseMode);
+            rLink.mVisibility = RLEasing::approachEased(rLink.mVisibility, rLink.mVisibilityTarget, lFadeSpeed, mStyle.mEaseMode);
 
             if (rLink.mValue != lOldValue ||
                 rLink.mSourceThickness != lOldSourceThickness ||

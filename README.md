@@ -43,6 +43,7 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 
 **All charts feature:**
 - 🎬 Smooth, configurable animations
+- 🎛️ Per-chart animation easing via `RLEaseMode` (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 - 🎨 Full color and styling customization
 - 📐 Automatic scaling and layout
 - 🏷️ Label support with smart positioning

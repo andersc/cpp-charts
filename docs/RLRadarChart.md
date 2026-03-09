@@ -108,6 +108,7 @@ struct RLRadarChartStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};              // Value interpolation speed
     float mFadeSpeed{4.0f};                 // Fade in/out speed for series
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 };
 ```
 

@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include "RLLegend.h"
 #include <vector>
 #include <string>
@@ -73,6 +74,9 @@ struct RLTimeSeriesChartStyle {
     // Smooth scale transitions
     bool mSmoothScale{ true };
     float mScaleSpeed{ 4.0f };
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Legend
     bool mShowLegend{false};

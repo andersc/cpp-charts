@@ -2,6 +2,7 @@
 #pragma once
 
 #include "raylib.h"
+#include "RLEasing.h"
 #include <deque>
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ struct RLCandleStyle {
     // Animation
     float mSlideSpeed = 8.0f;                // larger = faster slide (units per second: bodyWidth)
     float mFadeSpeed = 6.0f;                 // alpha lerp speed
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Scaling
     bool mAutoScale = true;

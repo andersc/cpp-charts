@@ -1,6 +1,7 @@
 // RLGauge.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <vector>
 
 // A lightweight, fast circular gauge for raylib.
@@ -33,6 +34,7 @@ struct RLGaugeStyle {
     bool mShowTicks = true;
     bool mShowNeedle = true;
     bool mSmoothAnimate = true;   // smooth animation towards the target
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
     Font mLabelFont{};            // optional custom font; if .baseSize==0 use default
 };
 

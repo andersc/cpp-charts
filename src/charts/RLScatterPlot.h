@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include "RLTooltip.h"
 #include "RLLegend.h"
 #include <vector>
@@ -54,6 +55,9 @@ struct RLScatterPlotStyle {
     bool mSmoothAnimate{ true };
     float mMoveSpeed{ 8.0f };  // position approach speed (1/s)
     float mFadeSpeed{ 6.0f };  // visibility fade speed (1/s)
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Legend
     bool mShowLegend{false};

@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -80,6 +81,9 @@ struct RLSankeyStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{5.0f};          // Value interpolation speed
     float mFadeSpeed{4.0f};             // Fade in/out speed
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 };
 
 class RLSankey {

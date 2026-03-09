@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <vector>
 #include <string>
 
@@ -72,6 +73,9 @@ struct RLRadarChartStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};          // Interpolation speed
     float mFadeSpeed{4.0f};             // Fade in/out speed for series add/remove
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 };
 
 class RLRadarChart {

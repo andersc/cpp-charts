@@ -71,6 +71,7 @@ struct RLTreeMapStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};          // Size transition speed
     float mColorSpeed{4.0f};            // Color blend speed
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Color mapping
     bool mUseDepthColors{true};         // Color by depth level

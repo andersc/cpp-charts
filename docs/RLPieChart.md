@@ -48,6 +48,7 @@ struct RLPieChartStyle {
     float mAngleSpeed{8.0f};  // Approach speed for angles (1/s)
     float mFadeSpeed{8.0f};   // Approach speed for visibility (1/s)
     float mColorSpeed{6.0f};  // Color blend speed (1/s)
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Tooltip
     bool mShowTooltip{true};              // Enable hover tooltip

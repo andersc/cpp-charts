@@ -91,6 +91,7 @@ struct RLScatterPlotStyle {
     bool mSmoothAnimate{true};
     float mMoveSpeed{8.0f};   // Position approach speed (1/s)
     float mFadeSpeed{6.0f};   // Visibility fade speed (1/s)
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Legend
     bool mShowLegend{false};              // Show series legend

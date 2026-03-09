@@ -1,6 +1,7 @@
 // RLHeatMap.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <vector>
 #include <cstdint>
 
@@ -17,6 +18,8 @@ struct RLHeatMapStyle {
     bool mShowBorder = false;
     Color mBorderColor{40, 44, 52, 255};
     float mBorderThickness = 1.0f;
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 };
 
 class RLHeatMap {

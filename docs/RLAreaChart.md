@@ -88,17 +88,9 @@ struct RLAreaChartStyle {
     // Animation
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 };
-```
-
-## Methods
-
-### Configuration
-
-| Method | Description |
-|--------|-------------|
-| `setBounds(Rectangle aBounds)` | Set the chart bounds |
-| `setMode(RLAreaChartMode aMode)` | Change visualization mode |
+``` |
 | `setStyle(const RLAreaChartStyle& rStyle)` | Apply a style configuration |
 | `setXLabels(const std::vector<std::string>& rLabels)` | Set X-axis labels |
 

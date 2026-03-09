@@ -106,6 +106,7 @@ struct RLLinearGaugeStyle {
     // Animation
     bool mSmoothAnimate{true};
     float mAnimateSpeed{10.0f};
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Display options
     bool mShowTicks{true};

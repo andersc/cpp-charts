@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "../RLCommon.h"
+#include "RLEasing.h"
 #include "RLTooltip.h"
 #include <vector>
 #include <string>
@@ -49,6 +50,9 @@ struct RLBarChartStyle {
     float mMaxValue = 100.0f;    // used when autoScale == false
     bool mSmoothAnimate = true;
     float mAnimateSpeed = 8.0f;  // larger = snappier
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // Tooltip
     bool mShowTooltip{true};

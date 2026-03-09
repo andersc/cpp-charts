@@ -57,6 +57,7 @@ struct RLBubbleStyle {
     Color mOutlineColor{0, 0, 0, 80};
     bool mShowAxes = true;
     bool mSmooth = true;
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 };
 ```
 

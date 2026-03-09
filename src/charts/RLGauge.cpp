@@ -1,6 +1,7 @@
 // RLGauge.cpp
 #include "RLGauge.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <array>
 #include <cmath>
 #include <cstdio>
@@ -82,10 +83,9 @@ void RLGauge::recomputeGeometry(){
 
 void RLGauge::update(float aDeltaTime){
     if (!mStyle.mSmoothAnimate){ mValue = mTargetValue; return; }
-    // critically damped like smoothing; simple exponential approach
     constexpr float LAMBDA = 10.0f; // speed factor
-    const float lAlpha = 1.0f - expf(-LAMBDA * fmaxf(0.0f, aDeltaTime));
-    mValue = mValue + ((mTargetValue - mValue) * lAlpha);
+    const float lSpeedDt = LAMBDA * fmaxf(0.0f, aDeltaTime);
+    mValue = RLEasing::approachEased(mValue, mTargetValue, lSpeedDt, mStyle.mEaseMode);
 }
 
 void RLGauge::draw() const{

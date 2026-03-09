@@ -257,18 +257,18 @@ void RLLogPlot::update(float aDt) {
         // Animate each point
         for (size_t i = 0; i < lN; ++i) {
             if (i < lTrace.mAnimX.size()) {
-                lTrace.mAnimX[i] = RLCharts::approach(lTrace.mAnimX[i], lTrace.mXValues[i], lSpeed);
-                lTrace.mAnimY[i] = RLCharts::approach(lTrace.mAnimY[i], lTrace.mYValues[i], lSpeed);
+                lTrace.mAnimX[i] = RLEasing::approachEased(lTrace.mAnimX[i], lTrace.mXValues[i], lSpeed, mLogPlotStyle.mEaseMode);
+                lTrace.mAnimY[i] = RLEasing::approachEased(lTrace.mAnimY[i], lTrace.mYValues[i], lSpeed, mLogPlotStyle.mEaseMode);
 
                 if (i < lTrace.mConfidence.size() && lTrace.mConfidence[i].mEnabled) {
-                    lTrace.mAnimConfLower[i] = RLCharts::approach(lTrace.mAnimConfLower[i],
-                                                        lTrace.mConfidence[i].mLowerBound, lSpeed);
-                    lTrace.mAnimConfUpper[i] = RLCharts::approach(lTrace.mAnimConfUpper[i],
-                                                        lTrace.mConfidence[i].mUpperBound, lSpeed);
+                    lTrace.mAnimConfLower[i] = RLEasing::approachEased(lTrace.mAnimConfLower[i],
+                                                        lTrace.mConfidence[i].mLowerBound, lSpeed, mLogPlotStyle.mEaseMode);
+                    lTrace.mAnimConfUpper[i] = RLEasing::approachEased(lTrace.mAnimConfUpper[i],
+                                                        lTrace.mConfidence[i].mUpperBound, lSpeed, mLogPlotStyle.mEaseMode);
                 }
 
                 // Fade in
-                lTrace.mVisibility[i] = RLCharts::approach(lTrace.mVisibility[i], 1.0f, lSpeed);
+                lTrace.mVisibility[i] = RLEasing::approachEased(lTrace.mVisibility[i], 1.0f, lSpeed, mLogPlotStyle.mEaseMode);
             }
         }
 

@@ -1,6 +1,7 @@
 // RLCandlestickChart.cpp
 #include "RLCandlestickChart.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <cmath>
 #include <algorithm>
 
@@ -161,8 +162,7 @@ void RLCandlestickChart::update(float aDt) {
     if (mStyle.mAutoScale) {
         float lTarget = extractPriceMax();
         mScaleTargetMax = lTarget;
-        const float lT = RLCharts::clamp01(mStyle.mFadeSpeed * aDt);
-        mScaleMax = RLCharts::lerpF(mScaleMax, mScaleTargetMax, lT);
+        mScaleMax = RLEasing::approachEased(mScaleMax, mScaleTargetMax, mStyle.mFadeSpeed * aDt, mStyle.mEaseMode);
         // Compute min as min visible low for better framing
         float lMin = 1e30f;
         for (const auto &lCandle : mCandles) {

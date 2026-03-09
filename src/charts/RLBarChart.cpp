@@ -1,6 +1,7 @@
 // RLBarChart.cpp
 #include "RLBarChart.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -135,14 +136,13 @@ void RLBarChart::update(float aDt){
         }
         return;
     }
-    const float lLambda = mStyle.mAnimateSpeed; // how fast it converges
-    const float lAlpha = 1.0f - expf(-lLambda * fmaxf(0.0f, aDt));
+    const float lSpeedDt = mStyle.mAnimateSpeed * fmaxf(0.0f, aDt);
     for (auto &rB : mBars){
-        rB.mValue = RLCharts::lerpF(rB.mValue, rB.mTarget, lAlpha);
-        rB.mColor = RLCharts::lerpColor(rB.mColor, rB.mColorTarget, lAlpha);
-        rB.mVisAlpha = RLCharts::lerpF(rB.mVisAlpha, rB.mVisTarget, lAlpha);
+        rB.mValue = RLEasing::approachEased(rB.mValue, rB.mTarget, lSpeedDt, mStyle.mEaseMode);
+        rB.mColor = RLEasing::approachColorEased(rB.mColor, rB.mColorTarget, lSpeedDt, mStyle.mEaseMode);
+        rB.mVisAlpha = RLEasing::approachEased(rB.mVisAlpha, rB.mVisTarget, lSpeedDt, mStyle.mEaseMode);
     }
-    mScaleMax = RLCharts::lerpF(mScaleMax, mScaleMaxTarget, lAlpha);
+    mScaleMax = RLEasing::approachEased(mScaleMax, mScaleMaxTarget, lSpeedDt, mStyle.mEaseMode);
 
     // Remove bars that have faded out and are beyond target range (tail)
     if (mBars.size() > mTargetCount){

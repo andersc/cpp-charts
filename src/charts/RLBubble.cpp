@@ -1,5 +1,6 @@
 #include "RLBubble.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -163,19 +164,20 @@ void RLBubble::update(float dt){
     dt = std::max(0.001f, std::min(dt, 0.05f)); 
 
     // 1. Interpolate Radius and Color (Visuals)
-    float lerpT = 1.0f - std::exp(-mLerpSpeed * dt);
+    float lSpeedDt = mLerpSpeed * dt;
     float maxDiameter = 0.0f;
 
     for (auto &b : mBubbles){
-        b.mRadius = RLCharts::lerpF(b.mRadius, b.mRadiusTarget, lerpT);
-        b.mColor  = RLCharts::lerpColor(b.mColor,  b.mColorTarget,  lerpT);
+        b.mRadius = RLEasing::approachEased(b.mRadius, b.mRadiusTarget, lSpeedDt, mStyle.mEaseMode);
+        b.mColor  = RLEasing::approachColorEased(b.mColor, b.mColorTarget, lSpeedDt, mStyle.mEaseMode);
         if (b.mRadius * 2.0f > maxDiameter) maxDiameter = b.mRadius * 2.0f;
     }
 
     if (mMode == RLBubbleMode::Scatter){
-        // --- SCATTER MODE: Simple Lerp ---
+        // --- SCATTER MODE: Eased approach ---
         for (auto &b : mBubbles){
-            b.mPos = RLCharts::lerpVector2(b.mPos, b.mPosTarget, lerpT);
+            b.mPos.x = RLEasing::approachEased(b.mPos.x, b.mPosTarget.x, lSpeedDt, mStyle.mEaseMode);
+            b.mPos.y = RLEasing::approachEased(b.mPos.y, b.mPosTarget.y, lSpeedDt, mStyle.mEaseMode);
             b.mPrevPos = b.mPos; // Keep physics state sync
         }
     } else {

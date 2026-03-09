@@ -375,13 +375,13 @@ void RLOrderBookVis::pushSnapshot(const RLOrderBookSnapshot& rSnapshot) {
 
 void RLOrderBookVis::update(float aDt) {
     // Smooth price range transitions
-    const float lT = RLCharts::clamp01(mStyle.mScaleSpeed * aDt);
-    mCurrentMinPrice = RLCharts::lerpF(mCurrentMinPrice, mTargetMinPrice, lT);
-    mCurrentMaxPrice = RLCharts::lerpF(mCurrentMaxPrice, mTargetMaxPrice, lT);
+    const float lSpeedDt = mStyle.mScaleSpeed * aDt;
+    mCurrentMinPrice = RLEasing::approachEased(mCurrentMinPrice, mTargetMinPrice, lSpeedDt, mStyle.mEaseMode);
+    mCurrentMaxPrice = RLEasing::approachEased(mCurrentMaxPrice, mTargetMaxPrice, lSpeedDt, mStyle.mEaseMode);
 
     // Smooth intensity scale transitions
-    mCurrentMaxBid = RLCharts::lerpF(mCurrentMaxBid, mMaxBidSize, lT);
-    mCurrentMaxAsk = RLCharts::lerpF(mCurrentMaxAsk, mMaxAskSize, lT);
+    mCurrentMaxBid = RLEasing::approachEased(mCurrentMaxBid, mMaxBidSize, lSpeedDt, mStyle.mEaseMode);
+    mCurrentMaxAsk = RLEasing::approachEased(mCurrentMaxAsk, mMaxAskSize, lSpeedDt, mStyle.mEaseMode);
 
     // Decay max sizes slowly to adapt to changing conditions
     mMaxBidSize *= (1.0f - 0.1f * aDt);

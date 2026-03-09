@@ -43,6 +43,7 @@ struct RLHeatMapStyle {
     bool mShowBorder = false;
     Color mBorderColor{40, 44, 52, 255};
     float mBorderThickness = 1.0f;
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 };
 ```
 

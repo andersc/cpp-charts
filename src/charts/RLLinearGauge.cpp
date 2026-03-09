@@ -306,10 +306,8 @@ void RLLinearGauge::update(float aDt) {
         return;
     }
 
-    // Exponential smoothing
-    const float lLambda = mStyle.mAnimateSpeed;
-    const float lAlpha = 1.0f - expf(-lLambda * std::max(0.0f, aDt));
-    mValue = mValue + ((mTargetValue - mValue) * lAlpha);
+    const float lSpeedDt = mStyle.mAnimateSpeed * std::max(0.0f, aDt);
+    mValue = RLEasing::approachEased(mValue, mTargetValue, lSpeedDt, mStyle.mEaseMode);
 }
 
 void RLLinearGauge::draw() const {

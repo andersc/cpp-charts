@@ -91,6 +91,7 @@ struct RLLogPlotStyle {
     // Animation
     bool mSmoothAnimate{true};
     float mAnimSpeed{6.0f};
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 
     // Labels
     std::string mTitle{};

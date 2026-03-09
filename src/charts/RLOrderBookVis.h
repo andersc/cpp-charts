@@ -1,6 +1,7 @@
 // RLOrderBookVis.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <vector>
 #include <cstddef>
 #include <utility>
@@ -49,6 +50,7 @@ struct RLOrderBookVisStyle {
     // Animation
     float mScrollSpeed{8.0f};         // Speed of smooth scrolling
     float mScaleSpeed{4.0f};          // Speed of intensity scale transitions
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 
     // 3D specific
     float mHeightScale{1.0f};         // Z-axis scale for 3D heightmap

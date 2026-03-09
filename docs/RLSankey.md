@@ -122,6 +122,7 @@ struct RLSankeyStyle {
     bool mSmoothAnimate{true};
     float mAnimateSpeed{5.0f};          // Value interpolation speed
     float mFadeSpeed{4.0f};             // Fade in/out speed
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
 };
 ```
 

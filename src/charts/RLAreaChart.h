@@ -1,6 +1,7 @@
 // RLAreaChart.h
 #pragma once
 #include "raylib.h"
+#include "RLEasing.h"
 #include <vector>
 #include <string>
 
@@ -49,6 +50,9 @@ struct RLAreaChartStyle {
     // Animation
     bool mSmoothAnimate{true};
     float mAnimateSpeed{6.0f};
+
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH};
 };
 
 class RLAreaChart {

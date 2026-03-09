@@ -79,6 +79,9 @@ struct RLTimeSeriesChartStyle {
     bool mSmoothScale{true};
     float mScaleSpeed{4.0f};
 
+    // Easing
+    RLEaseMode mEaseMode{RLEaseMode::SMOOTH}; // Animation easing mode (LINEAR, SMOOTH, SNAPPY, SPRINGY, ELASTIC)
+
     // Legend
     bool mShowLegend{false};              // Show trace legend
     RLLegendStyle mLegendStyle{};         // Legend appearance (see RLLegend)

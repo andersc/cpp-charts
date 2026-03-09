@@ -1,6 +1,7 @@
 // RLTimeSeries.cpp
 #include "RLTimeSeries.h"
 #include "RLCommon.h"
+#include "RLEasing.h"
 #include <cmath>
 #include <algorithm>
 
@@ -209,8 +210,8 @@ void RLTimeSeries::updateScale(float aDt) {
     // Smooth transition
     if (mStyle.mSmoothScale) {
         const float lSpeed = mStyle.mScaleSpeed * aDt;
-        mCurrentMinY = RLCharts::approach(mCurrentMinY, mTargetMinY, lSpeed);
-        mCurrentMaxY = RLCharts::approach(mCurrentMaxY, mTargetMaxY, lSpeed);
+        mCurrentMinY = RLEasing::approachEased(mCurrentMinY, mTargetMinY, lSpeed, mStyle.mEaseMode);
+        mCurrentMaxY = RLEasing::approachEased(mCurrentMaxY, mTargetMaxY, lSpeed, mStyle.mEaseMode);
     } else {
         mCurrentMinY = mTargetMinY;
         mCurrentMaxY = mTargetMaxY;
