@@ -97,6 +97,9 @@ public:
     // Draw the 3D plot (call within BeginMode3D/EndMode3D)
     void draw(Vector3 aPosition, float aScale, const Camera3D& rCamera) const;
 
+    // Draw 2D axis labels and tick values (call AFTER EndMode3D)
+    void drawLabels(Vector3 aPosition, float aScale, const Camera3D& rCamera, Font aFont) const;
+
     // Getters
     [[nodiscard]] int getWidth() const { return mWidth; }
     [[nodiscard]] int getHeight() const { return mHeight; }

@@ -457,12 +457,12 @@ void RLHeatMap3D::drawAxisBox(Vector3 aPosition, float aScale, const Camera3D& r
         const int lTickCount = mStyle.mTickCount;
         const float lTickLen = 0.02f * aScale;
 
-        // Z-axis ticks (on the back-left vertical edge)
+        // Z-axis ticks (on the front-right vertical edge)
         for (int i = 0; i <= lTickCount; ++i) {
             const float lT = (float)i / (float)lTickCount;
             const float lY = aPosition.y + lT * lHeight;
-            const Vector3 lTickStart = {lB1.x, lY, lB1.z};
-            const Vector3 lTickEnd = {lB1.x - lTickLen, lY, lB1.z - lTickLen};
+            const Vector3 lTickStart = {lB3.x, lY, lB3.z};
+            const Vector3 lTickEnd = {lB3.x + lTickLen, lY, lB3.z + lTickLen};
             DrawLine3D(lTickStart, lTickEnd, mStyle.mTickColor);
         }
 
@@ -525,8 +525,100 @@ void RLHeatMap3D::drawAxisLabelsAndTicks(Vector3 aPosition, float aScale, const 
     (void)aPosition;
     (void)aScale;
     (void)rCamera;
-    // Labels are best drawn in 2D after EndMode3D
-    // This is a placeholder for future implementation
+    // Tick value and axis name labels are drawn in 2D via drawLabels()
+}
+
+void RLHeatMap3D::drawLabels(Vector3 aPosition, float aScale, const Camera3D& rCamera, Font aFont) const {
+    if (!mStyle.mShowAxisLabels || mWidth <= 0 || mHeight <= 0) {
+        return;
+    }
+
+    const float lHalfSize = BOX_SIZE * 0.5f * aScale;
+    const float lHeight = BOX_SIZE * aScale;
+    const int lTickCount = mStyle.mTickCount;
+    const float lLabelOffset = 0.04f * aScale;
+    const float lFontSize = mStyle.mLabelFontSize;
+    const Color lColor = mStyle.mLabelColor;
+
+    // Box corner positions matching drawAxisBox()
+    const Vector3 lB3 = {aPosition.x + lHalfSize, aPosition.y, aPosition.z + lHalfSize};
+
+    char lBuf[32];
+
+    // --- Z-axis (vertical) tick values along the front-right edge ---
+    if (mStyle.mShowTicks) {
+        for (int i = 0; i <= lTickCount; ++i) {
+            const float lT = (float)i / (float)lTickCount;
+            const float lY = aPosition.y + lT * lHeight;
+            const float lValue = mAxisMinZ + lT * (mAxisMaxZ - mAxisMinZ);
+            std::snprintf(lBuf, sizeof(lBuf), "%.4g", (double)lValue);
+
+            const Vector3 lWorldPos = {lB3.x + lLabelOffset * 2.0f, lY, lB3.z + lLabelOffset * 2.0f};
+            const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+            const Vector2 lTextSize = MeasureTextEx(aFont, lBuf, lFontSize, 1.0f);
+            DrawTextEx(aFont, lBuf, Vector2{lScreenPos.x - lTextSize.x * 0.5f, lScreenPos.y - lTextSize.y * 0.5f},
+                       lFontSize, 1.0f, lColor);
+        }
+    }
+
+    // --- X-axis tick values along the front-bottom edge ---
+    if (mStyle.mShowTicks) {
+        for (int i = 0; i <= lTickCount; ++i) {
+            const float lT = (float)i / (float)lTickCount;
+            const float lX = aPosition.x - lHalfSize + lT * lHalfSize * 2.0f;
+            const float lValue = mAxisMinX + lT * (mAxisMaxX - mAxisMinX);
+            std::snprintf(lBuf, sizeof(lBuf), "%.4g", (double)lValue);
+
+            const Vector3 lWorldPos = {lX, aPosition.y - lLabelOffset, lB3.z + lLabelOffset * 2.0f};
+            const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+            const Vector2 lTextSize = MeasureTextEx(aFont, lBuf, lFontSize, 1.0f);
+            DrawTextEx(aFont, lBuf, Vector2{lScreenPos.x - lTextSize.x * 0.5f, lScreenPos.y}, lFontSize, 1.0f, lColor);
+        }
+    }
+
+    // --- Y-axis tick values along the right-bottom edge ---
+    if (mStyle.mShowTicks) {
+        for (int i = 0; i <= lTickCount; ++i) {
+            const float lT = (float)i / (float)lTickCount;
+            const float lZ = aPosition.z - lHalfSize + lT * lHalfSize * 2.0f;
+            const float lValue = mAxisMinY + lT * (mAxisMaxY - mAxisMinY);
+            std::snprintf(lBuf, sizeof(lBuf), "%.4g", (double)lValue);
+
+            const Vector3 lWorldPos = {aPosition.x + lHalfSize + lLabelOffset * 2.0f, aPosition.y - lLabelOffset, lZ};
+            const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+            DrawTextEx(aFont, lBuf, Vector2{lScreenPos.x, lScreenPos.y}, lFontSize, 1.0f, lColor);
+        }
+    }
+
+    // --- Axis name labels at the midpoint of each edge ---
+    const float lNameOffset = 0.10f * aScale;
+
+    // X-axis label (midpoint of front-bottom edge)
+    {
+        const Vector3 lWorldPos = {aPosition.x, aPosition.y - lNameOffset, lB3.z + lNameOffset};
+        const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+        const Vector2 lTextSize = MeasureTextEx(aFont, mpLabelX, lFontSize + 2.0f, 1.0f);
+        DrawTextEx(aFont, mpLabelX, Vector2{lScreenPos.x - lTextSize.x * 0.5f, lScreenPos.y},
+                   lFontSize + 2.0f, 1.0f, lColor);
+    }
+
+    // Y-axis label (midpoint of right-bottom edge)
+    {
+        const Vector3 lWorldPos = {aPosition.x + lHalfSize + lNameOffset, aPosition.y - lNameOffset, aPosition.z};
+        const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+        const Vector2 lTextSize = MeasureTextEx(aFont, mpLabelY, lFontSize + 2.0f, 1.0f);
+        DrawTextEx(aFont, mpLabelY, Vector2{lScreenPos.x - lTextSize.x * 0.5f, lScreenPos.y},
+                   lFontSize + 2.0f, 1.0f, lColor);
+    }
+
+    // Z-axis label (midpoint of the vertical edge)
+    {
+        const Vector3 lWorldPos = {lB3.x + lNameOffset, aPosition.y + lHeight * 0.5f, lB3.z + lNameOffset};
+        const Vector2 lScreenPos = GetWorldToScreen(lWorldPos, rCamera);
+        const Vector2 lTextSize = MeasureTextEx(aFont, mpLabelZ, lFontSize + 2.0f, 1.0f);
+        DrawTextEx(aFont, mpLabelZ, Vector2{lScreenPos.x, lScreenPos.y - lTextSize.y * 0.5f},
+                   lFontSize + 2.0f, 1.0f, lColor);
+    }
 }
 
 float RLHeatMap3D::calculateWallAlpha(Vector3 aWallNormal, const Camera3D& rCamera) const {

@@ -300,6 +300,12 @@ int main() {
     lStyle.mPointSize = 0.02f;
     lHeatMap.setStyle(lStyle);
 
+    // Configure axis labels and ranges
+    lHeatMap.setAxisLabels("X Coord", "Y Coord", "Value");
+    lHeatMap.setAxisRangeX(0.0f, (float)GRID_WIDTH);
+    lHeatMap.setAxisRangeY(0.0f, (float)GRID_HEIGHT);
+    lHeatMap.setAxisRangeZ(0.0f, 1.0f);
+
     // Set custom palette: blue -> cyan -> green -> yellow -> red
     lHeatMap.setPalette(
         Color{30, 60, 180, 255},     // Blue (low)
@@ -424,6 +430,11 @@ int main() {
             lCameraPitch = 0.5f;
         }
 
+        if (IsKeyPressed(KEY_L)) {
+            lStyle.mShowAxisLabels = !lStyle.mShowAxisLabels;
+            lHeatMap.setStyle(lStyle);
+        }
+
         // Update data based on mode
         switch (lMode) {
             case DemoMode::SurfaceStatic:
@@ -511,6 +522,9 @@ int main() {
         lHeatMap.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lCamera);
         EndMode3D();
 
+        // Draw 2D axis labels (projected from 3D)
+        lHeatMap.drawLabels(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lCamera, lFont);
+
         // Draw UI
         const char* lModeNames[] = {
             "Mode: SURFACE (Static)",
@@ -567,6 +581,7 @@ int main() {
         DrawTextEx(lFont, "  A: Toggle auto-range", Vector2{20, 218}, 14, 1, GRAY);
         DrawTextEx(lFont, "  D: Cycle datasets (static mode)", Vector2{20, 236}, 14, 1, GRAY);
         DrawTextEx(lFont, "  R: Reset camera", Vector2{20, 254}, 14, 1, GRAY);
+        DrawTextEx(lFont, "  L: Toggle axis labels", Vector2{20, 272}, 14, 1, GRAY);
 
         // Status indicators
         int lStatusY = SCREEN_HEIGHT - 100;
@@ -585,9 +600,12 @@ int main() {
         snprintf(lStatusBuf, sizeof(lStatusBuf), "Axis Box: %s", lStyle.mShowAxisBox ? "ON" : "OFF");
         DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)(lStatusY + 36)}, 14, 1, lStyle.mShowAxisBox ? GREEN : GRAY);
 
+        snprintf(lStatusBuf, sizeof(lStatusBuf), "Labels: %s", lStyle.mShowAxisLabels ? "ON" : "OFF");
+        DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)(lStatusY + 54)}, 14, 1, lStyle.mShowAxisLabels ? GREEN : GRAY);
+
         // Auto-range status
         snprintf(lStatusBuf, sizeof(lStatusBuf), "Range: %s", lAutoRange ? "AUTO" : "FIXED (0-1)");
-        DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)(lStatusY + 54)}, 14, 1, lAutoRange ? Color{100, 200, 255, 255} : Color{255, 200, 100, 255});
+        DrawTextEx(lFont, lStatusBuf, Vector2{20, (float)(lStatusY + 72)}, 14, 1, lAutoRange ? Color{100, 200, 255, 255} : Color{255, 200, 100, 255});
 
         // Value range
         snprintf(lStatusBuf, sizeof(lStatusBuf), "Z Range: %.2f - %.2f", lHeatMap.getMinValue(), lHeatMap.getMaxValue());

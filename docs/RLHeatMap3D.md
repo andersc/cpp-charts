@@ -71,6 +71,11 @@ struct RLHeatMap3DStyle {
     bool mShowFloorGrid = true;
     Color mFloorGridColor{50, 55, 65, 120};
 
+    // Axis labels
+    bool mShowAxisLabels = true;
+    float mLabelFontSize = 14.0f;
+    Color mLabelColor{200, 200, 210, 255};
+
     // Tick marks
     bool mShowTicks = true;
     int mTickCount = 5;
@@ -111,7 +116,8 @@ struct RLHeatMap3DStyle {
 | Method | Description |
 |--------|-------------|
 | `update(float aDt)` | Update animation/transitions (call each frame) |
-| `draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)` | Draw the 3D plot at position with scale |
+| `draw(Vector3 aPosition, float aScale, const Camera3D& rCamera)` | Draw the 3D plot at position with scale (call within BeginMode3D/EndMode3D) |
+| `drawLabels(Vector3 aPosition, float aScale, const Camera3D& rCamera, Font aFont)` | Draw 2D axis labels and tick values (call AFTER EndMode3D) |
 
 ### Getters
 
@@ -157,6 +163,15 @@ int main() {
     lStyle.mGridDivisions = 10;
     lHeatMap.setStyle(lStyle);
 
+    // Configure axis labels and ranges
+    lHeatMap.setAxisLabels("X Coord", "Y Coord", "Value");
+    lHeatMap.setAxisRangeX(0.0f, 40.0f);
+    lHeatMap.setAxisRangeY(0.0f, 40.0f);
+    lHeatMap.setAxisRangeZ(0.0f, 1.0f);
+
+    // Load font for labels
+    Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
+
     // Set custom palette
     lHeatMap.setPalette(
         Color{30, 60, 180, 255},     // Blue (low)
@@ -195,10 +210,14 @@ int main() {
         lHeatMap.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lCamera);
         EndMode3D();
 
+        // Draw 2D labels (projected from 3D positions)
+        lHeatMap.drawLabels(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lCamera, lFont);
+
         DrawFPS(10, 10);
         EndDrawing();
     }
 
+    UnloadFont(lFont);
     CloseWindow();
     return 0;
 }
@@ -362,6 +381,7 @@ The `heatmap3d` demo showcases 6 different modes:
 - **A**: Toggle auto-range (AUTO vs FIXED 0-1)
 - **D**: Cycle datasets (static modes only)
 - **R**: Reset camera
+- **L**: Toggle axis labels
 - **Mouse drag**: Rotate view
 - **Mouse wheel**: Zoom
 

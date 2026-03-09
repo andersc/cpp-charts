@@ -675,6 +675,7 @@ int main() {
         BeginMode3D(lHeatMap3DCamera);
         lHeatMap3D.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lHeatMap3DCamera);
         EndMode3D();
+        lHeatMap3D.drawLabels(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lHeatMap3DCamera, GetFontDefault());
         EndTextureMode();
 
         // Draw title
