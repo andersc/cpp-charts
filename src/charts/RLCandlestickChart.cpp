@@ -362,3 +362,20 @@ void RLCandlestickChart::draw() const {
         drawSingleCandle(mCandles[i], lX);
     }
 }
+
+void RLCandlestickChart::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mGridColor = {aTheme.mGrid.r, aTheme.mGrid.g, aTheme.mGrid.b, 120};
+    mStyle.mUpBody = aTheme.mPositive;
+    mStyle.mUpWick = {
+        (uint8_t)std::min((int)aTheme.mPositive.r + 40, 255),
+        (uint8_t)std::min((int)aTheme.mPositive.g + 40, 255),
+        (uint8_t)std::min((int)aTheme.mPositive.b + 40, 255), 255};
+    mStyle.mDownBody = aTheme.mNegative;
+    mStyle.mDownWick = {
+        (uint8_t)std::min((int)aTheme.mNegative.r + 40, 255),
+        (uint8_t)std::min((int)aTheme.mNegative.g + 40, 255),
+        (uint8_t)std::min((int)aTheme.mNegative.b + 40, 255), 255};
+    mStyle.mVolumeUp = {aTheme.mPositive.r, aTheme.mPositive.g, aTheme.mPositive.b, 180};
+    mStyle.mVolumeDown = {aTheme.mNegative.r, aTheme.mNegative.g, aTheme.mNegative.b, 180};
+}

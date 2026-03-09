@@ -334,3 +334,9 @@ void RLBubble::draw() const{
         DrawCircleV(b->mPos, b->mRadius, b->mColor);
     }
 }
+
+void RLBubble::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mAxesColor = aTheme.mAxis;
+    mStyle.mGridColor = aTheme.mGrid;
+}

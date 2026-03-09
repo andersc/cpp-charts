@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "RLCommon.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 
@@ -97,6 +98,9 @@ public:
     void setSeriesData(size_t aIndex, const RLRadarSeries& rSeries);
     void removeSeries(size_t aIndex);
     void clearSeries();
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Per-frame update and draw
     void update(float aDt);

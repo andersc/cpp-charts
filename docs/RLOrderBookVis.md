@@ -98,6 +98,7 @@ struct RLOrderBookVisStyle {
 | `setHistoryLength(size_t aLength)` | Set number of snapshots in history |
 | `setPriceLevels(size_t aLevels)` | Set number of price levels displayed |
 | `setStyle(const RLOrderBookVisStyle &rStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 
 ### Price Filtering
 

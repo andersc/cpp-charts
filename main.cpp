@@ -17,6 +17,7 @@
 #include "src/charts/RLScatterPlot.h"
 #include "src/charts/RLTimeSeries.h"
 #include "src/charts/RLTreeMap.h"
+#include "src/charts/RLTheme.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -600,6 +601,30 @@ int main() {
     };
     lVuMeter.setChannels(lVuChannels);
 
+    // Theme selector
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lBarChart.applyTheme(lTheme);
+        lBubble.applyTheme(lTheme);
+        lCandlestick.applyTheme(lTheme);
+        lGauge.applyTheme(lTheme);
+        lHeatMap.applyTheme(lTheme);
+        lPieChart.applyTheme(lTheme);
+        lScatterPlot.applyTheme(lTheme);
+        lBarChart2.applyTheme(lTheme);
+        lOrderBook.applyTheme(lTheme);
+        lTreeMap.applyTheme(lTheme);
+        lTimeSeries.applyTheme(lTheme);
+        lLogPlot.applyTheme(lTheme);
+        lAreaChart.applyTheme(lTheme);
+        lRadarChart.applyTheme(lTheme);
+        lSankey.applyTheme(lTheme);
+        lLinearGauge.applyTheme(lTheme);
+        lVuMeter.applyTheme(lTheme);
+        lHeatMap3D.applyTheme(lTheme);
+    };
+
     // Animation variables
     float lTime = 0.0f;
     float lGaugeTargetValue = 65.0f;
@@ -687,11 +712,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{15, 17, 20, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
 
         // Render 3D heat map to texture
         BeginTextureMode(lHeatMap3DRT);
-        ClearBackground(Color{25, 28, 35, 255});
+        ClearBackground(lThemeSelector.getTheme().mBackground);
         BeginMode3D(lHeatMap3DCamera);
         lHeatMap3D.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lHeatMap3DCamera);
         EndMode3D();
@@ -699,8 +724,9 @@ int main() {
         EndTextureMode();
 
         // Draw title
-        DrawText("RayLib Charts - All Chart Types (Testing Static Conflicts)",
-                 10, 5, 20, Color{200, 200, 210, 255});
+        auto lTitleColor = lThemeSelector.getTheme().mForeground;
+        DrawText("RayLib Charts - All Chart Types",
+                 10, 5, 20, lTitleColor);
 
         // Draw all charts
         lBarChart.draw();
@@ -740,9 +766,14 @@ int main() {
                 if (lIndex < 20 && lLabels[lIndex][0] != '\0') {
                     Rectangle lBounds = getChartBounds(lRow, lCol);
                     DrawText(lLabels[lIndex], (int)lBounds.x + 5, (int)lBounds.y - 16,
-                             14, Color{180, 180, 190, 255});
+                             14, lThemeSelector.getTheme().mForegroundDim);
                 }
             }
+        }
+
+        // Theme selector buttons (top-right)
+        if (lThemeSelector.draw(SCREEN_WIDTH - 500.0f, 4.0f, lBaseFont, 14.0f)) {
+            lApplyTheme();
         }
 
         DrawFPS(SCREEN_WIDTH - 100, 5);

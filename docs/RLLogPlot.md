@@ -142,6 +142,7 @@ struct RLTimeSeriesStyle {
 | `setTimeSeriesHeight(float aHeightFraction)` | Set time series height (0-1, default 0.35) |
 | `setLogPlotStyle(const RLLogPlotStyle &aStyle)` | Set log plot style |
 | `setTimeSeriesStyle(const RLTimeSeriesStyle &aStyle)` | Set time series style |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setWindowSize(size_t aMaxSamples)` | Set max samples to keep |
 
 ### Time Series Data

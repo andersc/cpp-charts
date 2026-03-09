@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "RLPieChart.h"
+#include "RLTheme.h"
 
 static float lFrand(){ return (float)rand()/(float)RAND_MAX; }
 
@@ -73,6 +74,14 @@ int main(){
     bool lPause = false;
     int lMode = 0; // for right pie hollow factor cycling
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lPieA.applyTheme(lTheme);
+        lPieB.applyTheme(lTheme);
+        lPieC.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
         if (!lPause) lTimer += lDt;
@@ -113,7 +122,11 @@ int main(){
         }
 
         BeginDrawing();
-        ClearBackground(Color{18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lScreenW - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         lPieA.draw();
         lPieB.draw();

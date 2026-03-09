@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "RLTimeSeries.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Demo Configuration
@@ -140,6 +141,12 @@ int main() {
     bool lTraceVisible[NUM_TRACES] = { true, true, true, true, true };
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lTimeSeries.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lTime += lDt;
@@ -210,7 +217,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground({ 10, 12, 16, 255 });
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Title
         DrawTextEx(lFont, "RLTimeSeries - Multi-Trace Streaming Demo", Vector2{20, 15}, 24, 1.0f, { 220, 225, 235, 255 });

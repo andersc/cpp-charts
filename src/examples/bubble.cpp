@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "RLBubble.h"
+#include "RLTheme.h"
 
 static float frand(){ return (float)rand()/(float)RAND_MAX; }
 
@@ -71,6 +72,13 @@ int main(){
     float switchInterval = 3.0f;
     bool pause = false;
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        scatter.applyTheme(lTheme);
+        gravity.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float dt = GetFrameTime();
 
@@ -95,7 +103,11 @@ int main(){
         }
 
         BeginDrawing();
-        ClearBackground(Color{18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)screenW - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         scatter.draw();
         gravity.draw();

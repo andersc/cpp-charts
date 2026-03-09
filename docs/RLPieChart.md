@@ -64,6 +64,7 @@ struct RLPieChartStyle {
 |--------|-------------|
 | `setBounds(Rectangle aBounds)` | Set the chart bounds |
 | `setStyle(const RLPieChartStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setHollowFactor(float aFactor)` | Set hollow factor (0=solid, 0.5=donut) |
 | `getHollowFactor() const` | Get current hollow factor |
 

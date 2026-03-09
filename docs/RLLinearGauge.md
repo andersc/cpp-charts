@@ -142,6 +142,7 @@ struct RLLinearGaugeStyle {
 | `setBounds(Rectangle aBounds)` | Set the gauge bounds |
 | `setOrientation(RLLinearGaugeOrientation aOrientation)` | Set horizontal/vertical orientation |
 | `setStyle(const RLLinearGaugeStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setPointerStyle(RLLinearGaugePointerStyle aStyle)` | Set pointer/indicator style |
 | `setAnimationEnabled(bool aEnabled)` | Enable/disable smooth animation |
 

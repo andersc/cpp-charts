@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <string>
 #include <vector>
 
@@ -154,6 +155,10 @@ public:
     void setOrientation(RLLinearGaugeOrientation aOrientation);
     void setStyle(const RLLinearGaugeStyle &aStyle);
     void setPointerStyle(RLLinearGaugePointerStyle aStyle);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
+
     void setAnimationEnabled(bool aEnabled);  // Toggle smooth animation
 
     // Tick marks

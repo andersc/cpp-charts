@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include "RLCandlestickChart.h"
+#include "RLTheme.h"
 
 struct CSVRow {
     std::string aDate;
@@ -121,6 +122,14 @@ int main(){
 
     float lAccum = 0.0f;
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lChart1.applyTheme(lTheme);
+        lChart2.applyTheme(lTheme);
+        lChart3.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
         lAccum += lDt;
@@ -146,7 +155,11 @@ int main(){
         lChart3.update(lDt);
 
         BeginDrawing();
-        ClearBackground({12, 14, 18, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lScreenW - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         lChart1.draw();
         lChart2.draw();

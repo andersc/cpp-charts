@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "RLLogPlot.h"
 #include "RLTimeSeries.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Allan Variance-Style Analysis Utilities
@@ -268,6 +269,13 @@ int main() {
     lSampleBuffer.reserve(2000);
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lTimeSeries.applyTheme(lTheme);
+        lPlot.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
 
@@ -392,7 +400,11 @@ int main() {
 
         // Drawing
         BeginDrawing();
-        ClearBackground(Color{15, 16, 20, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lScreenW - 500.0f, 4.0f, lBaseFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Draw time series (RLTimeSeries)
         lTimeSeries.update(lDt);

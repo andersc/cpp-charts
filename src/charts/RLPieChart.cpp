@@ -241,3 +241,10 @@ void RLPieChart::draw() const{
         }
     }
 }
+
+void RLPieChart::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    for (uint32_t i = 0; i < mSlices.size(); ++i) {
+        mSlices[i].mColor = aTheme.accent(i);
+    }
+}

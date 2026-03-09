@@ -84,6 +84,7 @@ struct RLCandleStyle {
 | `setValuesPerCandle(int aValuesPerCandle)` | Set samples per candle |
 | `setVisibleCandles(int aVisibleCandles)` | Set number of visible candles |
 | `setStyle(const RLCandleStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setExplicitScale(float aMinPrice, float aMaxPrice)` | Set explicit price scale |
 
 ### Data

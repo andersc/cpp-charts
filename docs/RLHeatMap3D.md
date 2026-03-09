@@ -103,6 +103,7 @@ struct RLHeatMap3DStyle {
 | `setWireframe(bool aEnabled)` | Enable/disable wireframe overlay |
 | `setPointSize(float aSize)` | Set scatter point size |
 | `setStyle(const RLHeatMap3DStyle& rStyle)` | Apply a complete style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 
 ### Data Input
 

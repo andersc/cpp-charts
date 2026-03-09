@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cmath>
 #include "RLHeatMap.h"
+#include "RLTheme.h"
 
 // --- Optimization: Fast PRNG (Xorshift) ---
 // std::rand() can be slow and low quality. This is much faster.
@@ -184,6 +185,14 @@ int main(){
     int lEmitterCount = 6;
     lInitEmitters(lEmitters, lEmitterCount);
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lHM_Acc.applyTheme(lTheme);
+        lHM_Repl.applyTheme(lTheme);
+        lHM_Decay.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
 
@@ -220,7 +229,11 @@ int main(){
         lHM_Decay.update(lDt);
 
         BeginDrawing();
-        ClearBackground(Color{18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lW - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         lHM_Acc.draw();
         lHM_Repl.draw();

@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 #include <functional>
@@ -102,6 +103,9 @@ public:
 
     // Force layout recomputation
     void recomputeLayout();
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Per-frame update (call each frame with delta time)
     void update(float aDt);

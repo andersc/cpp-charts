@@ -3,6 +3,7 @@
 // Order Book Visualization Demo
 // Demonstrates 2D heatmap and 3D landscape views of depth-of-market data
 #include "RLOrderBookVis.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cmath>
 #include <cstdlib>
@@ -245,6 +246,12 @@ int main() {
     int lSpreadTicks = 40;
     bool lPaused = false;
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lOrderBook.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
 
@@ -314,7 +321,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{10, 12, 18, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Title
         DrawTextEx(lFont, "Order Book Visualization", Vector2{50, 20}, 30, 1.0f, Color{220, 220, 230, 255});

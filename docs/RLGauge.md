@@ -67,6 +67,7 @@ struct RLGaugeStyle {
 | `setBounds(Rectangle bounds)` | Set the gauge bounds |
 | `setRange(float minValue, float maxValue)` | Set the value range |
 | `setStyle(const RLGaugeStyle &style)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 
 ### Value
 

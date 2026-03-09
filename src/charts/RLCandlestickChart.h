@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <deque>
 #include <string>
 #include <vector>
@@ -57,6 +58,9 @@ public:
     void setVisibleCandles(int aVisibleCandles);
     void setStyle(const RLCandleStyle &rStyle);
     void setExplicitScale(float aMinPrice, float aMaxPrice);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Stream a single OHLCV sample. After mValuesPerCandle samples the current candle is finalized
     void addSample(const CandleInput &rSample);

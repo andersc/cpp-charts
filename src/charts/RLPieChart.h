@@ -3,6 +3,7 @@
 #include "RLCommon.h"
 #include "RLEasing.h"
 #include "RLTooltip.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 
@@ -56,6 +57,9 @@ public:
     void update(float aDt);
     // Draw
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }
 

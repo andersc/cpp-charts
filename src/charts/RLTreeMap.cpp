@@ -605,3 +605,13 @@ Rectangle RLTreeMap::lerpRect(const Rectangle& a, const Rectangle& b, float t) {
     lResult.height = a.height + (b.height - a.height) * t;
     return lResult;
 }
+
+void RLTreeMap::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mBorderColor = aTheme.mBorder;
+    mStyle.mLabelColor = aTheme.mForeground;
+    mStyle.mDepthPalette.clear();
+    for (uint32_t i = 0; i < aTheme.mAccents.size(); ++i) {
+        mStyle.mDepthPalette.push_back(aTheme.mAccents[i]);
+    }
+}

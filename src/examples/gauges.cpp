@@ -1,5 +1,6 @@
 #include <cmath>
 #include "RLGauge.h"
+#include "RLTheme.h"
 
 int main(){
     const int screenW = 1280;
@@ -29,6 +30,14 @@ int main(){
     RLGauge temp({screenW*0.5f-160.0f, screenH-360.0f, 320, 320}, 40.0f, 120.0f, styleDefault);
 
     float t = 0.0f;
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        rpm.applyTheme(lTheme);
+        speed.applyTheme(lTheme);
+        temp.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float dt = GetFrameTime();
         t += dt;
@@ -47,7 +56,11 @@ int main(){
         temp.update(dt);
 
         BeginDrawing();
-        ClearBackground({18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)screenW - 500.0f, 4.0f, lBaseFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         rpm.draw();
         speed.draw();

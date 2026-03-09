@@ -1068,3 +1068,12 @@ void RLSankey::setHighlightedLink(int aLinkId) {
     mHighlightedLink = aLinkId;
 }
 
+void RLSankey::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mNodeBorderColor = aTheme.mBorder;
+    mStyle.mLabelColor = aTheme.mForeground;
+    for (uint32_t i = 0; i < mNodes.size(); ++i) {
+        mNodes[i].mColor = aTheme.accent(i);
+    }
+}
+

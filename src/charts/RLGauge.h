@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 
 // A lightweight, fast circular gauge for raylib.
@@ -50,6 +51,9 @@ public:
     void setBounds(Rectangle bounds);
     void setRange(float minValue, float maxValue);
     void setStyle(const RLGaugeStyle &rStyle);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // dt in seconds
     void update(float dt);

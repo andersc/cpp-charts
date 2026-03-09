@@ -1269,3 +1269,11 @@ Color RLHeatMap3D::getColorForValue(float aNormalizedValue) const {
     lIdx = std::min(lIdx, 255);
     return mLut[lIdx];
 }
+
+void RLHeatMap3D::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mAxisColor = aTheme.mAxis;
+    mStyle.mGridColor = aTheme.mGrid;
+    mStyle.mWireframeColor = aTheme.mBorder;
+    mStyle.mLabelColor = aTheme.mForeground;
+    mStyle.mTickColor = aTheme.mForegroundDim;
+}

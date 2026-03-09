@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "RLCommon.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <functional>
 #include <string>
@@ -121,6 +122,9 @@ public:
     void setTimeSeriesHeight(float aHeightFraction); // 0..1, default 0.35
     void setLogPlotStyle(const RLLogPlotStyle& rStyle);
     void setTimeSeriesStyle(const RLTimeSeriesStyle& rStyle);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Time series data management
     void setWindowSize(size_t aMaxSamples);

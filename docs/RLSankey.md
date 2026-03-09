@@ -133,6 +133,7 @@ struct RLSankeyStyle {
 ```cpp
 void setBounds(Rectangle aBounds);
 void setStyle(const RLSankeyStyle& rStyle);
+void applyTheme(const RLChartTheme& aTheme);
 ```
 
 ### Node Management

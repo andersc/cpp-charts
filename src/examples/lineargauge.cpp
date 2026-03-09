@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "RLLinearGauge.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Demo Configuration
@@ -253,6 +254,18 @@ int main() {
     float lSinTime = 0.0f;
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lTempGauge.applyTheme(lTheme);
+        lCpuGauge.applyTheme(lTheme);
+        lProgressGauge.applyTheme(lTheme);
+        lPressureGauge.applyTheme(lTheme);
+        lVolumeGauge.applyTheme(lTheme);
+        lFuelGauge.applyTheme(lTheme);
+        lSpeedGauge.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lSinTime += lDt;
@@ -328,7 +341,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{18, 20, 26, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Draw all gauges
         lTempGauge.draw();

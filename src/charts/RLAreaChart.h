@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 
@@ -71,6 +72,9 @@ public:
 
     void update(float aDt);
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }
     [[nodiscard]] RLAreaChartMode getMode() const { return mMode; }

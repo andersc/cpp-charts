@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "RLScatterPlot.h"
+#include "RLTheme.h"
 
 static float frand(){ return (float)rand()/(float)RAND_MAX; }
 
@@ -104,6 +105,14 @@ int main(){
     // Animation timers
     float lSwitch = 0.0f;
     float lInterval = 2.5f;
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lSingle.applyTheme(lTheme);
+        lMulti.applyTheme(lTheme);
+        lPerf.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
         lSwitch += lDt;
@@ -136,7 +145,11 @@ int main(){
         lMulti.update(lDt);
         if (lShowLarge) lPerf.update(lDt);
         BeginDrawing();
-        ClearBackground(Color{18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lW - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         if (!lShowLarge){
             lSingle.draw();

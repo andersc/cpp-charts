@@ -715,3 +715,14 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
     }
 }
 
+void RLLogPlot::applyTheme(const RLChartTheme& aTheme) {
+    mLogPlotStyle.mBackground = aTheme.mBackground;
+    mLogPlotStyle.mAxesColor = aTheme.mAxis;
+    mLogPlotStyle.mGridColor = aTheme.mGrid;
+    mLogPlotStyle.mMinorGridColor = {aTheme.mGrid.r, aTheme.mGrid.g, aTheme.mGrid.b, (uint8_t)(aTheme.mGrid.a / 2)};
+    mLogPlotStyle.mTextColor = aTheme.mForeground;
+    for (uint32_t i = 0; i < mTraces.size(); ++i) {
+        mTraces[i].mStyle.mLineColor = aTheme.accent(i);
+    }
+}
+

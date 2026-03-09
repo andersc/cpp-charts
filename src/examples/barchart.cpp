@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "RLBarChart.h"
+#include "RLTheme.h"
 
 static float lFrand(){ return (float)rand()/(float)RAND_MAX; }
 
@@ -97,6 +98,15 @@ int main(){
     float lSwitchInterval = 2.5f;
     bool lPause = false;
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lVertical.applyTheme(lTheme);
+        lHorizontal.applyTheme(lTheme);
+        lVerticalCompact.applyTheme(lTheme);
+        lHorizontalFixed.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()){
         float lDt = GetFrameTime();
         if (!lPause) lSwitchT += lDt;
@@ -122,7 +132,11 @@ int main(){
         }
 
         BeginDrawing();
-        ClearBackground(Color{18,18,22,255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)lScreenW - 500.0f, 4.0f, lBaseFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         lVertical.draw();
         lHorizontal.draw();

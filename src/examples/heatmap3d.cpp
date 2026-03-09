@@ -3,6 +3,7 @@
 // Demonstrates surface and scatter modes with axis box, floor grid, transparent back walls,
 // live streaming data, and partial region updates
 #include "RLHeatMap3D.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cmath>
 #include <cstdio>
@@ -339,6 +340,12 @@ int main() {
     // Load font for UI
     Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);
 
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lHeatMap.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lTime += lDt;
@@ -516,7 +523,11 @@ int main() {
 
         // Render
         BeginDrawing();
-        ClearBackground(Color{25, 28, 35, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         BeginMode3D(lCamera);
         lHeatMap.draw(Vector3{0.0f, 0.0f, 0.0f}, 1.0f, lCamera);

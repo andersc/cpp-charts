@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "RLSankey.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Demo Configuration
@@ -264,6 +265,13 @@ int main() {
     // ========================================================================
     // Main loop
     // ========================================================================
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lChart1.applyTheme(lTheme);
+        lChart2.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lFluctuateTimer += lDt;
@@ -386,7 +394,11 @@ int main() {
         // Draw
         // ====================================================================
         BeginDrawing();
-        ClearBackground(Color{12, 14, 18, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Draw charts
         lChart1.draw();

@@ -862,3 +862,17 @@ void RLLinearGauge::drawVuMeterChannelLabel(int aIndex, Rectangle aBounds) const
 
     DrawTextEx(lFont, lChannel.mLabel.c_str(), lPos, lFontSize, 0, mStyle.mLabelColor);
 }
+
+void RLLinearGauge::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackgroundColor = aTheme.mBackground;
+    mStyle.mTrackColor = aTheme.mGrid;
+    mStyle.mTrackBorderColor = aTheme.mBorder;
+    mStyle.mFillColor = aTheme.accent(0);
+    mStyle.mPointerColor = aTheme.mNegative;
+    mStyle.mTargetMarkerColor = aTheme.mWarning;
+    mStyle.mMajorTickColor = aTheme.mForeground;
+    mStyle.mMinorTickColor = aTheme.mForegroundDim;
+    mStyle.mLabelColor = aTheme.mForeground;
+    mStyle.mTitleColor = aTheme.mForegroundDim;
+    mStyle.mValueColor = aTheme.mForeground;
+}

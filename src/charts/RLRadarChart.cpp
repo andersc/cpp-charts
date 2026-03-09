@@ -597,3 +597,14 @@ void RLRadarChart::drawLegend() const {
     }
 }
 
+void RLRadarChart::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mGridColor = aTheme.mGrid;
+    mStyle.mAxisColor = aTheme.mAxis;
+    mStyle.mLabelColor = aTheme.mForeground;
+    for (uint32_t i = 0; i < mSeries.size(); ++i) {
+        mSeries[i].mLineColor = aTheme.accent(i);
+        mSeries[i].mFillColor = {aTheme.accent(i).r, aTheme.accent(i).g, aTheme.accent(i).b, 80};
+    }
+}
+

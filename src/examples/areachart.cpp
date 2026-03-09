@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "RLAreaChart.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Demo Configuration
@@ -147,6 +148,14 @@ int main() {
     float lUpdateTimer = 0.0f;
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lChartOverlapped.applyTheme(lTheme);
+        lChartStacked.applyTheme(lTheme);
+        lChartPercent.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lTime += lDt;
@@ -176,7 +185,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{12, 14, 18, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Title
         const char* lTitle = "RLAreaChart - Three Visualization Modes";

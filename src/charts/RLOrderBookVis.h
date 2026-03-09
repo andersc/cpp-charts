@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cstddef>
 #include <utility>
@@ -75,6 +76,9 @@ public:
     void setHistoryLength(size_t aLength);
     void setPriceLevels(size_t aLevels);
     void setStyle(const RLOrderBookVisStyle& rStyle);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Price filtering
     void setPriceMode(RLOrderBookPriceMode aMode);

@@ -140,3 +140,14 @@ void RLGauge::draw() const{
         DrawTextEx(lFont, lBuf.data(), lPos, lFontSize, 0, mStyle.mLabelColor);
     }
 }
+
+void RLGauge::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackgroundColor = aTheme.mBackground;
+    mStyle.mBaseArcColor = aTheme.mGrid;
+    mStyle.mValueArcColor = aTheme.accent(0);
+    mStyle.mTickColor = aTheme.mForegroundDim;
+    mStyle.mMajorTickColor = aTheme.mForeground;
+    mStyle.mLabelColor = aTheme.mForeground;
+    mStyle.mNeedleColor = aTheme.mNegative;
+    mStyle.mCenterColor = aTheme.mForeground;
+}

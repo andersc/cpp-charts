@@ -82,6 +82,7 @@ struct RLBarChartStyle {
 | `setBounds(Rectangle aBounds)` | Set the chart bounds |
 | `setOrientation(RLBarOrientation aOrientation)` | Set vertical or horizontal orientation |
 | `setStyle(const RLBarChartStyle &rStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setScale(float aMinValue, float aMaxValue)` | Set explicit scale (disables auto-scale) |
 
 ### Data

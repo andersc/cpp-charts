@@ -98,6 +98,7 @@ enum class RLTreeMapLayout {
 |--------|-------------|
 | `setBounds(Rectangle aBounds)` | Set the treemap bounds |
 | `setStyle(const RLTreeMapStyle &rStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setLayout(RLTreeMapLayout aLayout)` | Set the layout algorithm |
 
 ### Data

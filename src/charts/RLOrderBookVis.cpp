@@ -861,3 +861,10 @@ void RLOrderBookVis::draw3D(const Camera3D& rCamera) const {
     }
 }
 
+void RLOrderBookVis::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mBorderColor = aTheme.mBorder;
+    mStyle.mGridColor = {aTheme.mGrid.r, aTheme.mGrid.g, aTheme.mGrid.b, 120};
+    mStyle.mMidLineColor = {aTheme.mForeground.r, aTheme.mForeground.g, aTheme.mForeground.b, 180};
+}
+

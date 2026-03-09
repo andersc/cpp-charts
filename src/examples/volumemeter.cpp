@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "RLLinearGauge.h"
+#include "RLTheme.h"
 
 // ============================================================================
 // Demo Configuration
@@ -218,6 +219,16 @@ int main() {
     std::vector<float> lCompactBase = {0.4f, 0.45f, 0.5f, 0.55f, 0.42f, 0.48f, 0.52f, 0.46f};
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lStereoMeter.applyTheme(lTheme);
+        lSurroundMeter.applyTheme(lTheme);
+        lDbMeter.applyTheme(lTheme);
+        lHorizMeter.applyTheme(lTheme);
+        lCompactMeter.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
         lTime += lDt;
@@ -289,7 +300,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{18, 20, 26, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Draw all meters
         lStereoMeter.draw();

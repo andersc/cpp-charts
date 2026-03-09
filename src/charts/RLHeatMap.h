@@ -2,6 +2,7 @@
 #pragma once
 #include "raylib.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cstdint>
 
@@ -47,6 +48,9 @@ public:
 
     void update(float aDt);
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }
     [[nodiscard]] int getCellsX() const { return mCellsX; }

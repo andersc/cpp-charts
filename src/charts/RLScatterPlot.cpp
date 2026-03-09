@@ -458,3 +458,12 @@ void RLScatterPlot::update(float aDt){
         s.mData = s.mDynPos; // so external getters (if any) would see moving state; also scale uses mData
     }
 }
+
+void RLScatterPlot::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mAxesColor = aTheme.mAxis;
+    mStyle.mGridColor = aTheme.mGrid;
+    for (uint32_t i = 0; i < mSeries.size(); ++i) {
+        mSeries[i].mStyle.mLineColor = aTheme.accent(i);
+    }
+}

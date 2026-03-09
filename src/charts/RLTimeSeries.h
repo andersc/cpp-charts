@@ -4,6 +4,7 @@
 #include "RLCommon.h"
 #include "RLEasing.h"
 #include "RLLegend.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 #include <cstddef>
@@ -113,6 +114,9 @@ public:
     // Update and draw
     void update(float aDt);
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Helpers
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }

@@ -502,6 +502,43 @@ RLBarChart chart(bounds, RLBarOrientation::VERTICAL, style);
 
 Each chart type has its own style structure with full control over colors, animations, spacing, and visual effects.
 
+### Themes
+
+Apply a consistent color scheme across all charts with a single call using `RLChartTheme`.
+Four built-in themes are provided: `dark`, `light`, `midnight`, and `neon`.
+
+```cpp
+#include "RLTheme.h"
+
+auto lTheme = RLThemes::neon();
+
+RLBarChart lBar({0, 0, 400, 300}, RLBarOrientation::VERTICAL);
+lBar.applyTheme(lTheme);
+
+RLPieChart lPie({410, 0, 300, 300});
+lPie.applyTheme(lTheme);
+```
+
+#### Interactive Theme Selector
+
+All WASM demos include an `RLThemeSelector` widget that lets users switch themes
+at runtime via clickable buttons. Add it to your own app in three steps:
+
+```cpp
+#include "RLTheme.h"
+
+RLThemeSelector lThemeSelector;
+
+// In your draw loop, after BeginDrawing / ClearBackground:
+if (lThemeSelector.draw(screenWidth - 500.0f, 4.0f, lFont, 14.0f)) {
+    auto lTheme = lThemeSelector.getTheme();
+    lMyChart.applyTheme(lTheme);
+}
+// Use lThemeSelector.getWindowBackground() for ClearBackground().
+```
+
+See [`RLTheme.h`](src/charts/RLTheme.h) for all available color roles and accent palette customization.
+
 ---
 
 ## 🔧 Building the Examples

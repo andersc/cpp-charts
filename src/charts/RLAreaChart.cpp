@@ -317,3 +317,13 @@ void RLAreaChart::drawLegend() const {
     }
 }
 
+void RLAreaChart::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mGridColor = aTheme.mGrid;
+    mStyle.mAxisColor = aTheme.mAxis;
+    mStyle.mLabelColor = aTheme.mForeground;
+    for (uint32_t i = 0; i < mSeries.size(); ++i) {
+        mSeries[i].mColor = aTheme.accent(i);
+    }
+}
+

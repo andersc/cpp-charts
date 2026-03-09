@@ -96,6 +96,7 @@ struct RLTimeSeriesChartStyle {
 |--------|-------------|
 | `setBounds(Rectangle aBounds)` | Set the chart bounds |
 | `setStyle(const RLTimeSeriesChartStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setWindowSize(size_t aWindowSize)` | Set maximum samples per trace |
 | `getWindowSize() const` | Get window size |
 

@@ -69,6 +69,7 @@ struct RLBubbleStyle {
 |--------|-------------|
 | `setBounds(Rectangle bounds)` | Set the chart bounds |
 | `setStyle(const RLBubbleStyle &style)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setMode(RLBubbleMode mode)` | Switch between Scatter and Gravity modes |
 
 ### Data

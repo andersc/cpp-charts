@@ -1,6 +1,7 @@
 // RLHeatMap3D.h
 #pragma once
 #include "raylib.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cstddef>
 
@@ -90,6 +91,9 @@ public:
     void setWireframe(bool aEnabled);
     void setPointSize(float aSize);
     void setStyle(const RLHeatMap3DStyle& rStyle);
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Update animation (call each frame)
     void update(float aDt);

@@ -111,6 +111,7 @@ struct RLScatterPlotStyle {
 |--------|-------------|
 | `setBounds(Rectangle aBounds)` | Set the chart bounds |
 | `setStyle(const RLScatterPlotStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setScale(float aMinX, float aMaxX, float aMinY, float aMaxY)` | Set explicit scale |
 
 ### Series Management

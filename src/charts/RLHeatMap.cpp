@@ -268,3 +268,8 @@ void RLHeatMap::updateTexturePixels(){
         UpdateTexture(mTexture, mPixels.data());
     }
 }
+
+void RLHeatMap::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mBorderColor = aTheme.mBorder;
+}

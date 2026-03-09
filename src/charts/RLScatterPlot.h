@@ -4,6 +4,7 @@
 #include "RLEasing.h"
 #include "RLTooltip.h"
 #include "RLLegend.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 
@@ -118,6 +119,9 @@ public:
 
     // Draw chart
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Helpers
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }

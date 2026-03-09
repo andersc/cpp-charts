@@ -58,6 +58,7 @@ struct RLHeatMapStyle {
 | `setUpdateMode(RLHeatMapUpdateMode aMode)` | Set update mode |
 | `setDecayHalfLifeSeconds(float aSeconds)` | Set decay rate (for Decay mode) |
 | `setStyle(const RLHeatMapStyle &aStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setColorStops(const std::vector<Color> &aStops)` | Set gradient colors (3-4 stops) |
 
 ### Data

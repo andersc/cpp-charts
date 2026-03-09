@@ -456,4 +456,13 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
     }
 }
 
+void RLTimeSeries::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mGridColor = aTheme.mGrid;
+    mStyle.mAxesColor = aTheme.mAxis;
+    for (uint32_t i = 0; i < mTraces.size(); ++i) {
+        mTraces[i].mStyle.mColor = aTheme.accent(i);
+    }
+}
+
 

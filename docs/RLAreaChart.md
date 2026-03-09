@@ -92,6 +92,7 @@ struct RLAreaChartStyle {
 };
 ``` |
 | `setStyle(const RLAreaChartStyle& rStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setXLabels(const std::vector<std::string>& rLabels)` | Set X-axis labels |
 
 ### Data Management

@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "RLCommon.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -115,6 +116,9 @@ public:
 
     // Flow conservation validation
     bool validateFlowConservation() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Per-frame update and draw
     void update(float aDt);

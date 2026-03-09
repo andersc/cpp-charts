@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "../RLCommon.h"
 #include "RLEasing.h"
+#include "RLTheme.h"
 #include <vector>
 
 // Simple and fast Bubble Chart for raylib.
@@ -52,6 +53,9 @@ public:
     void update(float dt);
     // Draw chart inside bounds.
     void draw() const;
+
+    // Theming
+    void applyTheme(const RLChartTheme& aTheme);
 
     // Helpers
     [[nodiscard]] Rectangle getBounds() const { return mBounds; }

@@ -120,6 +120,7 @@ struct RLRadarChartStyle {
 |--------|-------------|
 | `setBounds(Rectangle aBounds)` | Set the chart bounds |
 | `setStyle(const RLRadarChartStyle& rStyle)` | Apply a style configuration |
+| `applyTheme(const RLChartTheme &aTheme)` | Apply a global theme to this chart |
 | `setAxes(const std::vector<RLRadarAxis>& rAxes)` | Set axes with full configuration |
 | `setAxes(const std::vector<std::string>& rLabels, float aMin, float aMax)` | Set axes with labels and uniform range |
 

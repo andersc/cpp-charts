@@ -2,6 +2,7 @@
 // TreeMap Visualization Demo
 // Demonstrates D3-style treemap with hierarchical data and animations
 #include "RLTreeMap.h"
+#include "RLTheme.h"
 #include <vector>
 #include <cmath>
 #include <cstdlib>
@@ -295,6 +296,12 @@ int main() {
     float lAnimateTimer = 0.0f;
 
     // Main loop
+    RLThemeSelector lThemeSelector;
+    auto lApplyTheme = [&]() {
+        auto lTheme = lThemeSelector.getTheme();
+        lTreeMap.applyTheme(lTheme);
+    };
+
     while (!WindowShouldClose()) {
         float lDt = GetFrameTime();
 
@@ -373,7 +380,11 @@ int main() {
 
         // Draw
         BeginDrawing();
-        ClearBackground(Color{10, 12, 18, 255});
+        ClearBackground(lThemeSelector.getWindowBackground());
+
+        if (lThemeSelector.draw((float)SCREEN_WIDTH - 500.0f, 4.0f, lBaseFont, 14.0f)) {
+            lApplyTheme();
+        }
 
         // Title
         DrawTextEx(lBaseFont, "TreeMap Visualization", Vector2{50, 20}, 30, 1.0f, Color{220, 220, 230, 255});

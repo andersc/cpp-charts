@@ -337,3 +337,12 @@ void RLBarChart::draw() const{
         }
     }
 }
+
+void RLBarChart::applyTheme(const RLChartTheme& aTheme) {
+    mStyle.mBackground = aTheme.mBackground;
+    mStyle.mGridColor = aTheme.mGrid;
+    mStyle.mLabelColor = aTheme.mForeground;
+    for (uint32_t i = 0; i < mBars.size(); ++i) {
+        mBars[i].mColor = aTheme.accent(i);
+    }
+}
