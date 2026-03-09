@@ -24,6 +24,10 @@ public:
     RLHeatMap(Rectangle aBounds, int aCellsX, int aCellsY);
     ~RLHeatMap();
 
+    // Prevent copy (owns GPU texture resource)
+    RLHeatMap(const RLHeatMap&) = delete;
+    RLHeatMap& operator=(const RLHeatMap&) = delete;
+
     void setBounds(Rectangle aBounds);
     void setGrid(int aCellsX, int aCellsY);
     void setUpdateMode(RLHeatMapUpdateMode aMode);

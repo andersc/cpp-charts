@@ -6,7 +6,7 @@
 
 
 RLCandlestickChart::RLCandlestickChart(Rectangle aBounds, int aValuesPerCandle, int aVisibleCandles, const RLCandleStyle &aStyle)
-    : mBounds(aBounds), mStyle(aStyle), mValuesPerCandle(aValuesPerCandle), mVisibleCandles(aVisibleCandles)
+    : mBounds(aBounds), mStyle(aStyle), mValuesPerCandle(std::max(1, aValuesPerCandle)), mVisibleCandles(std::max(1, aVisibleCandles))
 {
     mScaleMin = aStyle.lMinPrice;
     mScaleMax = aStyle.lMaxPrice;
@@ -94,6 +94,9 @@ void RLCandlestickChart::finalizeWorkingCandle() {
     mHasLastClose = true;
 
     // Trigger slide for every new candle to ensure a smooth "scroll left"
+    if (mIsSliding && mHasIncoming) {
+        mCandles.push_back(mIncoming);
+    }
     mIncoming = lFinal;
     mHasIncoming = true;
     mIsSliding = true;

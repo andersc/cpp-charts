@@ -146,21 +146,21 @@ static void captureAreaChart(const std::string& rOutputDir) {
         ClearBackground(Color{12, 14, 18, 255});
 
         const char* lTitle = "RLAreaChart - Three Visualization Modes";
-        int lTitleWidth = MeasureText(lTitle, 24);
-        DrawTextEx(lFont, lTitle, Vector2{(float)((SCREEN_WIDTH - lTitleWidth) / 2), 12}, 24, 1.0f, Color{220, 225, 235, 255});
+        float lTitleWidth = MeasureTextEx(lFont, lTitle, 24, 1.0f).x;
+        DrawTextEx(lFont, lTitle, Vector2{(float)(SCREEN_WIDTH - lTitleWidth) / 2.0f, 12}, 24, 1.0f, Color{220, 225, 235, 255});
 
         Color lLabelColor = Color{150, 160, 180, 255};
         const char* lLabel1 = "OVERLAPPED";
-        int lL1W = MeasureText(lLabel1, 16);
-        DrawTextEx(lFont, lLabel1, Vector2{lBounds1.x + (lBounds1.width - (float)lL1W) / 2.0f, lBounds1.y - 22.0f}, 16, 1.0f, lLabelColor);
+        float lL1W = MeasureTextEx(lFont, lLabel1, 16, 1.0f).x;
+        DrawTextEx(lFont, lLabel1, Vector2{lBounds1.x + (lBounds1.width - lL1W) / 2.0f, lBounds1.y - 22.0f}, 16, 1.0f, lLabelColor);
 
         const char* lLabel2 = "STACKED";
-        int lL2W = MeasureText(lLabel2, 16);
-        DrawTextEx(lFont, lLabel2, Vector2{lBounds2.x + (lBounds2.width - (float)lL2W) / 2.0f, lBounds2.y - 22.0f}, 16, 1.0f, lLabelColor);
+        float lL2W = MeasureTextEx(lFont, lLabel2, 16, 1.0f).x;
+        DrawTextEx(lFont, lLabel2, Vector2{lBounds2.x + (lBounds2.width - lL2W) / 2.0f, lBounds2.y - 22.0f}, 16, 1.0f, lLabelColor);
 
         const char* lLabel3 = "PERCENT (100%)";
-        int lL3W = MeasureText(lLabel3, 16);
-        DrawTextEx(lFont, lLabel3, Vector2{lBounds3.x + (lBounds3.width - (float)lL3W) / 2.0f, lBounds3.y - 22.0f}, 16, 1.0f, lLabelColor);
+        float lL3W = MeasureTextEx(lFont, lLabel3, 16, 1.0f).x;
+        DrawTextEx(lFont, lLabel3, Vector2{lBounds3.x + (lBounds3.width - lL3W) / 2.0f, lBounds3.y - 22.0f}, 16, 1.0f, lLabelColor);
 
         lChartOverlapped.draw();
         lChartStacked.draw();
@@ -584,8 +584,8 @@ static void captureRadarChart(const std::string& rOutputDir) {
         ClearBackground(Color{12, 14, 18, 255});
 
         const char* lTitle = "RLRadarChart Demo - Radar/Spider Charts";
-        int lTitleWidth = MeasureText(lTitle, 24);
-        DrawTextEx(lFont, lTitle, Vector2{(float)((SCREEN_WIDTH - lTitleWidth) / 2), 18}, 24, 1.0f, Color{200, 210, 230, 255});
+        float lTitleWidth = MeasureTextEx(lFont, lTitle, 24, 1.0f).x;
+        DrawTextEx(lFont, lTitle, Vector2{(float)(SCREEN_WIDTH - lTitleWidth) / 2.0f, 18}, 24, 1.0f, Color{200, 210, 230, 255});
 
         DrawTextEx(lFont, "Single Series - Character Profile",
                    Vector2{lBounds1.x + 10.0f, lBounds1.y - 28.0f}, 16.0f, 1.0f, Color{160, 170, 190, 255});

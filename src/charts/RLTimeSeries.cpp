@@ -266,17 +266,21 @@ void RLTimeSeries::drawGrid() const {
     const Rectangle lPlotArea = getPlotArea();
 
     // Vertical grid lines
-    for (int i = 0; i <= mStyle.mGridLinesX; ++i) {
-        const float lX = lPlotArea.x + (lPlotArea.width * (float)i / (float)mStyle.mGridLinesX);
-        DrawLineEx({ lX, lPlotArea.y }, { lX, lPlotArea.y + lPlotArea.height },
-                   1.0f, mStyle.mGridColor);
+    if (mStyle.mGridLinesX > 0) {
+        for (int i = 0; i <= mStyle.mGridLinesX; ++i) {
+            const float lX = lPlotArea.x + (lPlotArea.width * (float)i / (float)mStyle.mGridLinesX);
+            DrawLineEx({ lX, lPlotArea.y }, { lX, lPlotArea.y + lPlotArea.height },
+                       1.0f, mStyle.mGridColor);
+        }
     }
 
     // Horizontal grid lines
-    for (int i = 0; i <= mStyle.mGridLinesY; ++i) {
-        const float lY = lPlotArea.y + (lPlotArea.height * (float)i / (float)mStyle.mGridLinesY);
-        DrawLineEx({ lPlotArea.x, lY }, { lPlotArea.x + lPlotArea.width, lY },
-                   1.0f, mStyle.mGridColor);
+    if (mStyle.mGridLinesY > 0) {
+        for (int i = 0; i <= mStyle.mGridLinesY; ++i) {
+            const float lY = lPlotArea.y + (lPlotArea.height * (float)i / (float)mStyle.mGridLinesY);
+            DrawLineEx({ lPlotArea.x, lY }, { lPlotArea.x + lPlotArea.width, lY },
+                       1.0f, mStyle.mGridColor);
+        }
     }
 }
 

@@ -299,12 +299,14 @@ void RLBubble::draw() const{
     // 2. Axes/Grid
     if (mStyle.mShowAxes){
         int n = std::max(0, mStyle.mGridLines);
-        for (int i=0; i<=n; i++){
-            float t = (float)i / (float)(n);
-            float x = mBounds.x + t * mBounds.width;
-            float y = mBounds.y + t * mBounds.height;
-            DrawLineV({x, mBounds.y}, {x, mBounds.y + mBounds.height}, mStyle.mGridColor);
-            DrawLineV({mBounds.x, y}, {mBounds.x + mBounds.width, y}, mStyle.mGridColor);
+        if (n > 0) {
+            for (int i=0; i<=n; i++){
+                float t = (float)i / (float)(n);
+                float x = mBounds.x + t * mBounds.width;
+                float y = mBounds.y + t * mBounds.height;
+                DrawLineV({x, mBounds.y}, {x, mBounds.y + mBounds.height}, mStyle.mGridColor);
+                DrawLineV({mBounds.x, y}, {mBounds.x + mBounds.width, y}, mStyle.mGridColor);
+            }
         }
         DrawRectangleLinesEx(mBounds, 1.0f, mStyle.mAxesColor);
     }

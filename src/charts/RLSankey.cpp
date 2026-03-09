@@ -296,11 +296,25 @@ void RLSankey::update(float aDt) {
 
     // Update link source/target indices before removing nodes
     for (auto& rLink : mLinks) {
-        if (rLink.mSourceId < lIndexMap.size() && lIndexMap[rLink.mSourceId] != (size_t)-1) {
-            rLink.mSourceId = lIndexMap[rLink.mSourceId];
+        bool lOrphaned = false;
+        if (rLink.mSourceId < lIndexMap.size()) {
+            if (lIndexMap[rLink.mSourceId] != (size_t)-1) {
+                rLink.mSourceId = lIndexMap[rLink.mSourceId];
+            } else {
+                lOrphaned = true;
+            }
         }
-        if (rLink.mTargetId < lIndexMap.size() && lIndexMap[rLink.mTargetId] != (size_t)-1) {
-            rLink.mTargetId = lIndexMap[rLink.mTargetId];
+        if (rLink.mTargetId < lIndexMap.size()) {
+            if (lIndexMap[rLink.mTargetId] != (size_t)-1) {
+                rLink.mTargetId = lIndexMap[rLink.mTargetId];
+            } else {
+                lOrphaned = true;
+            }
+        }
+        if (lOrphaned) {
+            rLink.mPendingRemoval = true;
+            rLink.mVisibilityTarget = 0.0f;
+            rLink.mVisibility = 0.0f;
         }
     }
 

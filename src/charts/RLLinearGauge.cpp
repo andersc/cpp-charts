@@ -17,12 +17,15 @@ RLLinearGauge::RLLinearGauge(Rectangle aBounds, float aMinValue, float aMaxValue
                              const RLLinearGaugeStyle &aStyle)
     : mBounds(aBounds)
     , mMinValue(aMinValue)
-    , mMaxValue(aMaxValue)
+    , mMaxValue((aMaxValue == aMinValue) ? (aMinValue + 1.0f) : aMaxValue)
     , mValue(aMinValue)
     , mTargetValue(aMinValue)
     , mOrientation(aOrientation)
     , mStyle(aStyle)
 {
+    if (mMaxValue < mMinValue) {
+        std::swap(mMinValue, mMaxValue);
+    }
     recomputeGeometry();
 }
 
@@ -38,6 +41,9 @@ void RLLinearGauge::setTargetValue(float aValue) {
 void RLLinearGauge::setRange(float aMinValue, float aMaxValue) {
     mMinValue = aMinValue;
     mMaxValue = (aMaxValue == aMinValue) ? (aMinValue + 1.0f) : aMaxValue;
+    if (mMaxValue < mMinValue) {
+        std::swap(mMinValue, mMaxValue);
+    }
     mValue = clampValue(mValue);
     mTargetValue = clampValue(mTargetValue);
     recomputeGeometry();
