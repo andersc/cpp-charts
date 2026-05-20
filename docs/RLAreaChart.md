@@ -66,6 +66,7 @@ struct RLAreaChartStyle {
     bool mShowGrid{true};
     Color mGridColor{40, 44, 52, 255};
     int mGridLines{5};
+    bool mGridDashed{false};        // Use dashed grid lines (raylib 6.0)
 
     // Axes
     Color mAxisColor{180, 180, 180, 255};

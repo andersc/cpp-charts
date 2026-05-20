@@ -2392,4 +2392,56 @@ TEST_SUITE("Chart Legends") {
         CHECK(lStyle.mShowLegend == false);
     }
 
+    TEST_CASE("BarChart mGridDashed default is false") {
+        RLBarChartStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("BarChart mGridDashed can be enabled") {
+        RLBarChartStyle lStyle;
+        lStyle.mGridDashed = true;
+        CHECK(lStyle.mGridDashed == true);
+        Rectangle lBounds{0, 0, 400, 300};
+        RLBarChart lChart(lBounds, RLBarOrientation::VERTICAL, lStyle);
+        // Verify chart accepts the style without error
+        lStyle.mGridDashed = false;
+        lChart.setStyle(lStyle);
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("ScatterPlot mGridDashed default is false") {
+        RLScatterPlotStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("TimeSeries mGridDashed default is false") {
+        RLTimeSeriesChartStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("CandlestickChart mGridDashed default is false") {
+        RLCandleStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("Bubble mGridDashed default is false") {
+        RLBubbleStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("AreaChart mGridDashed default is false") {
+        RLAreaChartStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("OrderBookVis mGridDashed default is false") {
+        RLOrderBookVisStyle lStyle;
+        CHECK(lStyle.mGridDashed == false);
+    }
+
+    TEST_CASE("HiDPI flag value") {
+        // Verify FLAG_WINDOW_HIGHDPI is available and has expected value
+        CHECK(FLAG_WINDOW_HIGHDPI == 0x00002000);
+    }
+
 }

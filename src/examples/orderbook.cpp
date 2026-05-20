@@ -171,6 +171,7 @@ int main() {
     const int SCREEN_WIDTH = 1600;
     const int SCREEN_HEIGHT = 900;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Order Book Visualization - 2D Heatmap & 3D Landscape");
     SetTargetFPS(60);
 

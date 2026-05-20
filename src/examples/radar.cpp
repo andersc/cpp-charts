@@ -67,7 +67,7 @@ static std::vector<float> generateProfileValues(size_t aCount, float aBase, floa
 int main() {
     srand((unsigned int)time(nullptr));
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLRadarChart Demo - Radar/Spider Charts");
     SetTargetFPS(60);
 

@@ -44,6 +44,7 @@ int main(){
     srand((unsigned)time(nullptr));
     const int lScreenW = 1280;
     const int lScreenH = 720;
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(lScreenW, lScreenH, "raylib bar chart - RLBarChart demo");
     SetTargetFPS(120);
 

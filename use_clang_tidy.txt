@@ -17,7 +17,7 @@ cd /Users/anderscedronius/git/cpp-charts
     -- -std=c++20 \
     -I/Users/anderscedronius/git/cpp-charts/src/charts \
     -I/Users/anderscedronius/git/cpp-charts/src \
-    -I/opt/homebrew/Cellar/raylib/5.5/include
+    -I/opt/homebrew/Cellar/raylib/6.0/include
 
 Explanation of Options
 ----------------------
@@ -36,7 +36,7 @@ RECOMMENDED CHECK CONFIGURATIONS
     -- -std=c++20 \
     -I/Users/anderscedronius/git/cpp-charts/src/charts \
     -I/Users/anderscedronius/git/cpp-charts/src \
-    -I/opt/homebrew/Cellar/raylib/5.5/include
+    -I/opt/homebrew/Cellar/raylib/6.0/include
 
 2. Full Check (with project-appropriate suppressions)
 -----------------------------------------------------
@@ -60,7 +60,7 @@ RECOMMENDED CHECK CONFIGURATIONS
     -- -std=c++20 \
     -I/Users/anderscedronius/git/cpp-charts/src/charts \
     -I/Users/anderscedronius/git/cpp-charts/src \
-    -I/opt/homebrew/Cellar/raylib/5.5/include
+    -I/opt/homebrew/Cellar/raylib/6.0/include
 
 3. Readability Focus
 --------------------
@@ -73,7 +73,7 @@ RECOMMENDED CHECK CONFIGURATIONS
     -- -std=c++20 \
     -I/Users/anderscedronius/git/cpp-charts/src/charts \
     -I/Users/anderscedronius/git/cpp-charts/src \
-    -I/opt/homebrew/Cellar/raylib/5.5/include
+    -I/opt/homebrew/Cellar/raylib/6.0/include
 
 ================================================================================
 SUPPRESSIONS EXPLAINED (per project codestyle.txt and conventions)
@@ -172,6 +172,6 @@ Check all charts:
     for f in src/charts/*.cpp; do echo "=== $f ==="; \
     /opt/homebrew/Cellar/llvm/21.1.7/bin/clang-tidy "$f" \
     --checks='modernize-use-auto,misc-const-correctness' \
-    -- -std=c++20 -Isrc/charts -Isrc -I/opt/homebrew/Cellar/raylib/5.5/include \
+    -- -std=c++20 -Isrc/charts -Isrc -I/opt/homebrew/Cellar/raylib/6.0/include \
     2>&1 | grep -E "warning:" | wc -l; done
 

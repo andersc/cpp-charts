@@ -707,21 +707,23 @@ void RLOrderBookVis::drawGrid2D() const {
     // Vertical lines (time axis)
     for (int i = 0; i <= mStyle.mGridLinesX; ++i) {
         const float lX = lPlot.x + lPlot.width * (float)i / (float)mStyle.mGridLinesX;
-        DrawLineV(
-            Vector2{lX, lPlot.y},
-            Vector2{lX, lPlot.y + lPlot.height},
-            mStyle.mGridColor
-        );
+        if (mStyle.mGridDashed) {
+            DrawLineDashed(Vector2{lX, lPlot.y}, Vector2{lX, lPlot.y + lPlot.height},
+                           4, 4, mStyle.mGridColor);
+        } else {
+            DrawLineV(Vector2{lX, lPlot.y}, Vector2{lX, lPlot.y + lPlot.height}, mStyle.mGridColor);
+        }
     }
 
     // Horizontal lines (price axis)
     for (int i = 0; i <= mStyle.mGridLinesY; ++i) {
         const float lY = lPlot.y + lPlot.height * (float)i / (float)mStyle.mGridLinesY;
-        DrawLineV(
-            Vector2{lPlot.x, lY},
-            Vector2{lPlot.x + lPlot.width, lY},
-            mStyle.mGridColor
-        );
+        if (mStyle.mGridDashed) {
+            DrawLineDashed(Vector2{lPlot.x, lY}, Vector2{lPlot.x + lPlot.width, lY},
+                           4, 4, mStyle.mGridColor);
+        } else {
+            DrawLineV(Vector2{lPlot.x, lY}, Vector2{lPlot.x + lPlot.width, lY}, mStyle.mGridColor);
+        }
     }
 }
 

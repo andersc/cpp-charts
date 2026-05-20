@@ -256,6 +256,7 @@ int main() {
     const int SCREEN_WIDTH = 1280;
     const int SCREEN_HEIGHT = 720;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLHeatMap3D - Scientific 3D Plot Demo");
     SetTargetFPS(60);
 

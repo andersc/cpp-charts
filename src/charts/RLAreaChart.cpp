@@ -300,8 +300,13 @@ void RLAreaChart::drawGrid() const {
 
     for (int i = 1; i <= mStyle.mGridLines; ++i) {
         float lY = lBaseY - (lChartHeight / (float)mStyle.mGridLines) * (float)i;
-        DrawLine((int)(mBounds.x + mStyle.mPadding), (int)lY,
-                 (int)(mBounds.x + mBounds.width - mStyle.mPadding), (int)lY, mStyle.mGridColor);
+        if (mStyle.mGridDashed) {
+            DrawLineDashed({mBounds.x + mStyle.mPadding, lY},
+                           {mBounds.x + mBounds.width - mStyle.mPadding, lY}, 4, 4, mStyle.mGridColor);
+        } else {
+            DrawLine((int)(mBounds.x + mStyle.mPadding), (int)lY,
+                     (int)(mBounds.x + mBounds.width - mStyle.mPadding), (int)lY, mStyle.mGridColor);
+        }
     }
 }
 

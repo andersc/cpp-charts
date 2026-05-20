@@ -306,8 +306,13 @@ void RLBubble::draw() const{
                 float t = (float)i / (float)(n);
                 float x = mBounds.x + t * mBounds.width;
                 float y = mBounds.y + t * mBounds.height;
-                DrawLineV({x, mBounds.y}, {x, mBounds.y + mBounds.height}, mStyle.mGridColor);
-                DrawLineV({mBounds.x, y}, {mBounds.x + mBounds.width, y}, mStyle.mGridColor);
+                if (mStyle.mGridDashed) {
+                    DrawLineDashed({x, mBounds.y}, {x, mBounds.y + mBounds.height}, 4, 4, mStyle.mGridColor);
+                    DrawLineDashed({mBounds.x, y}, {mBounds.x + mBounds.width, y}, 4, 4, mStyle.mGridColor);
+                } else {
+                    DrawLineV({x, mBounds.y}, {x, mBounds.y + mBounds.height}, mStyle.mGridColor);
+                    DrawLineV({mBounds.x, y}, {mBounds.x + mBounds.width, y}, mStyle.mGridColor);
+                }
             }
         }
         DrawRectangleLinesEx(mBounds, 1.0f, mStyle.mAxesColor);

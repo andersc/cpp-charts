@@ -35,6 +35,7 @@ int main(){
     srand((unsigned)time(nullptr));
     const int screenW = 1280;
     const int screenH = 720;
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenW, screenH, "raylib bubble chart - RLBubble demo");
     SetTargetFPS(120);
 

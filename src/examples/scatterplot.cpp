@@ -35,6 +35,7 @@ int main(){
     srand((unsigned)time(nullptr));
     const int lW = 1280;
     const int lH = 720;
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(lW, lH, "raylib scatter plot - RLScatterPlot demo");
     SetTargetFPS(120);
 

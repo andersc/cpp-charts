@@ -62,6 +62,7 @@ struct RLOrderBookVisStyle {
     Color mGridColor{40, 44, 52, 120};
     int mGridLinesX{8};
     int mGridLinesY{6};
+    bool mGridDashed{false};        // Use dashed grid lines (raylib 6.0)
 
     // Mid-price / spread visualization
     bool mShowMidLine{true};

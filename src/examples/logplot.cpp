@@ -205,6 +205,7 @@ int main() {
     const int lScreenW = 1600;
     const int lScreenH = 1000;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(lScreenW, lScreenH, "RLLogPlot - Real-Time Allan Variance Analysis");
     SetTargetFPS(120);
 

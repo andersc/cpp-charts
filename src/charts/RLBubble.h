@@ -27,6 +27,7 @@ struct RLBubbleStyle {
     Color mAxesColor{70,75,85,255};
     Color mGridColor{40,44,52,255};
     int mGridLines = 4;         // per axis
+    bool mGridDashed = false;
     float mSizeScale = 24.0f;   // pixel radius per sqrt(size)
     float mMinRadius = 3.0f;    // minimum visual radius in pixels
     float mOutline = 2.0f;      // outline thickness

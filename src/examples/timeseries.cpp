@@ -87,7 +87,7 @@ int main() {
     srand((unsigned int)time(nullptr));
 
     // Initialize raylib
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLTimeSeries Demo - Multi-Trace Streaming Visualizer");
     SetTargetFPS(60);
 

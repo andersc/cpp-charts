@@ -139,5 +139,12 @@ TEST_SUITE("RLCommon") {
         CHECK(lAt1.y == doctest::Approx(1.0f));
     }
 
+    TEST_CASE("DrawLineDashed symbol available (raylib 6.0)") {
+        // Verify DrawLineDashed is declared and callable
+        // (linking proves the symbol exists; we just test signature compiles)
+        auto lFnPtr = &DrawLineDashed;
+        CHECK(lFnPtr != nullptr);
+    }
+
 }
 

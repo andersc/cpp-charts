@@ -32,7 +32,7 @@ static float randFloat(float aMin, float aMax) {
 int main() {
     srand((unsigned int)time(nullptr));
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLLinearGauge Demo - Dashboard Linear Gauges");
     SetTargetFPS(60);
 

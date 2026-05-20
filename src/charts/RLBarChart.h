@@ -31,6 +31,7 @@ struct RLBarChartStyle {
     bool mShowGrid = false;
     Color mGridColor{40, 44, 52, 255};
     int mGridLines = 4; // per value axis
+    bool mGridDashed = false;
 
     // Bars
     float mPadding = 14.0f;      // inner padding within bounds

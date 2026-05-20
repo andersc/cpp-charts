@@ -80,7 +80,7 @@ static std::vector<RLAreaSeries> generateData(float aTime) {
 int main() {
     srand((unsigned int)time(nullptr));
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLAreaChart Demo - Three Modes with Smooth Transitions");
     SetTargetFPS(60);
 

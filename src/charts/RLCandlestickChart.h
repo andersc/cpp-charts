@@ -20,6 +20,7 @@ struct RLCandleStyle {
     Color mBackground{20, 22, 28, 255};
     Color mGridColor{40, 44, 52, 120};
     int mGridLines = 4;
+    bool mGridDashed = false;
     Color mUpBody{60, 190, 120, 255};
     Color mUpWick{180, 240, 200, 255};
     Color mDownBody{220, 90, 90, 255};

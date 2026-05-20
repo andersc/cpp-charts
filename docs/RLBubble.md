@@ -51,6 +51,7 @@ struct RLBubbleStyle {
     Color mAxesColor{70, 75, 85, 255};
     Color mGridColor{40, 44, 52, 255};
     int mGridLines = 4;         // Grid lines per axis
+    bool mGridDashed = false;       // Use dashed grid lines (raylib 6.0)
     float mSizeScale = 24.0f;   // Pixel radius per sqrt(size)
     float mMinRadius = 3.0f;    // Minimum visual radius in pixels
     float mOutline = 2.0f;      // Outline thickness

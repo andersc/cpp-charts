@@ -173,13 +173,21 @@ void RLBarChart::draw() const{
             for (int i=1;i<=mStyle.mGridLines;i++){
                 float t = (float)i / (float)(mStyle.mGridLines+1);
                 float y = lInner.y + lInner.height * (1.0f - t);
-                DrawLineV({lInner.x, y}, {lInner.x + lInner.width, y}, mStyle.mGridColor);
+                if (mStyle.mGridDashed) {
+                    DrawLineDashed({lInner.x, y}, {lInner.x + lInner.width, y}, 4, 4, mStyle.mGridColor);
+                } else {
+                    DrawLineV({lInner.x, y}, {lInner.x + lInner.width, y}, mStyle.mGridColor);
+                }
             }
         }else{
             for (int i=1;i<=mStyle.mGridLines;i++){
                 float t = (float)i / (float)(mStyle.mGridLines+1);
                 float x = lInner.x + lInner.width * t;
-                DrawLineV({x, lInner.y}, {x, lInner.y + lInner.height}, mStyle.mGridColor);
+                if (mStyle.mGridDashed) {
+                    DrawLineDashed({x, lInner.y}, {x, lInner.y + lInner.height}, 4, 4, mStyle.mGridColor);
+                } else {
+                    DrawLineV({x, lInner.y}, {x, lInner.y + lInner.height}, mStyle.mGridColor);
+                }
             }
         }
     }

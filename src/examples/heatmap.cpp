@@ -125,6 +125,7 @@ int main(){
 
     const int lW = 1400;
     const int lH = 820;
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(lW, lH, "raylib heat map - RLHeatMap demo");
     SetTargetFPS(120);
 

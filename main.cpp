@@ -49,6 +49,7 @@ int main() {
     const int SCREEN_WIDTH = 1920;
     const int SCREEN_HEIGHT = 1080;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RayLib Charts - All Charts Demo");
     SetTargetFPS(60);
 

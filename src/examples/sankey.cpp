@@ -183,7 +183,7 @@ static DemoData createWebsiteFlowDemo() {
 int main() {
     srand((unsigned int)time(nullptr));
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "RLSankey Demo - Flow Visualization");
     SetTargetFPS(60);
 

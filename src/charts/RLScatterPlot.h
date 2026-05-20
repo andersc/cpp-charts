@@ -38,6 +38,7 @@ struct RLScatterPlotStyle {
     bool mShowGrid{ false };
     Color mGridColor{ 40, 44, 52, 255 };
     int mGridLines{ 4 };
+    bool mGridDashed{ false };
 
     // Padding inside bounds (for labels if any, or just breathing room)
     float mPadding{ 10.0f };

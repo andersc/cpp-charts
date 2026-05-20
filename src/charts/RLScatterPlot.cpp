@@ -214,8 +214,13 @@ void RLScatterPlot::draw() const{
             const float lT = (lN==0)?0.0f:(float)i/(float)lN;
             const float lX = lRect.x + lT * lRect.width;
             const float lY = lRect.y + lT * lRect.height;
-            DrawLineV({lX, lRect.y}, {lX, lRect.y + lRect.height}, mStyle.mGridColor);
-            DrawLineV({lRect.x, lY}, {lRect.x + lRect.width, lY}, mStyle.mGridColor);
+            if (mStyle.mGridDashed) {
+                DrawLineDashed({lX, lRect.y}, {lX, lRect.y + lRect.height}, 4, 4, mStyle.mGridColor);
+                DrawLineDashed({lRect.x, lY}, {lRect.x + lRect.width, lY}, 4, 4, mStyle.mGridColor);
+            } else {
+                DrawLineV({lX, lRect.y}, {lX, lRect.y + lRect.height}, mStyle.mGridColor);
+                DrawLineV({lRect.x, lY}, {lRect.x + lRect.width, lY}, mStyle.mGridColor);
+            }
         }
     }
     if (mStyle.mShowAxes){

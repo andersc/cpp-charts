@@ -55,6 +55,14 @@ Let's face it: there is no really simple C++ library for great-looking graphs. M
 
 **All demos use the bundled `base.ttf` font for consistent, readable text rendering.**
 
+### raylib 6.0 Features
+
+cpp-charts leverages raylib 6.0's new capabilities:
+
+- 🖥️ **HiDPI Support** — All examples use `FLAG_WINDOW_HIGHDPI` for crisp rendering on Retina/4K displays
+- ➖ **Dashed Grid Lines** — Enable `mGridDashed = true` in any chart style for dashed grid lines via `DrawLineDashed()`
+- 🖼️ **Headless Rendering** — Generate chart PNGs without a GPU or display (CI, Docker, servers) via the Memory platform backend. See [headless/README.md](headless/README.md)
+
 ---
 
 ## 🌐 Live Web Demos
@@ -494,6 +502,7 @@ RLBarChartStyle style;
 style.mBackground = Color{20, 22, 28, 255};
 style.mShowGrid = true;
 style.mGridColor = Color{40, 44, 52, 255};
+style.mGridDashed = true;  // raylib 6.0 dashed grid lines
 style.mPadding = 20.0f;
 style.mSpacing = 15.0f;
 style.mCornerRadius = 8.0f;

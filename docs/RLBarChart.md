@@ -45,6 +45,7 @@ struct RLBarChartStyle {
     bool mShowGrid = false;
     Color mGridColor{40, 44, 52, 255};
     int mGridLines = 4;
+    bool mGridDashed = false;       // Use dashed grid lines (raylib 6.0)
 
     // Bars
     float mPadding = 14.0f;

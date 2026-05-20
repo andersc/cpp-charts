@@ -235,6 +235,7 @@ int main() {
     const int SCREEN_WIDTH = 1400;
     const int SCREEN_HEIGHT = 900;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TreeMap Visualization - D3-Style Layout Demo");
     SetTargetFPS(60);
 

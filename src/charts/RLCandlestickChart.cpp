@@ -213,7 +213,11 @@ void RLCandlestickChart::draw() const {
     if (mStyle.mGridLines > 0) {
         for (int i = 0; i <= mStyle.mGridLines; ++i) {
             float lY = lPriceR.y + (lPriceR.height * (float)i / (float)(mStyle.mGridLines));
-            DrawLine((int)lPriceR.x, (int)lY, (int)(lPriceR.x + lPriceR.width), (int)lY, mStyle.mGridColor);
+            if (mStyle.mGridDashed) {
+                DrawLineDashed({lPriceR.x, lY}, {lPriceR.x + lPriceR.width, lY}, 4, 4, mStyle.mGridColor);
+            } else {
+                DrawLine((int)lPriceR.x, (int)lY, (int)(lPriceR.x + lPriceR.width), (int)lY, mStyle.mGridColor);
+            }
         }
     }
 

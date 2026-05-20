@@ -86,7 +86,7 @@ static std::string resolveCSVPath(){
 int main(){
     const int lScreenW = 1280;
     const int lScreenH = 800;
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(lScreenW, lScreenH, "Raylib Candlestick Demo");
 
     Font lFont = LoadFontEx("base.ttf", 20, nullptr, 250);

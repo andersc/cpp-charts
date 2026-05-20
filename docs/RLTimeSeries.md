@@ -60,6 +60,7 @@ struct RLTimeSeriesChartStyle {
     Color mGridColor{40, 44, 52, 255};
     int mGridLinesX{8};
     int mGridLinesY{4};
+    bool mGridDashed{false};        // Use dashed grid lines (raylib 6.0)
     bool mShowAxes{true};
     Color mAxesColor{70, 75, 85, 255};
 
