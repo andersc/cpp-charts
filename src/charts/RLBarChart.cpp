@@ -239,7 +239,6 @@ void RLBarChart::draw() const{
             }
             // border
             if (lBar.mShowBorder && lRect.height > 1.0f){
-                // raylib 5.5 DrawRectangleRoundedLines has no thickness parameter; approximate single-pixel outline
                 Color lBorderCol = lBar.mBorderColor; lBorderCol.a = (unsigned char)(int)((int)lBorderCol.a * lScale);
                 DrawRectangleRoundedLines(lRect, lCorner/lBarW, 6, lBorderCol);
             }
