@@ -1,5 +1,5 @@
 // test_common.cpp
-// Unit tests for RLCommon.h utility functions
+// Unit tests for RLCommon.h utility functions and raylib math equivalents
 
 // IMPORTANT: On Windows, we need to prevent Windows SDK conflicts with raylib
 #if defined(_WIN32)
@@ -37,46 +37,35 @@ TEST_SUITE("RLCommon") {
         CHECK(RLCharts::clampIdx(15, 10) == 9);
     }
 
-    TEST_CASE("lerp") {
-        CHECK(RLCharts::lerp(0.0f, 10.0f, 0.5f) == doctest::Approx(5.0f));
-        CHECK(RLCharts::lerp(0.0f, 10.0f, 0.0f) == doctest::Approx(0.0f));
-        CHECK(RLCharts::lerp(0.0f, 10.0f, 1.0f) == doctest::Approx(10.0f));
-        CHECK(RLCharts::lerp(-10.0f, 10.0f, 0.5f) == doctest::Approx(0.0f));
+    TEST_CASE("Lerp (raylib)") {
+        CHECK(Lerp(0.0f, 10.0f, 0.5f) == doctest::Approx(5.0f));
+        CHECK(Lerp(0.0f, 10.0f, 0.0f) == doctest::Approx(0.0f));
+        CHECK(Lerp(0.0f, 10.0f, 1.0f) == doctest::Approx(10.0f));
+        CHECK(Lerp(-10.0f, 10.0f, 0.5f) == doctest::Approx(0.0f));
+        CHECK(Lerp(0.0f, 100.0f, 0.25f) == doctest::Approx(25.0f));
+        CHECK(Lerp(100.0f, 0.0f, 0.5f) == doctest::Approx(50.0f));
     }
 
-    TEST_CASE("lerpF") {
-        CHECK(RLCharts::lerpF(0.0f, 100.0f, 0.25f) == doctest::Approx(25.0f));
-        CHECK(RLCharts::lerpF(100.0f, 0.0f, 0.5f) == doctest::Approx(50.0f));
-    }
-
-    TEST_CASE("lerpColor") {
+    TEST_CASE("ColorLerp (raylib)") {
         Color lBlack = {0, 0, 0, 255};
         Color lWhite = {255, 255, 255, 255};
 
-        Color lMid = RLCharts::lerpColor(lBlack, lWhite, 0.5f);
+        Color lMid = ColorLerp(lBlack, lWhite, 0.5f);
         CHECK(lMid.r == 127);
         CHECK(lMid.g == 127);
         CHECK(lMid.b == 127);
         CHECK(lMid.a == 255);
-
-        // Clamps t to [0,1]
-        Color lClamped = RLCharts::lerpColor(lBlack, lWhite, 2.0f);
-        CHECK(lClamped.r == 255);
-        CHECK(lClamped.g == 255);
-        CHECK(lClamped.b == 255);
     }
 
-    TEST_CASE("degToRad") {
-        CHECK(RLCharts::degToRad(0.0f) == doctest::Approx(0.0f));
-        CHECK(RLCharts::degToRad(180.0f) == doctest::Approx(PI));
-        CHECK(RLCharts::degToRad(90.0f) == doctest::Approx(PI / 2.0f));
-        CHECK(RLCharts::degToRad(360.0f) == doctest::Approx(2.0f * PI));
-    }
+    TEST_CASE("DEG2RAD / RAD2DEG (raylib)") {
+        CHECK(0.0f * DEG2RAD == doctest::Approx(0.0f));
+        CHECK(180.0f * DEG2RAD == doctest::Approx(PI));
+        CHECK(90.0f * DEG2RAD == doctest::Approx(PI / 2.0f));
+        CHECK(360.0f * DEG2RAD == doctest::Approx(2.0f * PI));
 
-    TEST_CASE("radToDeg") {
-        CHECK(RLCharts::radToDeg(0.0f) == doctest::Approx(0.0f));
-        CHECK(RLCharts::radToDeg(PI) == doctest::Approx(180.0f));
-        CHECK(RLCharts::radToDeg(PI / 2.0f) == doctest::Approx(90.0f));
+        CHECK(0.0f * RAD2DEG == doctest::Approx(0.0f));
+        CHECK((float)PI * RAD2DEG == doctest::Approx(180.0f));
+        CHECK((PI / 2.0f) * RAD2DEG == doctest::Approx(90.0f));
     }
 
     TEST_CASE("colorLuma") {
@@ -116,36 +105,36 @@ TEST_SUITE("RLCommon") {
         CHECK(RLCharts::mulAlpha(200, 2.0f) == 255); // 200*2 = 400, clamped to 255
     }
 
-    TEST_CASE("lerpVector2") {
+    TEST_CASE("Vector2Lerp (raylib)") {
         Vector2 lA = {0.0f, 0.0f};
         Vector2 lB = {10.0f, 20.0f};
 
-        Vector2 lMid = RLCharts::lerpVector2(lA, lB, 0.5f);
+        Vector2 lMid = Vector2Lerp(lA, lB, 0.5f);
         CHECK(lMid.x == doctest::Approx(5.0f));
         CHECK(lMid.y == doctest::Approx(10.0f));
     }
 
-    TEST_CASE("distance") {
+    TEST_CASE("Vector2Distance (raylib)") {
         Vector2 lA = {0.0f, 0.0f};
         Vector2 lB = {3.0f, 4.0f};
 
-        CHECK(RLCharts::distance(lA, lB) == doctest::Approx(5.0f));
-        CHECK(RLCharts::distance(lA, lA) == doctest::Approx(0.0f));
+        CHECK(Vector2Distance(lA, lB) == doctest::Approx(5.0f));
+        CHECK(Vector2Distance(lA, lA) == doctest::Approx(0.0f));
     }
 
-    TEST_CASE("catmullRom") {
+    TEST_CASE("GetSplinePointCatmullRom (raylib)") {
         Vector2 lP0 = {0.0f, 0.0f};
         Vector2 lP1 = {1.0f, 1.0f};
         Vector2 lP2 = {2.0f, 1.0f};
         Vector2 lP3 = {3.0f, 0.0f};
 
         // At t=0, should be at P1
-        Vector2 lAt0 = RLCharts::catmullRom(lP0, lP1, lP2, lP3, 0.0f);
+        Vector2 lAt0 = GetSplinePointCatmullRom(lP0, lP1, lP2, lP3, 0.0f);
         CHECK(lAt0.x == doctest::Approx(1.0f));
         CHECK(lAt0.y == doctest::Approx(1.0f));
 
         // At t=1, should be at P2
-        Vector2 lAt1 = RLCharts::catmullRom(lP0, lP1, lP2, lP3, 1.0f);
+        Vector2 lAt1 = GetSplinePointCatmullRom(lP0, lP1, lP2, lP3, 1.0f);
         CHECK(lAt1.x == doctest::Approx(2.0f));
         CHECK(lAt1.y == doctest::Approx(1.0f));
     }

@@ -10,7 +10,7 @@
 constexpr float HALF = 0.5f;
 constexpr int VALUE_BUFFER_SIZE = 64;
 constexpr float MIN_TRACK_LENGTH = 20.0f;
-constexpr float EPSILON = 1e-6f;
+constexpr float FLOAT_EPSILON = 1e-6f;
 
 RLLinearGauge::RLLinearGauge(Rectangle aBounds, float aMinValue, float aMaxValue,
                              RLLinearGaugeOrientation aOrientation,
@@ -135,7 +135,7 @@ void RLLinearGauge::setChannelValue(int aIndex, float aValue) {
         }
 
         // Detect clipping (value at or near max)
-        if (mChannels[(size_t)aIndex].mValue >= mMaxValue - EPSILON) {
+        if (mChannels[(size_t)aIndex].mValue >= mMaxValue - FLOAT_EPSILON) {
             mClipStates[(size_t)aIndex] = true;
             mClipTimers[(size_t)aIndex] = mStyle.mVuStyle.mClipFlashDuration;
         }
@@ -568,7 +568,7 @@ void RLLinearGauge::drawTitle() const {
 // ============================================================================
 
 float RLLinearGauge::linearToDb(float aLinear) const {
-    if (aLinear <= EPSILON) {
+    if (aLinear <= FLOAT_EPSILON) {
         return mStyle.mVuStyle.mDbMin;
     }
     float lDb = 20.0f * log10f(aLinear);
@@ -659,14 +659,14 @@ void RLLinearGauge::drawVuMeterChannel(int aIndex, Rectangle aBounds) const {
     lNormalized = std::max(0.0f, std::min(1.0f, lNormalized));
 
     // Apply dB scale if enabled
-    if (mStyle.mVuStyle.mUseDbScale && lNormalized > EPSILON) {
+    if (mStyle.mVuStyle.mUseDbScale && lNormalized > FLOAT_EPSILON) {
         float lDb = linearToDb(lNormalized);
         float lDbRange = mStyle.mVuStyle.mDbMax - mStyle.mVuStyle.mDbMin;
         lNormalized = (lDb - mStyle.mVuStyle.mDbMin) / lDbRange;
         lNormalized = std::max(0.0f, std::min(1.0f, lNormalized));
     }
 
-    if (lNormalized <= EPSILON) {
+    if (lNormalized <= FLOAT_EPSILON) {
         return;
     }
 
@@ -756,14 +756,14 @@ void RLLinearGauge::drawVuMeterPeakMarker(int aIndex, Rectangle aBounds) const {
     lNormalized = std::max(0.0f, std::min(1.0f, lNormalized));
 
     // Apply dB scale if enabled
-    if (mStyle.mVuStyle.mUseDbScale && lNormalized > EPSILON) {
+    if (mStyle.mVuStyle.mUseDbScale && lNormalized > FLOAT_EPSILON) {
         float lDb = linearToDb(lNormalized);
         float lDbRange = mStyle.mVuStyle.mDbMax - mStyle.mVuStyle.mDbMin;
         lNormalized = (lDb - mStyle.mVuStyle.mDbMin) / lDbRange;
         lNormalized = std::max(0.0f, std::min(1.0f, lNormalized));
     }
 
-    if (lNormalized <= EPSILON) {
+    if (lNormalized <= FLOAT_EPSILON) {
         return;
     }
 

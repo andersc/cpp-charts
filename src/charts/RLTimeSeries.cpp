@@ -413,7 +413,7 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
         // Estimate total spline points needed
         float lTotalDist = 0.0f;
         for (size_t i = 1; i < rTrace.mScreenPoints.size(); ++i) {
-            lTotalDist += RLCharts::distance(rTrace.mScreenPoints[i - 1], rTrace.mScreenPoints[i]);
+            lTotalDist += Vector2Distance(rTrace.mScreenPoints[i - 1], rTrace.mScreenPoints[i]);
         }
 
         size_t lSplinePoints = (size_t)(lTotalDist / mStyle.mSplinePixels) + rTrace.mCount;
@@ -442,7 +442,7 @@ void RLTimeSeries::rebuildScreenPoints(size_t aTraceIndex) const {
             const size_t lSteps = (seg == lNumSegments - 1) ? (lSplinePoints - lOutIdx) : lPointsPerSegment;
             for (size_t s = 0; s < lSteps && lOutIdx < lSplinePoints; ++s) {
                 const float lT = (float)s / (float)lSteps;
-                rTrace.mSplineCache[lOutIdx++] = RLCharts::catmullRom(lP0, lP1, lP2, lP3, lT);
+                rTrace.mSplineCache[lOutIdx++] = GetSplinePointCatmullRom(lP0, lP1, lP2, lP3, lT);
             }
         }
 

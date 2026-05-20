@@ -126,7 +126,7 @@ wasm/
 
 The build system:
 
-1. **Fetches raylib 5.5** via CMake's `FetchContent` and configures it for WebAssembly (`PLATFORM=Web`)
+1. **Fetches raylib 6.0** via CMake's `FetchContent` and configures it for WebAssembly (`PLATFORM=Web`)
 2. **Compiles each demo** to WebAssembly using Emscripten
 3. **Embeds assets** (fonts, CSV data) into `.data` files using `--preload-file`
 4. **Uses a custom shell** (`shell.html`) for beautiful, consistent styling across all demos

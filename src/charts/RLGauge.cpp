@@ -72,7 +72,7 @@ void RLGauge::recomputeGeometry(){
         const float lLen = lMajor ? mStyle.mMajorTickLen : mStyle.mTickLen;
         const float lRadiusStart = lInnerR - lLen;
         const float lRadiusEnd = lInnerR - 2.0f; // small gap from ring
-        const float lAngleRad = RLCharts::degToRad(lAngleDeg);
+        const float lAngleRad = lAngleDeg * DEG2RAD;
         const float lCos = cosf(lAngleRad);
         const float lSin = sinf(lAngleRad);
         Vector2 lP0{ mCenter.x + (lCos * lRadiusStart), mCenter.y + (lSin * lRadiusStart) };
@@ -116,7 +116,7 @@ void RLGauge::draw() const{
     // needle
     if (mStyle.mShowNeedle){
         float lAng = valueToAngle(mValue);
-        float lAngRad = RLCharts::degToRad(lAng);
+        float lAngRad = lAng * DEG2RAD;
         float lNeedleRadius = mRadius * mStyle.mNeedleRadiusScale;
         Vector2 lTip{ mCenter.x + (cosf(lAngRad) * lNeedleRadius), mCenter.y + (sinf(lAngRad) * lNeedleRadius) };
         DrawLineEx(mCenter, lTip, mStyle.mNeedleWidth, mStyle.mNeedleColor);

@@ -1,7 +1,6 @@
 // RLOrderBookVis.cpp
 #include "RLOrderBookVis.h"
 #include "RLCommon.h"
-#include "raymath.h"
 #include <cmath>
 #include <algorithm>
 #include <cstring>

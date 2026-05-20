@@ -3,15 +3,25 @@ project(cpp_charts)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package (raylib 5.0 REQUIRED)
-find_package (ZLIB REQUIRED)
-find_package (Threads REQUIRED)
+find_package (raylib 6.0 QUIET)
+if (NOT raylib_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        raylib
+        GIT_REPOSITORY https://github.com/raysan5/raylib.git
+        GIT_TAG 6.0
+        GIT_SHALLOW TRUE
+    )
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(raylib)
+    message(STATUS "Using FetchContent raylib 6.0")
+else()
+    message(STATUS "Using system raylib: ${raylib_INCLUDE_DIRS}")
+    include_directories(${raylib_INCLUDE_DIRS})
+endif()
 
-message("Including raylib from: " ${raylib_INCLUDE_DIRS})
-message("Including ZLIB from: " ${ZLIB_INCLUDE_DIRS})
-
-include_directories(${raylib_INCLUDE_DIRS})
-include_directories(${ZLIB_INCLUDE_DIRS})
+find_package(Threads REQUIRED)
 
 #gauges header files location
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/charts)

@@ -286,21 +286,24 @@ chart.draw();
 ## 📦 Integration into Your Project
 
 ### You need to have the following dependencies installed:
-- [raylib](https://www.raylib.com/) 5.0 or higher
-- [zlib](https://zlib.net/) (for certain features)
+- [raylib](https://www.raylib.com/) 6.0 or higher (auto-fetched if not found)
 - CMake 3.28 or higher
 
 ### MacOS (using Homebrew):
 
 ```bash
-brew install raylib zlib
+# raylib 6.0 will be fetched automatically by CMake if not installed
+# Or build from source:
+git clone --branch 6.0 https://github.com/raysan5/raylib.git
+cd raylib && mkdir build && cd build
+cmake -DBUILD_SHARED_LIBS=ON .. && make && sudo make install
 ``` 
 ### Ubuntu (using apt):
 
 ```bash
-sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev zlib1g-dev
+sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 cd (temporary directory or where you want to build raylib)
-git clone --branch 5.5 https://github.com/raysan5/raylib.git raylib
+git clone --branch 6.0 https://github.com/raysan5/raylib.git raylib
 cd raylib
 mkdir build && cd build
 cmake -DBUILD_SHARED_LIBS=ON ..
@@ -316,14 +319,8 @@ See the windows build actions for reference. The below builds the x86_64 binarie
 
 
 ```bash
-cd (temporary directory or where you want to build zlib)
-git clone --branch v1.3.1 https://github.com/madler/zlib.git
-cd zlib
-cmake -S . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target install --config Release
-
 cd (temporary directory or where you want to build raylib)
-git clone --branch 5.5 https://github.com/raysan5/raylib.git
+git clone --branch 6.0 https://github.com/raysan5/raylib.git
 cd raylib
 mkdir build
 cd build
@@ -344,15 +341,21 @@ project(single_guage)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package (raylib 5.0 REQUIRED)
-find_package (ZLIB REQUIRED)
-find_package (Threads REQUIRED)
+find_package(raylib 6.0 QUIET)
+if (NOT raylib_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        raylib
+        GIT_REPOSITORY https://github.com/raysan5/raylib.git
+        GIT_TAG 6.0
+        GIT_SHALLOW TRUE
+    )
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(raylib)
+endif()
 
-message("Including raylib from: " ${raylib_INCLUDE_DIRS})
-message("Including ZLIB from: " ${ZLIB_INCLUDE_DIRS})
-
-include_directories(${raylib_INCLUDE_DIRS})
-include_directories(${ZLIB_INCLUDE_DIRS})
+find_package(Threads REQUIRED)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -476,7 +479,7 @@ python3 -m http.server 8080
 - 🎨 Beautiful custom landing page with dark theme
 - ⚡ Fast loading with progress indicator
 - 📱 Fullscreen support
-- 🔧 Self-contained build (fetches raylib 5.5 automatically)
+- 🔧 Self-contained build (fetches raylib 6.0 automatically)
 
 For complete build instructions, prerequisites, and troubleshooting, see **[wasm/README.md](wasm/README.md)**.
 
@@ -602,8 +605,7 @@ CPP_CHARTS_SKIP_RAYLIB=1 ctest --output-on-failure
 
 - **CMake** 3.28 or higher
 - **C++20** compiler
-- **raylib** 5.0 or higher
-- **zlib** (for certain features)
+- **raylib** 6.0 or higher
 
 ---
 

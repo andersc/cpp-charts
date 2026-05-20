@@ -673,7 +673,7 @@ void RLHeatMap3D::rebuildLut() {
         lIdx0 = std::max(lIdx0, 0);
 
         const float lLocalT = lScaled - (float)lIdx0;
-        mLut[i] = RLCharts::lerpColor(mPaletteStops[(size_t)lIdx0], mPaletteStops[(size_t)lIdx1], lLocalT);
+        mLut[i] = ColorLerp(mPaletteStops[(size_t)lIdx0], mPaletteStops[(size_t)lIdx1], lLocalT);
     }
 
     mLutDirty = false;

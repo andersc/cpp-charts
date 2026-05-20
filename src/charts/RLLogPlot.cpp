@@ -650,7 +650,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
             const Vector2 lUpperPt = mapLogPoint(lLogX, lLogUpper, aPlotRect);
 
             const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            const Color lDrawColor = RLCharts::fadeColor(lConfColor, lVis);
+            const Color lDrawColor = Fade(lConfColor, lVis);
 
             if (rTrace.mStyle.mConfidenceAsBars) {
                 // Error bars
@@ -690,7 +690,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
     // Draw connecting lines
     for (size_t i = 0; i < lScreenPoints.size() - 1; ++i) {
         const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-        const Color lDrawColor = RLCharts::fadeColor(rTrace.mStyle.mLineColor, lVis);
+        const Color lDrawColor = Fade(rTrace.mStyle.mLineColor, lVis);
         DrawLineEx(lScreenPoints[i], lScreenPoints[i + 1],
                   rTrace.mStyle.mLineThickness, lDrawColor);
     }
@@ -704,7 +704,7 @@ void RLLogPlot::drawLogTrace(const RLLogPlotTrace& rTrace, Rectangle aPlotRect) 
 
         for (size_t i = 0; i < lScreenPoints.size(); ++i) {
             const float lVis = (i < rTrace.mVisibility.size()) ? rTrace.mVisibility[i] : 1.0f;
-            const Color lDrawColor = RLCharts::fadeColor(lPointColor, lVis);
+            const Color lDrawColor = Fade(lPointColor, lVis);
             DrawCircleV(lScreenPoints[i], rTrace.mStyle.mPointRadius, lDrawColor);
 
             // Outline for visibility

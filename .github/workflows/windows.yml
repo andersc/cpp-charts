@@ -34,7 +34,7 @@ jobs:
 
     - name: install raylib
       run: |
-        git clone --branch 5.5 https://github.com/raysan5/raylib.git
+        git clone --branch 6.0 https://github.com/raysan5/raylib.git
         cd raylib
         mkdir build
         cd build

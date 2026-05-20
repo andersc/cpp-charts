@@ -180,12 +180,12 @@ void RLScatterPlot::buildCaches() const{
                 const Vector2 &p1 = lPts[i];
                 const Vector2 &p2 = lPts[i+1];
                 const Vector2 &p3 = (i+2<lN) ? lPts[i+2] : lPts[lN-1];
-                const float lSegLen = RLCharts::distance(p1,p2);
+                const float lSegLen = Vector2Distance(p1,p2);
                 const int lSteps = (int)RLCharts::maxVal(1.0f, floorf(lSegLen / lTargetPx));
                 const float lInv = 1.0f / (float)lSteps;
                 for (int k=0; k<lSteps; ++k){
                     const float t = (float)k * lInv;
-                    s.mSpline.push_back(RLCharts::catmullRom(p0,p1,p2,p3,t));
+                    s.mSpline.push_back(GetSplinePointCatmullRom(p0,p1,p2,p3,t));
                     const float lVa = s.mCacheVis[i];
                     const float lVb = s.mCacheVis[i+1];
                     s.mSplineVis.push_back(lVa + (lVb - lVa) * t);
@@ -305,7 +305,7 @@ void RLScatterPlot::draw() const{
                 const auto& rS = mSeries[si];
                 for (size_t pi = 0; pi < rS.mCache.size(); ++pi) {
                     if (pi < rS.mCacheVis.size() && rS.mCacheVis[pi] < 0.01f) continue;
-                    auto lDist = RLCharts::distance(lMouse, rS.mCache[pi]);
+                    auto lDist = Vector2Distance(lMouse, rS.mCache[pi]);
                     if (lDist < lBestDist) {
                         lBestDist = lDist;
                         lBestSeries = (int32_t)si;

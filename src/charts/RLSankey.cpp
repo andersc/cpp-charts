@@ -922,8 +922,8 @@ void RLSankey::drawLink(const LinkDyn& rLink) const {
         const float lT1 = (float)i / (float)(lSegCount - 1);
         const float lT2 = (float)(i + 1) / (float)(lSegCount - 1);
 
-        Color lC1 = RLCharts::lerpColor(lColorStart, lColorEnd, lT1);
-        Color lC2 = RLCharts::lerpColor(lColorStart, lColorEnd, lT2);
+        Color lC1 = ColorLerp(lColorStart, lColorEnd, lT1);
+        Color lC2 = ColorLerp(lColorStart, lColorEnd, lT2);
 
         lC1.a = static_cast<unsigned char>(static_cast<float>(lC1.a) * lAlpha);
         lC2.a = static_cast<unsigned char>(static_cast<float>(lC2.a) * lAlpha);
