@@ -49,8 +49,8 @@ The key difference from the normal build is `PLATFORM=Memory` which tells raylib
 void exportChart(const std::vector<RLBarData>& aData, const char* aPath) {
     InitWindow(800, 600, "headless");
 
-    RLBarChart lChart;
-    lChart.setBounds({20, 20, 760, 560});
+    Rectangle lBounds{20.0f, 20.0f, 760.0f, 560.0f};
+    RLBarChart lChart(lBounds, RLBarOrientation::VERTICAL);
     lChart.setData(aData);
 
     BeginDrawing();

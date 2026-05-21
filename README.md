@@ -610,6 +610,51 @@ CPP_CHARTS_SKIP_RAYLIB=1 ctest --output-on-failure
 
 ---
 
+## 🖼️ CPU / Headless Rendering
+
+raylib 6.0 introduces the **Memory platform** backend with a pure software renderer (`rlsw`). This lets cpp-charts render entirely on the CPU — no GPU, no display server, no window system needed.
+
+```bash
+# Build with the Memory platform
+cd headless
+mkdir build && cd build
+cmake ..
+make
+
+# Generate a chart PNG
+./headless_charts output.png
+```
+
+```cpp
+#include "RLBarChart.h"
+
+int main() {
+    InitWindow(800, 600, "headless");
+
+    Rectangle lBounds{20, 20, 760, 560};
+    RLBarChart lChart(lBounds, RLBarOrientation::VERTICAL);
+    lChart.setData({{72.0f, BLUE, false, BLACK, "Q1"},
+                    {91.0f, GREEN, false, BLACK, "Q2"},
+                    {58.0f, RED, false, BLACK, "Q3"}});
+
+    BeginDrawing();
+    ClearBackground(WHITE);
+    lChart.draw();
+    EndDrawing();
+
+    Image lImg = LoadImageFromScreen();
+    ExportImage(lImg, "chart.png");
+    UnloadImage(lImg);
+
+    CloseWindow();
+    return 0;
+}
+```
+
+Perfect for CI pipelines, Docker containers, server-side rendering, and automated report generation. See **[headless/README.md](headless/README.md)** for full documentation.
+
+---
+
 ## 📋 Requirements
 
 - **CMake** 3.28 or higher
