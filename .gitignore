@@ -2,3 +2,4 @@
 cmake-build*
 build*
 !wasm/build.sh
+startme.txt
