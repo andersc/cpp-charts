@@ -651,7 +651,19 @@ int main() {
 }
 ```
 
-Perfect for CI pipelines, Docker containers, server-side rendering, and automated report generation. See **[headless/README.md](headless/README.md)** for full documentation.
+Perfect for CI pipelines, Docker containers, server-side rendering, and automated report generation.
+
+**Raw pixel buffer access** — skip file I/O and get the RGBA bytes directly for network streaming, IPC, or piping to FFmpeg:
+
+```cpp
+Image lImg = LoadImageFromScreen();
+uint8_t* lPixels = (uint8_t*)lImg.data;  // Raw RGBA, 4 bytes/pixel
+int32_t lSize = lImg.width * lImg.height * 4;
+// Send lPixels over socket, shared memory, pipe, etc.
+UnloadImage(lImg);
+```
+
+See **[headless/README.md](headless/README.md)** for full documentation and examples.
 
 ---
 

@@ -32,6 +32,18 @@ target_link_libraries(headless_charts
     raylib
     Threads::Threads
 )
+
+add_executable(pixelbuffer_charts
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/examples/pixelbuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/charts/RLBarChart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/charts/RLPieChart.cpp
+)
+target_link_libraries(pixelbuffer_charts
+    raylib
+    Threads::Threads
+)
+
 if(WIN32)
     target_link_libraries(headless_charts winmm)
+    target_link_libraries(pixelbuffer_charts winmm)
 endif()

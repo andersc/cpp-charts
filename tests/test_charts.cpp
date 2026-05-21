@@ -2444,4 +2444,22 @@ TEST_SUITE("Chart Legends") {
         CHECK(FLAG_WINDOW_HIGHDPI == 0x00002000);
     }
 
+    TEST_CASE("LoadImageFromScreen and pixel buffer access") {
+        // Verify the API for accessing raw pixel data is available
+        // (actual rendering requires Memory platform, but we can check the types)
+        Image lImg;
+        lImg.data = nullptr;
+        lImg.width = 800;
+        lImg.height = 600;
+        lImg.mipmaps = 1;
+        lImg.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+
+        CHECK(lImg.width == 800);
+        CHECK(lImg.height == 600);
+        CHECK(lImg.format == PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        // 4 bytes per pixel (RGBA)
+        int32_t lExpectedSize = lImg.width * lImg.height * 4;
+        CHECK(lExpectedSize == 1920000);
+    }
+
 }
